@@ -25,6 +25,7 @@ class Settings(BaseSettings):
 
     # ── Database (required — no default) ─────────────────────
     DATABASE_URL: str
+    DATABASE_URL_TEST: str = "postgresql+psycopg://postgres:changeme@localhost:5432/geoai_test"
 
     # ── CORS ─────────────────────────────────────────────────
     CORS_ORIGINS: str = "http://localhost:5173"

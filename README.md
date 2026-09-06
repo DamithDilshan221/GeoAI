@@ -8,7 +8,7 @@ GeoAI is a location-aware web application that helps users discover nearby facil
 | ------------ | ------------------------------------------- |
 | Frontend     | React 18, TypeScript, Vite, Tailwind CSS v3 |
 | Backend      | Python 3.11+, FastAPI, Pydantic v2          |
-| Database     | PostgreSQL 16 + PostGIS 3.4                 |
+| Database     | PostgreSQL 17.x + PostGIS (native Windows)  |
 | ORM          | SQLAlchemy 2.0 + GeoAlchemy2                |
 | Migrations   | Alembic                                     |
 | ML (future)  | scikit-learn, pandas (lives under `ml/`)    |
@@ -20,35 +20,36 @@ GeoAI is a location-aware web application that helps users discover nearby facil
 - **Git** — any recent version
 - **Node.js 20+** and npm
 - **Python 3.11+**
-- **Docker Desktop** (for the PostGIS database)
+- **PostgreSQL 17.x + PostGIS** — installed natively as a Windows service (see `docs/architecture/` for the one-time setup steps documented in Part 0.1)
 
 ## Getting Started
 
-```bash
+```powershell
 # 1. Clone the repo
-git clone <repo-url> && cd GeoAI
+git clone <repo-url>
+cd GeoAI
 
 # 2. Create your local .env from the template
-cp .env.example .env          # adjust values if needed
+Copy-Item .env.example .env
+# ⚠ IMPORTANT: Open .env and replace "changeme" with the actual postgres
+#   password you chose during the one-time native PostgreSQL install.
+#   Never commit a real password — .env is in .gitignore.
 
-# 3. Start the PostGIS database
-docker compose up -d db
-docker compose ps              # confirm status is "healthy"
+# 3. Confirm PostgreSQL is running (it was set up in Part 0.1)
+Get-Service postgresql-x64-18
+# Expected: Status = Running
 
 # 4. Backend setup
 cd backend
 python -m venv .venv
-# Windows:
-.venv\Scripts\activate
-# macOS / Linux:
-# source .venv/bin/activate
+.venv\Scripts\Activate.ps1
 pip install -r requirements.txt -r requirements-dev.txt
-uvicorn app.main:app --reload  # → http://localhost:8000
+uvicorn app.main:app --reload        # → http://localhost:8000
 
 # 5. Frontend setup (new terminal)
 cd frontend
 npm install
-npm run dev                    # → http://localhost:5173
+npm run dev                           # → http://localhost:5173
 
 # 6. Verify
 # Open http://localhost:5173 — the placeholder page should show
@@ -78,12 +79,11 @@ GeoAI/
 ├── docs/              Architecture docs & specification
 ├── tests/e2e/         End-to-end tests (Phase 18)
 ├── geoai/future/      Placeholder for post-MVP features (spec §31)
-├── docker-compose.yml PostGIS service for local development
 ├── .env.example       Environment variable template
 └── README.md          ← you are here
 ```
 
 ## Project Status
 
-**Phase 1 of 20** — Project Foundation (scaffold, config, health check).  
+**Phase 1 of 20** — Project Foundation (scaffold, config, health check).
 See [`docs/architecture/`](docs/architecture/) for the full specification.
