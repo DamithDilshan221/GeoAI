@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ruff_cache/
+
+# Environment
+.env
+
+# Build artifacts
+dist/
+build/
+coverage/
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
