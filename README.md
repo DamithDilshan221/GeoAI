@@ -73,6 +73,28 @@ cd backend
 pytest tests/test_schema.py -v
 ```
 
+## Seeding Local Data
+
+After running migrations, populate the dev database with the synthetic seed dataset
+(~4 categories, ~20 facilities near Colombo):
+
+```powershell
+cd backend
+# Activate your virtualenv first
+.venv\Scripts\Activate.ps1
+
+# First run — inserts all rows
+python -m app.scripts.seed_database
+# Example output: Inserted 4 categories, 20 facilities (0 skipped)
+
+# Re-running is safe — skips rows that already exist
+python -m app.scripts.seed_database
+# Example output: Inserted 0 categories, 0 facilities (24 skipped)
+```
+
+> **Note:** The seed script targets the **dev** `geoai` database (from `DATABASE_URL` in `.env`),
+> never the `geoai_test` database. Test data is managed automatically by `pytest` fixtures.
+
 ## Repository Structure
 
 ```
@@ -101,5 +123,5 @@ GeoAI/
 
 ## Project Status
 
-**Phase 2 of 20** — Database & Migrations.
+**Phase 3 of 20** — Facility Data Layer (repositories, validation, seed data).
 See [`docs/architecture/`](docs/architecture/) for the full specification.

@@ -1,0 +1,6 @@
+[
+  {"code": "restroom",         "label": "Public Restroom"},
+  {"code": "water_fountain",   "label": "Water Fountain"},
+  {"code": "charging_station", "label": "EV Charging Station"},
+  {"code": "atm",              "label": "ATM"}
+]
