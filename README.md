@@ -57,6 +57,22 @@ npm run dev                           # → http://localhost:5173
 # Visit http://localhost:8000/api/v1/health for the raw JSON check.
 ```
 
+## Database
+
+The project uses PostgreSQL with the PostGIS extension. Migrations are managed via Alembic.
+
+To apply migrations:
+```powershell
+cd backend
+alembic upgrade head
+```
+
+To run the database tests:
+```powershell
+cd backend
+pytest tests/test_schema.py -v
+```
+
 ## Repository Structure
 
 ```
@@ -85,5 +101,5 @@ GeoAI/
 
 ## Project Status
 
-**Phase 1 of 20** — Project Foundation (scaffold, config, health check).
+**Phase 2 of 20** — Database & Migrations.
 See [`docs/architecture/`](docs/architecture/) for the full specification.
