@@ -94,6 +94,28 @@ class FacilityRepository:
         row = q.one_or_none()
         return _to_entity(row) if row is not None else None
 
+    def count(
+        self,
+        *,
+        category_id: int | None = None,
+        status: FacilityStatus | None = None,
+        is_active: bool = True,
+    ) -> int:
+        """Return the total number of facilities matching the filters.
+
+        Same filter semantics as list(), no limit/offset — backs the
+        `total` field in the paginated response.
+        """
+        q = self._session.query(FacilityORM).filter(
+            FacilityORM.is_active.is_(is_active)
+        )
+        if category_id is not None:
+            q = q.filter(FacilityORM.category_id == category_id)
+        if status is not None:
+            q = q.filter(FacilityORM.status == status)
+
+        return q.count()
+
     def list(
         self,
         *,

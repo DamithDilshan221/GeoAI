@@ -1,20 +1,32 @@
 """Health-check endpoint.
 
 GET /api/v1/health  →  {"status": "ok", "app_env": "..."}
-
-This intentionally does NOT check database connectivity yet — that
-upgrade happens in Phase 4 once a DB connection pool exists.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
+from app.core.database import get_db_session
+from app.schemas.health import HealthRead
 
-router = APIRouter()
+router = APIRouter(tags=["Health"])
 
 
-@router.get("/health")
-def health_check() -> dict:
-    """Return a simple health status and the current app environment."""
-    settings = get_settings()
-    return {"status": "ok", "app_env": settings.APP_ENV}
+@router.get("/health", response_model=HealthRead)
+def health(session: Session = Depends(get_db_session)) -> HealthRead | JSONResponse:  # noqa: B008
+    try:
+        session.execute(text("SELECT 1"))
+        db_status = "connected"
+    except Exception:
+        db_status = "unreachable"
+
+    status_code = 200 if db_status == "connected" else 503
+    payload = HealthRead(
+        status="ok" if db_status == "connected" else "error",
+        app_env=get_settings().APP_ENV,
+        database=db_status,
+    )
+    return JSONResponse(status_code=status_code, content=payload.model_dump())

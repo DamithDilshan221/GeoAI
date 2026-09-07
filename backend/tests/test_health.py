@@ -7,17 +7,12 @@ This is the only test for Phase 1. It exists to verify that:
 
 from fastapi.testclient import TestClient
 
-from app.main import create_app
 
-
-def test_health_endpoint_returns_ok():
-    """GET /api/v1/health should return 200 with status 'ok'."""
-    app = create_app()
-    client = TestClient(app)
-
+def test_health_endpoint_returns_ok(client: TestClient) -> None:
+    """Test the health check endpoint returns 200 OK and connected DB status."""
     response = client.get("/api/v1/health")
-
     assert response.status_code == 200
-    body = response.json()
-    assert body["status"] == "ok"
-    assert "app_env" in body
+    data = response.json()
+    assert data["status"] == "ok"
+    assert "app_env" in data
+    assert data["database"] == "connected"

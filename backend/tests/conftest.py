@@ -13,6 +13,7 @@ from collections.abc import Generator
 
 import pytest
 from alembic.config import Config as AlembicConfig
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -66,3 +67,19 @@ def db_session(db_engine: Engine) -> Generator[Session, None, None]:
         for table in _APP_TABLES:
             conn.execute(text(f"TRUNCATE {table} CASCADE"))
         conn.commit()
+
+
+@pytest.fixture()
+def client(db_session: Session) -> Generator[TestClient, None, None]:
+    """Return a TestClient with the DB session overridden to the test fixture."""
+    from app.core.database import get_db_session
+    from app.main import app
+
+    def override_get_db_session() -> Generator[Session, None, None]:
+        yield db_session
+
+    app.dependency_overrides[get_db_session] = override_get_db_session
+    with TestClient(app) as test_client:
+        yield test_client
+    app.dependency_overrides.clear()
+

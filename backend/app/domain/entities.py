@@ -54,3 +54,11 @@ class Facility:
     is_active: bool
     created_at: datetime
     updated_at: datetime
+
+
+@dataclass(frozen=True)
+class FacilityWithCategory:
+    facility: Facility
+    category_code: str
+    category_label: str
+
