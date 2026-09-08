@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Literal
 
 from app.models.enums import DataSource, FacilityStatus
 
@@ -65,6 +66,8 @@ class FacilityWithCategory:
 
 @dataclass(frozen=True)
 class NearbyFacility:
+    """A facility with a computed distance from a search origin."""
+
     id: int
     name: str
     category_code: str
@@ -74,3 +77,12 @@ class NearbyFacility:
     latitude: float
     longitude: float
 
+
+@dataclass(frozen=True)
+class RouteResult:
+    """The result of a routing calculation between an origin and a facility."""
+
+    distance_m: float
+    estimated_time_s: int
+    path: list[tuple[float, float]]  # (lat, lon) pairs IN ORDER
+    source: Literal["network", "straight_line_estimate"]

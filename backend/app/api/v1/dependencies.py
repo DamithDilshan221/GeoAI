@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db_session
 from app.domain.gis.nearby_search_service import NearbySearchService
+from app.domain.gis.pedestrian_routing_service import PedestrianRoutingService
 from app.repositories.category_repository import CategoryRepository
 from app.repositories.facility_repository import FacilityRepository
 from app.repositories.gis_repository import GISRepository
@@ -31,3 +32,14 @@ def get_nearby_search_service(
 ) -> NearbySearchService:
     category_repo = CategoryRepository(session)
     return NearbySearchService(gis_repo, category_repo)
+
+
+def get_pedestrian_routing_service(
+    session: Session = Depends(get_db_session),  # noqa: B008
+) -> PedestrianRoutingService:
+    from app.domain.gis.pedestrian_routing_service import PedestrianRoutingService
+    from app.repositories.routing_repository import RoutingRepository
+    
+    routing_repo = RoutingRepository(session)
+    facility_repo = FacilityRepository(session)
+    return PedestrianRoutingService(routing_repo, facility_repo)

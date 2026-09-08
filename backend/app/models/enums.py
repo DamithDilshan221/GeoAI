@@ -22,3 +22,13 @@ class DataSource(enum.StrEnum):
     REAL = "REAL"
     PUBLIC = "PUBLIC"
     SYNTHETIC = "SYNTHETIC"
+
+
+class PathType(enum.StrEnum):
+    """The type of a pedestrian path segment, affecting routing cost and accessibility."""
+
+    SIDEWALK = "SIDEWALK"
+    STAIRS = "STAIRS"
+    RAMP = "RAMP"
+    CORRIDOR = "CORRIDOR"
+    CROSSING = "CROSSING"

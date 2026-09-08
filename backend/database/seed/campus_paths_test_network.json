@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "geom": "LINESTRING(0 0, 0 80)",
+    "path_type": "SIDEWALK",
+    "cost": 80.0,
+    "reverse_cost": 80.0,
+    "source": 1,
+    "target": 2,
+    "is_active": true,
+    "data_source": "SYNTHETIC"
+  },
+  {
+    "id": 2,
+    "geom": "LINESTRING(0 80, 60 80)",
+    "path_type": "SIDEWALK",
+    "cost": 60.0,
+    "reverse_cost": 60.0,
+    "source": 2,
+    "target": 3,
+    "is_active": true,
+    "data_source": "SYNTHETIC"
+  },
+  {
+    "id": 3,
+    "geom": "LINESTRING(60 80, 60 0)",
+    "path_type": "SIDEWALK",
+    "cost": 80.0,
+    "reverse_cost": 80.0,
+    "source": 3,
+    "target": 4,
+    "is_active": true,
+    "data_source": "SYNTHETIC"
+  },
+  {
+    "id": 4,
+    "geom": "LINESTRING(0 0, 60 0)",
+    "path_type": "SIDEWALK",
+    "cost": 60.0,
+    "reverse_cost": 60.0,
+    "source": 1,
+    "target": 4,
+    "is_active": true,
+    "data_source": "SYNTHETIC"
+  },
+  {
+    "id": 5,
+    "geom": "LINESTRING(0 80, 60 0)",
+    "path_type": "STAIRS",
+    "cost": 100.0,
+    "reverse_cost": 100.0,
+    "source": 2,
+    "target": 4,
+    "is_active": true,
+    "data_source": "SYNTHETIC"
+  }
+]

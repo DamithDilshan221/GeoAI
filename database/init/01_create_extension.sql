@@ -4,3 +4,4 @@
 --   psql -U postgres -h localhost -f database/init/01_create_extension.sql
 
 CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS pgrouting;
