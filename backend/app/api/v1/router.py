@@ -2,10 +2,11 @@
 
 from fastapi import APIRouter
 
-from app.api.v1.routes import categories, facilities, health
+from app.api.v1.routes import categories, facilities, health, nearby
 
 router = APIRouter()
 
 router.include_router(health.router)
 router.include_router(categories.router)
+router.include_router(nearby.router)
 router.include_router(facilities.router)

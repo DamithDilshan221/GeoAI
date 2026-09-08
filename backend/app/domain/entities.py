@@ -62,3 +62,15 @@ class FacilityWithCategory:
     category_code: str
     category_label: str
 
+
+@dataclass(frozen=True)
+class NearbyFacility:
+    id: int
+    name: str
+    category_code: str
+    status: FacilityStatus
+    rating: float | None
+    distance_m: float
+    latitude: float
+    longitude: float
+
