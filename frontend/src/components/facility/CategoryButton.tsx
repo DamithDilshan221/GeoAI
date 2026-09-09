@@ -7,17 +7,69 @@ interface CategoryButtonProps {
   onClick: () => void;
 }
 
-export function CategoryButton({ label, isSelected, onClick }: CategoryButtonProps) {
+const getCategoryStyles = (code: string) => {
+  const c = code.toLowerCase();
+  if (c.includes('men') && !c.includes('women')) {
+    return {
+      colorClass: 'text-cat-men',
+      bgClass: 'bg-[rgba(47,111,237,0.10)]',
+      icon: (
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="3"/><path d="M12 9c-3 0-5 2-5 5v7h3v-6h4v6h3v-7c0-3-2-5-5-5z"/></svg>
+      )
+    };
+  }
+  if (c.includes('women') || c.includes('female')) {
+    return {
+      colorClass: 'text-cat-women',
+      bgClass: 'bg-[rgba(255,95,160,0.14)]',
+      icon: (
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="4.5" r="3"/><path d="M12 8c-1 0-1.8.6-2.1 1.6L8 15h2l.4 6h3.2l.4-6h2l-1.9-5.4C13.8 8.6 13 8 12 8z"/></svg>
+      )
+    };
+  }
+  if (c.includes('unisex') || c.includes('neutral')) {
+    return {
+      colorClass: 'text-amber-dark',
+      bgClass: 'bg-[rgba(231,174,78,0.16)]',
+      icon: (
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 8v8M15 8v8M9 12h6"/></svg>
+      )
+    };
+  }
+  if (c.includes('access') || c.includes('wheelchair')) {
+    return {
+      colorClass: 'text-indigo',
+      bgClass: 'bg-[rgba(110,127,209,0.14)]',
+      icon: (
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="4.2" r="1.7"/><path d="M11 8.5v4.5l-3.5 5.5"/><path d="M11 10h5l-1.2 3"/><circle cx="15" cy="17.5" r="3.3"/></svg>
+      )
+    };
+  }
+  
+  return {
+    colorClass: 'text-teal-dark',
+    bgClass: 'bg-[rgba(63,203,190,0.16)]',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+    )
+  };
+};
+
+export function CategoryButton({ label, code, onClick }: CategoryButtonProps) {
+  const styles = getCategoryStyles(code);
+
   return (
-    <button
+    <div
       onClick={onClick}
-      className={`rounded-lg px-6 py-4 text-lg font-medium transition-all ${
-        isSelected
-          ? 'bg-blue-600 text-white shadow-md shadow-blue-900/50'
-          : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
-      }`}
+      className="flex items-center gap-4 bg-paper text-ink rounded-lg p-[18px] mb-3.5 shadow-card cursor-pointer transition-transform active:scale-[0.985]"
     >
-      {label}
-    </button>
+      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${styles.bgClass} ${styles.colorClass}`}>
+        {styles.icon}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h2 className="m-0 mb-2 text-[18.5px] font-bold">{label}</h2>
+        <p className="text-[12px] text-muted-soft font-medium m-0 mt-0.5">Explore {label.toLowerCase()}</p>
+      </div>
+    </div>
   );
 }

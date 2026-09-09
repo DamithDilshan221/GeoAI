@@ -1,15 +1,25 @@
-export function buildFacilityPin(PinElementCtor: typeof google.maps.marker.PinElement) {
+const getCategoryColor = (cat: string) => {
+  const c = cat.toLowerCase();
+  if (c.includes('men') && !c.includes('women')) return '#2F6FED'; // men
+  if (c.includes('women') || c.includes('female')) return '#FF5FA0'; // women
+  if (c.includes('unisex') || c.includes('neutral')) return '#E7AE4E'; // amber
+  if (c.includes('access') || c.includes('wheelchair')) return '#6E7FD1'; // indigo
+  return '#3FCBBE'; // teal
+};
+
+export function buildFacilityPin(PinElementCtor: typeof google.maps.marker.PinElement, category?: string) {
+  const color = category ? getCategoryColor(category) : '#3FCBBE';
   return new PinElementCtor({
-    background: '#EA4335',
-    borderColor: '#B31412',
+    background: color,
+    borderColor: '#FFFFFF',
     glyphColor: '#FFFFFF',
   });
 }
 
 export function buildUserLocationPin(PinElementCtor: typeof google.maps.marker.PinElement) {
   return new PinElementCtor({
-    background: '#4285F4',
-    borderColor: '#1A56DB',
+    background: '#2C7BE5',
+    borderColor: '#FFFFFF',
     glyph: '●',
     scale: 0.8,
   });

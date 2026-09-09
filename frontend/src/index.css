@@ -1,3 +1,78 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+
+    /* -- Night (default) palette -- */
+    --navy-950:#0A1826;
+    --navy-900:#0D2136;
+    --navy-800:#123048;
+    --navy-700:#1B4160;
+    --navy-600:#274F72;
+    --paper:#FFFFFF;
+    --ink:#0E1E2B;
+    --muted:#7F94A6;
+    --muted-soft:#4C6478;
+    --hairline:rgba(255,255,255,0.12);
+
+    --teal:#3FCBBE;
+    --teal-dark:#209A90;
+    --amber:#E7AE4E;
+    --amber-dark:#C88E2A;
+    --indigo:#6E7FD1;
+    --rose:#E28AA0;
+
+    --men:#2F6FED;
+    --women:#FF5FA0;
+    --unisex:#E7AE4E;
+    --accessible:#6E7FD1;
+
+    --pill-bg:rgba(255,255,255,0.08);
+    --pill-border:rgba(255,255,255,0.20);
+    --shadow-soft: 0 10px 28px rgba(4,12,20,0.35);
+    --shadow-card: 0 8px 22px rgba(4,12,20,0.28);
+
+    --radius-lg:22px;
+    --radius-md:16px;
+    --radius-sm:12px;
+  }
+
+  body.day {
+    --navy-950:#EEF3F6;
+    --navy-900:#F5F8FA;
+    --navy-800:#FFFFFF;
+    --navy-700:#E4EBF0;
+    --navy-600:#D6E0E6;
+    --paper:#FFFFFF;
+    --ink:#0E1E2B;
+    --muted:#5C7080;
+    --muted-soft:#8298A8;
+    --hairline:rgba(14,30,43,0.10);
+    --pill-bg:rgba(14,30,43,0.05);
+    --pill-border:rgba(14,30,43,0.14);
+    --shadow-soft: 0 10px 24px rgba(20,40,60,0.10);
+    --shadow-card: 0 6px 16px rgba(20,40,60,0.08);
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-[#060D15] text-white transition-colors duration-300 ease-out;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, button {
+    @apply font-display;
+  }
+}
+
+/* Hide scrollbar for chip row */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

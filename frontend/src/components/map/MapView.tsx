@@ -13,6 +13,7 @@ interface MapMarkerData {
   lat: number;
   lon: number;
   title: string;
+  category?: string;
 }
 
 interface MapViewProps {
@@ -110,7 +111,7 @@ export function MapView({
 
     // Add facility markers
     markers.forEach((markerData) => {
-      const pin = buildFacilityPin(google.maps.marker.PinElement);
+      const pin = buildFacilityPin(google.maps.marker.PinElement, markerData.category);
       const facilityMarker = new google.maps.marker.AdvancedMarkerElement({
         map,
         position: { lat: markerData.lat, lng: markerData.lon },
