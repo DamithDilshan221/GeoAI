@@ -1,3 +1,20 @@
+def resolve_effective_capacity(
+    capacity: int | None,
+    category_median: float | None,
+    default: float = 10.0,
+) -> float:
+    """Shared capacity fallback: facility → category median → hard default.
+
+    Used by HeuristicUsageProvider (Phase 10) and the recommendation
+    crowd sub-score (Phase 11).  Must NOT be duplicated elsewhere.
+    """
+    if capacity is not None:
+        return float(capacity)
+    if category_median is not None:
+        return category_median
+    return default
+
+
 def derive_crowd_level(predicted_usage: float, effective_capacity: float) -> str:
     """
     Implements the exact thresholds from the ML architecture doc §9.4.

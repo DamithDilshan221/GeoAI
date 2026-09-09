@@ -51,6 +51,8 @@ class Settings(BaseSettings):
 
     # ── Recommendation engine ────────────────────────────────
     RECOMMENDATION_CONFIG_PATH: str = "config/recommendation_weights.yaml"
+    STALENESS_HORIZON_HOURS: float = 24.0
+    SUITABILITY_PENALTY_SCORE: float = 20.0
 
     # ── Historical Usage ─────────────────────────────────────
     USAGE_HISTORY_DAYS: int = 90

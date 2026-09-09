@@ -1,0 +1,6 @@
+distance_weight: 0.15
+travel_time_weight: 0.20
+crowd_weight: 0.25
+rating_weight: 0.15
+freshness_weight: 0.15
+suitability_weight: 0.10

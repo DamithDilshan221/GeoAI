@@ -1,1 +1,4 @@
-# Reserved for Phase 11 (Recommendation Engine) — no code yet.
+"""Recommendation engine domain logic (Phase 11).
+
+Exports the core types and functions needed by the service layer.
+"""

@@ -1,4 +1,8 @@
-from app.domain.ml_inference.crowd_level import bucket_confidence, derive_crowd_level
+from app.domain.ml_inference.crowd_level import (
+    bucket_confidence,
+    derive_crowd_level,
+    resolve_effective_capacity,
+)
 from app.domain.ml_inference.provider import (
     PredictionContext,
     PredictionResult,
@@ -76,11 +80,14 @@ class HeuristicUsageProvider(UsagePredictionProvider):
             confidence = "low"
             # Deliberate safe default for an otherwise-impossible-in-normal-operation state.
 
-        # Resolve effective_capacity
-        effective_capacity = context.capacity
-        if effective_capacity is None:
-            median_cap = self._facility_repo.get_category_median_capacity(context.category_id)
-            effective_capacity = float(median_cap) if median_cap is not None else 10.0
+        # Resolve effective_capacity via shared function (Phase 11 extraction)
+        median_cap = self._facility_repo.get_category_median_capacity(
+            context.category_id
+        )
+        effective_capacity = resolve_effective_capacity(
+            capacity=context.capacity,
+            category_median=median_cap,
+        )
 
 
         crowd_level = derive_crowd_level(predicted_usage, effective_capacity)
