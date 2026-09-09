@@ -252,3 +252,19 @@ class FacilityRepository:
             raise FacilityReferenceError(category_id) from exc
 
         return _to_entity(orm)
+
+    def get_category_median_capacity(self, category_id: int) -> float | None:
+        """Median capacity among active facilities in this category that
+        have a non-NULL capacity. None if no such facility exists (the
+        service falls back to a hard-coded sane default in that case, per
+        crowd_level.py's docstring)."""
+        import sqlalchemy as sa
+        row = self._session.execute(
+            sa.select(sa.func.percentile_cont(0.5).within_group(FacilityORM.capacity))
+            .where(
+                FacilityORM.category_id == category_id,
+                FacilityORM.is_active,
+                FacilityORM.capacity.isnot(None),
+            )
+        ).scalar()
+        return float(row) if row is not None else None

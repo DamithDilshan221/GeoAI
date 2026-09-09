@@ -43,3 +43,15 @@ def get_pedestrian_routing_service(
     routing_repo = RoutingRepository(session)
     facility_repo = FacilityRepository(session)
     return PedestrianRoutingService(routing_repo, facility_repo)
+
+def get_ml_inference_service(
+    session: Session = Depends(get_db_session),  # noqa: B008
+) -> "MLInferenceService":
+    from app.repositories.facility_repository import FacilityRepository
+    from app.repositories.usage_record_repository import UsageRecordRepository
+    from app.services.ml_inference_service import MLInferenceService
+
+    usage_repo = UsageRecordRepository(session)
+    facility_repo = FacilityRepository(session)
+    return MLInferenceService(session, usage_repo, facility_repo)
+

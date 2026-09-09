@@ -2,11 +2,13 @@
 
 from datetime import date
 
+import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from app.domain.entities import UsageRecord as UsageRecordEntity
 from app.models.enums import DataSource
+from app.models.facility import Facility as FacilityORM
 from app.models.usage_record import UsageRecord as UsageRecordORM
 
 
@@ -71,3 +73,55 @@ class UsageRecordRepository:
             .filter(UsageRecordORM.facility_id == facility_id)
             .count()
         )
+
+    def get_facility_bucket_average(
+        self, *, facility_id: int, day_of_week: int, hour: int,
+    ) -> tuple[float, int] | None:
+        """Returns (mean_usage_count, sample_count), or None if zero rows
+        match. SELECT AVG(usage_count), COUNT(*) FROM usage_records WHERE
+        facility_id=:fid AND day_of_week=:dow AND hour=:h."""
+        row = self._session.execute(
+            sa.select(sa.func.avg(UsageRecordORM.usage_count), sa.func.count())
+            .where(
+                UsageRecordORM.facility_id == facility_id,
+                UsageRecordORM.day_of_week == day_of_week,
+                UsageRecordORM.hour == hour,
+            )
+        ).one_or_none()
+        if not row or row[1] == 0:
+            return None
+        return (float(row[0]), int(row[1]))
+
+    def get_category_bucket_average(
+        self, *, category_id: int, day_of_week: int, hour: int,
+    ) -> tuple[float, int] | None:
+        """Same shape, joined against facilities to filter by category_id
+        instead of a single facility_id."""
+        row = self._session.execute(
+            sa.select(sa.func.avg(UsageRecordORM.usage_count), sa.func.count())
+            .select_from(UsageRecordORM)
+            .join(FacilityORM, UsageRecordORM.facility_id == FacilityORM.id)
+            .where(
+                FacilityORM.category_id == category_id,
+                UsageRecordORM.day_of_week == day_of_week,
+                UsageRecordORM.hour == hour,
+            )
+        ).one_or_none()
+        if not row or row[1] == 0:
+            return None
+        return (float(row[0]), int(row[1]))
+
+    def get_global_bucket_average(
+        self, *, day_of_week: int, hour: int,
+    ) -> tuple[float, int] | None:
+        """Same shape, no facility/category filter at all."""
+        row = self._session.execute(
+            sa.select(sa.func.avg(UsageRecordORM.usage_count), sa.func.count())
+            .where(
+                UsageRecordORM.day_of_week == day_of_week,
+                UsageRecordORM.hour == hour,
+            )
+        ).one_or_none()
+        if not row or row[1] == 0:
+            return None
+        return (float(row[0]), int(row[1]))

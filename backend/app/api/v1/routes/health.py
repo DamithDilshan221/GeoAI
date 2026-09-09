@@ -23,10 +23,25 @@ def health(session: Session = Depends(get_db_session)) -> HealthRead | JSONRespo
     except Exception:
         db_status = "unreachable"
 
+    prediction_provider = {"version": "unknown", "algorithm": "unknown"}
+    if db_status == "connected":
+        try:
+            active_row = session.execute(
+                text("SELECT version, algorithm FROM ml_model_versions WHERE is_active = true LIMIT 1")
+            ).one_or_none()
+            if active_row:
+                prediction_provider = {
+                    "version": active_row.version,
+                    "algorithm": active_row.algorithm
+                }
+        except Exception:
+            pass
+
     status_code = 200 if db_status == "connected" else 503
     payload = HealthRead(
         status="ok" if db_status == "connected" else "error",
         app_env=get_settings().APP_ENV,
         database=db_status,
+        prediction_provider=prediction_provider,
     )
     return JSONResponse(status_code=status_code, content=payload.model_dump())

@@ -26,7 +26,6 @@ _APP_TABLES = [
     "usage_records",
     "facilities",
     "categories",
-    "ml_model_versions",
 ]
 
 
