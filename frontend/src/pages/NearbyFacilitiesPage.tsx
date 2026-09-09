@@ -1,48 +1,104 @@
-import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSearchContext } from '../context/SearchContext';
 import { LoadingState } from '../components/status/LoadingState';
+import { ErrorState } from '../components/status/ErrorState';
+import { EmptyState } from '../components/status/EmptyState';
 import { FacilityList } from '../components/facility/FacilityList';
-import { NearbyFacility } from '../types/facility';
-
-const MOCK_NEARBY_FACILITIES: NearbyFacility[] = [
-  // Using some realistic sounding data with IDs that would exist in phase 3 dev seed
-  { id: 1, name: 'Main Station Restroom', category: 'UNISEX', status: 'OPEN', rating: 4.5, distance_m: 120, latitude: 0, longitude: 0 },
-  { id: 2, name: 'North Wing Washroom', category: 'UNISEX', status: 'TEMPORARILY_UNAVAILABLE', rating: 3.8, distance_m: 350, latitude: 0, longitude: 0 },
-  { id: 3, name: 'Park Facility A', category: 'MALE', status: 'OPEN', rating: null, distance_m: 550, latitude: 0, longitude: 0 },
-];
+import { MapView } from '../components/map/MapView';
+import { useNearbyFacilities } from '../hooks/useNearbyFacilities';
+import { 
+  DEFAULT_RADIUS_M, 
+  MAX_RADIUS_M, 
+  RADIUS_EXPAND_MULTIPLIER, 
+  EMPTY_NEARBY_MESSAGE, 
+  SERVICE_UNAVAILABLE_MESSAGE 
+} from '../constants/search';
 
 export function NearbyFacilitiesPage() {
   const { state } = useSearchContext();
-  const [isLoading, setIsLoading] = useState(true);
+  const [radiusM, setRadiusM] = useState(DEFAULT_RADIUS_M);
+  const navigate = useNavigate();
+
+  const { selectedCategory, location } = state;
 
   useEffect(() => {
-    // Mock data delay - to be replaced with useNearbyFacilities + getNearbyFacilities in Phase 8
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
+    if (!selectedCategory || !location) {
+      navigate('/', { replace: true });
+    }
+  }, [selectedCategory, location, navigate]);
 
-  if (!state.selectedCategory) {
-    return <Navigate to="/" replace />;
+  const { data, isLoading, isError, error, refetch } = useNearbyFacilities(
+    selectedCategory && location
+      ? { lat: location.lat, lon: location.lon, category: selectedCategory, radius_m: radiusM }
+      : null
+  );
+
+  if (!selectedCategory || !location) {
+    return null; // or <Navigate to="/" replace /> since useEffect handles it too
   }
 
   if (isLoading) {
     return <LoadingState message="Finding facilities near you..." />;
   }
 
+  if (isError) {
+    const is503 = (error as { response?: { status?: number } })?.response?.status === 503;
+    const message = is503 
+      ? SERVICE_UNAVAILABLE_MESSAGE 
+      : 'An error occurred while fetching facilities.';
+    return <ErrorState message={message} onRetry={refetch} />;
+  }
+
+  if (data && data.length === 0) {
+    const atMaxRadius = radiusM >= MAX_RADIUS_M;
+    return (
+      <EmptyState message={EMPTY_NEARBY_MESSAGE}>
+        <button
+          disabled={atMaxRadius}
+          onClick={() => setRadiusM(prev => Math.min(prev * RADIUS_EXPAND_MULTIPLIER, MAX_RADIUS_M))}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            atMaxRadius 
+              ? 'bg-slate-700 text-slate-500 cursor-not-allowed' 
+              : 'bg-blue-600 text-white hover:bg-blue-500'
+          }`}
+        >
+          Search wider area
+        </button>
+      </EmptyState>
+    );
+  }
+
+  const mapMarkers = (data || []).map(f => ({
+    id: f.id,
+    lat: f.latitude,
+    lon: f.longitude,
+    title: f.name
+  }));
+
+  const userLocation = { lat: location.lat, lon: location.lon };
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-white">Nearby Facilities</h2>
         <p className="text-sm text-slate-400 mt-1">
-          Showing results for: <span className="font-semibold text-slate-300">{state.selectedCategory}</span>
+          Showing results for: <span className="font-semibold text-slate-300">{selectedCategory}</span>
         </p>
       </div>
 
-      {/* Mock data list */}
-      <FacilityList facilities={MOCK_NEARBY_FACILITIES} />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div>
+          <MapView 
+            markers={mapMarkers} 
+            userLocation={userLocation} 
+            onMarkerClick={(id) => navigate(`/facilities/${id}`)}
+          />
+        </div>
+        <div>
+          <FacilityList facilities={data || []} />
+        </div>
+      </div>
     </div>
   );
 }

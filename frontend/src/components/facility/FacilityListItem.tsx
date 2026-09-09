@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { NearbyFacility } from '../../types/facility';
+import type { NearbyFacility } from '../../types/facility';
 
 interface FacilityListItemProps {
   facility: NearbyFacility;

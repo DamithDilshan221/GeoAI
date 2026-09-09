@@ -1,5 +1,5 @@
 import apiClient from './client';
-import { Facility, FacilityListResponse, NearbyFacility } from '../types/facility';
+import type { Facility, FacilityListResponse, NearbyFacility } from '../types/facility';
 
 export async function getFacilityById(id: number): Promise<Facility> {
   const { data } = await apiClient.get<Facility>(`/api/v1/facilities/${id}`);

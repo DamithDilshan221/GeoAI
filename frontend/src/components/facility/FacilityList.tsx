@@ -1,5 +1,5 @@
 import React from 'react';
-import { NearbyFacility } from '../../types/facility';
+import type { NearbyFacility } from '../../types/facility';
 import { FacilityListItem } from './FacilityListItem';
 import { EmptyState } from '../status/EmptyState';
 

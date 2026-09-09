@@ -1,5 +1,5 @@
 import apiClient from './client';
-import { Route } from '../types/route';
+import type { Route } from '../types/route';
 
 export async function getRoute(params: {
   origin_lat: number; origin_lon: number; facility_id: number; accessible_only: boolean;
