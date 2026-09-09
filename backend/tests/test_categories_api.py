@@ -12,6 +12,7 @@ def test_list_categories(client: TestClient, db_session: Session) -> None:
     # It defaults to True. We will manually update it for testing.
     c2 = repo.create(code="cat2", label="Category 2")
     from app.models.category import Category as CategoryORM
+
     row2 = db_session.query(CategoryORM).filter_by(id=c2.id).first()
     row2.is_active = False
     db_session.flush()

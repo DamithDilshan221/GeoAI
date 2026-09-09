@@ -1,9 +1,11 @@
 import os
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), ".")))
+
+from sqlalchemy import text
 
 from app.core.database import SessionLocal
-from sqlalchemy import text
 
 db = SessionLocal()
 res = db.execute(text("SELECT id, source, target FROM campus_paths")).fetchall()

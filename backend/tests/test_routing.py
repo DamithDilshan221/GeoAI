@@ -11,7 +11,7 @@ from app.scripts.seed_campus_paths import SEED_FILE
 def test_network_and_facility(db_session):
     # Seed the test network manually for isolation
     import json
-    
+
     with open(SEED_FILE) as f:
         data = json.load(f)
 
@@ -31,8 +31,9 @@ def test_network_and_facility(db_session):
         paths.append(path)
 
     db_session.add_all(paths)
-    
+
     from app.models.category import Category
+
     cat = Category(id=1, code="TEST", label="Test Cat", is_active=True)
     db_session.add(cat)
     db_session.commit()
@@ -47,23 +48,26 @@ def test_network_and_facility(db_session):
         longitude=60.0,  # Corresponds to (60 80) in the test network
         geom="SRID=4326;POINT(60 80)",
         is_active=True,
-        data_source=DataSource.SYNTHETIC
+        data_source=DataSource.SYNTHETIC,
     )
     db_session.add(fac)
     db_session.commit()
 
     # Create topology table manually since pgr_createTopology is removed in pgRouting 4.0
     from sqlalchemy import text
+
     db_session.execute(text("CREATE EXTENSION IF NOT EXISTS pgrouting;"))
     db_session.commit()
-    db_session.execute(text("""
+    db_session.execute(
+        text("""
         DROP TABLE IF EXISTS campus_paths_vertices_pgr;
         CREATE TABLE campus_paths_vertices_pgr AS
         SELECT source AS id, ST_StartPoint(geom) AS the_geom FROM campus_paths
         UNION
         SELECT target AS id, ST_EndPoint(geom) AS the_geom FROM campus_paths;
         CREATE INDEX idx_campus_paths_vertices_pgr_id ON campus_paths_vertices_pgr (id);
-    """))
+    """)
+    )
     db_session.commit()
 
     return fac
@@ -73,7 +77,7 @@ def test_routing_endpoint_success(client: TestClient, test_network_and_facility)
     # Origin at (0 0), target facility is at (60 80)
     response = client.get("/api/v1/routes?lat=0.0&lon=0.0&facility_id=999")
     assert response.status_code == 200
-    
+
     data = response.json()
     assert data["source"] == "network"
     assert "distance_m" in data

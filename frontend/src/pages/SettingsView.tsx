@@ -1,12 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export function SettingsView() {
-  const [isDarkMode, setIsDarkMode] = useState(true);
-
-  // Initialize from document body class
-  useEffect(() => {
-    setIsDarkMode(!document.body.classList.contains('day'));
-  }, []);
+  const [isDarkMode, setIsDarkMode] = useState(() => !document.body.classList.contains('day'));
 
   const toggleTheme = () => {
     const nextMode = !isDarkMode;

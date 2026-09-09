@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useSearchContext } from '../context/SearchContext';
 import { LoadingState } from '../components/status/LoadingState';
@@ -34,7 +34,7 @@ export function RecommendationResultPage() {
 
       <div className="flex-1 overflow-y-auto px-5 py-3 pb-8 -webkit-overflow-scrolling-touch">
         <p className="text-[13.5px] text-muted-soft mt-0 mb-6 max-w-[280px]">
-          Based on your location, filters, and current facility statuses.
+          Based on your location, filters, and current washroom statuses.
         </p>
         
         <div className="relative rounded-[20px] bg-paper text-ink p-5 shadow-[0_8px_32px_rgba(63,203,190,0.2)] border border-teal/40 overflow-hidden mb-6">

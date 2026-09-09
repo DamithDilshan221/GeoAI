@@ -174,16 +174,14 @@ def test_three_simultaneous_violations_all_reported() -> None:
     """
     with pytest.raises(FacilityValidationError) as exc_info:
         validate_facility_input(
-            name="",          # violation 1: empty name
-            latitude=200.0,   # violation 2: out of range
+            name="",  # violation 1: empty name
+            latitude=200.0,  # violation 2: out of range
             longitude=300.0,  # violation 3: out of range
             rating=None,
             capacity=None,
         )
     error = exc_info.value
-    assert len(error.errors) == 3, (
-        f"Expected 3 errors, got {len(error.errors)}: {error.errors}"
-    )
+    assert len(error.errors) == 3, f"Expected 3 errors, got {len(error.errors)}: {error.errors}"
     combined = str(error)
     # Each violation message must appear in the combined string
     assert "name" in combined

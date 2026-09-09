@@ -27,21 +27,13 @@ class RecommendationLog(Base):
         sa.ForeignKey("categories.id"),
         nullable=True,
     )
-    user_lat_rounded: Mapped[Decimal | None] = mapped_column(
-        sa.Numeric(5, 3), nullable=True
-    )
-    user_lon_rounded: Mapped[Decimal | None] = mapped_column(
-        sa.Numeric(6, 3), nullable=True
-    )
+    user_lat_rounded: Mapped[Decimal | None] = mapped_column(sa.Numeric(5, 3), nullable=True)
+    user_lon_rounded: Mapped[Decimal | None] = mapped_column(sa.Numeric(6, 3), nullable=True)
     radius_m: Mapped[int | None] = mapped_column(sa.Integer, nullable=True)
     distance_m: Mapped[Decimal | None] = mapped_column(sa.Numeric, nullable=True)
     predicted_usage: Mapped[Decimal | None] = mapped_column(sa.Numeric, nullable=True)
-    prediction_source: Mapped[str | None] = mapped_column(
-        sa.String(16), nullable=True
-    )
-    recommendation_score: Mapped[Decimal | None] = mapped_column(
-        sa.Numeric, nullable=True
-    )
+    prediction_source: Mapped[str | None] = mapped_column(sa.String(16), nullable=True)
+    recommendation_score: Mapped[Decimal | None] = mapped_column(sa.Numeric, nullable=True)
     rank_position: Mapped[int | None] = mapped_column(sa.SmallInteger, nullable=True)
     was_top_recommendation: Mapped[bool] = mapped_column(
         sa.Boolean, nullable=False, server_default=sa.text("false")

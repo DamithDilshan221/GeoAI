@@ -22,33 +22,33 @@ class CampusPath(Base):
     )
 
     id: Mapped[int] = mapped_column(sa.BigInteger, primary_key=True, autoincrement=True)
-    
+
     # Deliberately Geometry (not Geography) because pgRouting core functions operate on geometry.
     geom: Mapped[Any] = mapped_column(
         Geometry(geometry_type="LINESTRING", srid=4326, spatial_index=False),
         nullable=False,
     )
-    
+
     path_type: Mapped[PathType] = mapped_column(
         sa.Enum(PathType, name="path_type", create_type=False),
         nullable=False,
     )
-    
+
     cost: Mapped[float] = mapped_column(sa.Double, nullable=False)
     reverse_cost: Mapped[float] = mapped_column(sa.Double, nullable=False)
-    
+
     source: Mapped[int | None] = mapped_column(sa.BigInteger, nullable=True)
     target: Mapped[int | None] = mapped_column(sa.BigInteger, nullable=True)
-    
+
     is_active: Mapped[bool] = mapped_column(
         sa.Boolean, nullable=False, server_default=sa.text("true")
     )
-    
+
     data_source: Mapped[DataSource] = mapped_column(
         sa.Enum(DataSource, name="data_source", create_type=False),
         nullable=False,
     )
-    
+
     created_at: Mapped[datetime] = mapped_column(
         sa.DateTime(timezone=True),
         nullable=False,

@@ -18,15 +18,15 @@ describe('mapMarkerFactory', () => {
 
   it('buildFacilityPin constructs a red-ish PinElement', () => {
     const pin = buildFacilityPin(google.maps.marker.PinElement) as any;
-    expect(pin.options.background).toBe('#EA4335');
-    expect(pin.options.borderColor).toBe('#B31412');
+    expect(pin.options.background).toBe('#3FCBBE');
+    expect(pin.options.borderColor).toBe('#FFFFFF');
     expect(pin.options.glyphColor).toBe('#FFFFFF');
   });
 
   it('buildUserLocationPin constructs a blue PinElement', () => {
     const pin = buildUserLocationPin(google.maps.marker.PinElement) as any;
-    expect(pin.options.background).toBe('#4285F4');
-    expect(pin.options.borderColor).toBe('#1A56DB');
+    expect(pin.options.background).toBe('#2C7BE5');
+    expect(pin.options.borderColor).toBe('#FFFFFF');
     expect(pin.options.glyph).toBe('●');
     expect(pin.options.scale).toBe(0.8);
   });

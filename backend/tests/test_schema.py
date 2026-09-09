@@ -68,23 +68,60 @@ def test_all_five_tables_exist_with_expected_columns(db_session: Session) -> Non
     expected_tables = {
         "categories": {"id", "code", "label", "is_active"},
         "facilities": {
-            "id", "name", "category_id", "geom", "latitude", "longitude",
-            "status", "status_updated_at", "rating", "capacity",
-            "accessibility", "data_source", "is_active", "created_at", "updated_at",
+            "id",
+            "name",
+            "category_id",
+            "geom",
+            "latitude",
+            "longitude",
+            "status",
+            "status_updated_at",
+            "rating",
+            "capacity",
+            "accessibility",
+            "data_source",
+            "is_active",
+            "created_at",
+            "updated_at",
         },
         "usage_records": {
-            "id", "facility_id", "date", "hour", "day_of_week",
-            "usage_count", "selection_count", "data_source", "created_at",
+            "id",
+            "facility_id",
+            "date",
+            "hour",
+            "day_of_week",
+            "usage_count",
+            "selection_count",
+            "data_source",
+            "created_at",
         },
         "recommendation_logs": {
-            "id", "request_id", "facility_id", "category_id",
-            "user_lat_rounded", "user_lon_rounded", "radius_m", "distance_m",
-            "predicted_usage", "prediction_source", "recommendation_score",
-            "rank_position", "was_top_recommendation", "model_version", "created_at",
+            "id",
+            "request_id",
+            "facility_id",
+            "category_id",
+            "user_lat_rounded",
+            "user_lon_rounded",
+            "radius_m",
+            "distance_m",
+            "predicted_usage",
+            "prediction_source",
+            "recommendation_score",
+            "rank_position",
+            "was_top_recommendation",
+            "model_version",
+            "created_at",
         },
         "ml_model_versions": {
-            "id", "version", "algorithm", "trained_at", "feature_list",
-            "evaluation_metrics", "artifact_path", "is_active", "notes",
+            "id",
+            "version",
+            "algorithm",
+            "trained_at",
+            "feature_list",
+            "evaluation_metrics",
+            "artifact_path",
+            "is_active",
+            "notes",
         },
     }
 
@@ -120,9 +157,7 @@ def test_invalid_status_enum_rejected(db_session: Session) -> None:
     cat = _make_category(db_session)
     # Use a savepoint so the expected error doesn't abort the outer txn
     db_session.begin_nested()
-    with pytest.raises(
-        (IntegrityError, sa.exc.DataError, sa.exc.ProgrammingError)
-    ):
+    with pytest.raises((IntegrityError, sa.exc.DataError, sa.exc.ProgrammingError)):
         db_session.execute(
             text(
                 "INSERT INTO facilities "
@@ -235,9 +270,7 @@ def test_delete_facility_sets_recommendation_log_facility_id_null(
     log_id = log.id
 
     # Delete the facility via raw SQL to trigger FK cascade
-    db_session.execute(
-        text("DELETE FROM facilities WHERE id = :fid"), {"fid": fac.id}
-    )
+    db_session.execute(text("DELETE FROM facilities WHERE id = :fid"), {"fid": fac.id})
     db_session.flush()
 
     # The recommendation_log row must still exist with facility_id = NULL

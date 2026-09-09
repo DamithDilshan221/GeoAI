@@ -90,6 +90,10 @@ python -m app.scripts.seed_database
 # Re-running is safe — skips rows that already exist
 python -m app.scripts.seed_database
 # Example output: Inserted 0 categories, 0 facilities (24 skipped)
+
+# Seed synthetic usage history (Phase 9)
+python -m app.scripts.generate_usage_history
+# Safe to re-run (upserts existing buckets).
 ```
 
 > **Note:** The seed script targets the **dev** `geoai` database (from `DATABASE_URL` in `.env`),

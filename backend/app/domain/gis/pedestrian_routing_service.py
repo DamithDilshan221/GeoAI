@@ -49,8 +49,8 @@ class PedestrianRoutingService:
 
         if path is not None and len(path) >= 2:
             source: Literal["network", "straight_line_estimate"] = "network"
-            
-            # We have the path points. To calculate accurate distance, we sum the haversine 
+
+            # We have the path points. To calculate accurate distance, we sum the haversine
             # distance between consecutive path points.
             # (In a real system, the repository might return the pgRouting agg_cost, but doing it
             # here ensures exact meter calculations that match the returned path).

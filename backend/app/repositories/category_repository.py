@@ -68,11 +68,7 @@ class CategoryRepository:
         Returns:
             A ``Category`` entity, or ``None``.
         """
-        row = (
-            self._session.query(CategoryORM)
-            .filter(CategoryORM.code == code)
-            .one_or_none()
-        )
+        row = self._session.query(CategoryORM).filter(CategoryORM.code == code).one_or_none()
         return _to_entity(row) if row is not None else None
 
     # ── Writers ──────────────────────────────────────────────────────────────

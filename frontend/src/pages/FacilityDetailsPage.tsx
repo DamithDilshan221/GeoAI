@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useFacility } from '../hooks/useFacility';
 import { LoadingState } from '../components/status/LoadingState';
@@ -13,7 +13,7 @@ export function FacilityDetailsPage() {
   const { data: facility, isLoading, error, refetch } = useFacility(facilityId);
   const [saved, setSaved] = useState(false);
 
-  if (isLoading) return <LoadingState message="Loading facility details..." />;
+  if (isLoading) return <LoadingState message="Loading washroom details..." />;
 
   if (error) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,13 +22,13 @@ export function FacilityDetailsPage() {
     if (is404) {
       return (
         <div className="text-center p-8 text-white h-full flex flex-col justify-center">
-          <h2 className="text-2xl font-bold mb-4 text-ink">Facility Not Found</h2>
-          <p className="text-muted-soft mb-6">The facility you're looking for doesn't exist or has been removed.</p>
+          <h2 className="text-2xl font-bold mb-4 text-ink">Washroom Not Found</h2>
+          <p className="text-muted-soft mb-6">The washroom you're looking for doesn't exist or has been removed.</p>
           <Link to="/" className="text-teal font-bold underline">Return to Search</Link>
         </div>
       );
     }
-    return <ErrorState message="Failed to load facility details." onRetry={refetch} />;
+    return <ErrorState message="Failed to load washroom details." onRetry={refetch} />;
   }
 
   if (!facility) return null;

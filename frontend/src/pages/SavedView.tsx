@@ -1,4 +1,3 @@
-import React from 'react';
 import { FacilityListItem } from '../components/facility/FacilityListItem';
 import type { NearbyFacility } from '../types/facility';
 

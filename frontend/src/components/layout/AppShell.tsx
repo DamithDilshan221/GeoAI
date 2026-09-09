@@ -16,7 +16,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </svg>
               <div className="absolute -bottom-[3px] left-1/2 -translate-x-1/2 w-[9px] h-[9px] rounded-full bg-teal border-2 border-navy-950"></div>
             </div>
-            <h1 className="text-[21px] font-bold tracking-[0.1px] m-0">Pera Rest Nav</h1>
+            <h1 className="text-[21px] font-bold tracking-[0.1px] m-0">Campus Washroom Finder</h1>
           </div>
           <button className="flex shrink-0 items-center justify-center w-10 h-10 rounded-xl border border-pill-border bg-pill-bg text-inherit transition-all active:scale-[0.94]">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

@@ -106,9 +106,7 @@ class FacilityRepository:
         Same filter semantics as list(), no limit/offset — backs the
         `total` field in the paginated response.
         """
-        q = self._session.query(FacilityORM).filter(
-            FacilityORM.is_active.is_(is_active)
-        )
+        q = self._session.query(FacilityORM).filter(FacilityORM.is_active.is_(is_active))
         if category_id is not None:
             q = q.filter(FacilityORM.category_id == category_id)
         if status is not None:
@@ -143,9 +141,7 @@ class FacilityRepository:
         """
         effective_limit = min(limit, _MAX_LIMIT)
 
-        q = self._session.query(FacilityORM).filter(
-            FacilityORM.is_active.is_(is_active)
-        )
+        q = self._session.query(FacilityORM).filter(FacilityORM.is_active.is_(is_active))
         if category_id is not None:
             q = q.filter(FacilityORM.category_id == category_id)
         if status is not None:
@@ -154,17 +150,22 @@ class FacilityRepository:
         rows = q.order_by(FacilityORM.id).limit(effective_limit).offset(offset).all()
         return [_to_entity(r) for r in rows]
 
+    def list_all_active_ids(self) -> list[int]:
+        """Return primary keys for all active facilities (no limit).
+
+        Used solely by batch aggregation scripts (e.g., Phase 9 usage generation).
+        Not exposed via paginated API routes.
+        """
+        rows = self._session.query(FacilityORM.id).filter(FacilityORM.is_active.is_(True)).all()
+        return [r.id for r in rows]
+
     def _get_by_name(self, name: str) -> FacilityEntity | None:
         """Return the first facility matching ``name`` exactly, or ``None``.
 
         Used internally by the seed script for skip-if-exists logic.  Not
         exposed as a public API endpoint (no such route exists in spec §16.2).
         """
-        row = (
-            self._session.query(FacilityORM)
-            .filter(FacilityORM.name == name)
-            .first()
-        )
+        row = self._session.query(FacilityORM).filter(FacilityORM.name == name).first()
         return _to_entity(row) if row is not None else None
 
     # ── Writers ──────────────────────────────────────────────────────────────

@@ -1,4 +1,6 @@
+/// <reference types="@types/google.maps" />
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import '@testing-library/jest-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -14,7 +16,6 @@ import {
   DEFAULT_RADIUS_M,
   MAX_RADIUS_M,
   RADIUS_EXPAND_MULTIPLIER,
-  EMPTY_NEARBY_MESSAGE,
   SERVICE_UNAVAILABLE_MESSAGE
 } from '../constants/search';
 
@@ -91,7 +92,7 @@ describe('NearbyFacilitiesPage', () => {
   it('renders LoadingState when query is pending', () => {
     vi.mocked(getNearbyFacilities).mockReturnValue(new Promise(() => {})); // Never resolves
     renderWithContext();
-    expect(screen.getByText('Finding facilities near you...')).toBeInTheDocument();
+    expect(screen.getByText('Finding washrooms near you...')).toBeInTheDocument();
   });
 
   it('renders EmptyState and expands radius on click', async () => {
@@ -101,7 +102,7 @@ describe('NearbyFacilitiesPage', () => {
     renderWithContext();
 
     await waitFor(() => {
-      expect(screen.getByText(EMPTY_NEARBY_MESSAGE)).toBeInTheDocument();
+      expect(screen.getByText('No washrooms match this search.')).toBeInTheDocument();
     });
 
     const button = screen.getByRole('button', { name: 'Search wider area' });
@@ -159,7 +160,7 @@ describe('NearbyFacilitiesPage', () => {
     renderWithContext();
 
     await waitFor(() => {
-      expect(screen.getByText('An error occurred while fetching facilities.')).toBeInTheDocument();
+      expect(screen.getByText('An error occurred while fetching washrooms.')).toBeInTheDocument();
     });
     expect(screen.queryByText(SERVICE_UNAVAILABLE_MESSAGE)).not.toBeInTheDocument();
   });
@@ -173,7 +174,7 @@ describe('NearbyFacilitiesPage', () => {
     renderWithContext({ ...defaultState, accessibleOnly: true });
 
     await waitFor(() => {
-      expect(screen.queryByText('Finding facilities near you...')).not.toBeInTheDocument();
+      expect(screen.queryByText('Finding washrooms near you...')).not.toBeInTheDocument();
     });
 
     // accessibleOnly should NOT be passed to API

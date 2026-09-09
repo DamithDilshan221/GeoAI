@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSearchContext } from '../context/SearchContext';
 import { LoadingState } from '../components/status/LoadingState';
 import { ErrorState } from '../components/status/ErrorState';
-import { EmptyState } from '../components/status/EmptyState';
 import { FacilityList } from '../components/facility/FacilityList';
 import { MapView } from '../components/map/MapView';
 import { useNearbyFacilities } from '../hooks/useNearbyFacilities';
@@ -12,7 +11,6 @@ import {
   DEFAULT_RADIUS_M, 
   MAX_RADIUS_M, 
   RADIUS_EXPAND_MULTIPLIER, 
-  EMPTY_NEARBY_MESSAGE, 
   SERVICE_UNAVAILABLE_MESSAGE 
 } from '../constants/search';
 
@@ -46,14 +44,14 @@ export function NearbyFacilitiesPage() {
   }
 
   if (isLoading) {
-    return <LoadingState message="Finding facilities near you..." />;
+    return <LoadingState message="Finding washrooms near you..." />;
   }
 
   if (isError) {
     const is503 = (error as { response?: { status?: number } })?.response?.status === 503;
     const message = is503 
       ? SERVICE_UNAVAILABLE_MESSAGE 
-      : 'An error occurred while fetching facilities.';
+      : 'An error occurred while fetching washrooms.';
     return <ErrorState message={message} onRetry={refetch} />;
   }
 
@@ -128,7 +126,7 @@ export function NearbyFacilitiesPage() {
             ) : (
               <>
                 <div className="text-[12.5px] text-muted m-[2px_2px_14px] font-semibold">
-                  {data?.length || 0} {data?.length === 1 ? 'facility' : 'facilities'} found
+                  {data?.length || 0} {data?.length === 1 ? 'washroom' : 'washrooms'} found
                 </div>
                 <FacilityList facilities={(data || []).filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()) || f.category.toLowerCase().includes(searchTerm.toLowerCase()))} />
               </>

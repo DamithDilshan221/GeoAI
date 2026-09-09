@@ -19,6 +19,7 @@ export function loadMapsLibrary() {
   if (!mapsLibraryPromise) {
     // Inject key dynamically and import
     (window as any).__googleMapsLoaderOptions = mapOptions;
+    // @ts-expect-error - importLibrary takes options in some versions or we cast
     mapsLibraryPromise = importLibrary('maps', mapOptions) as Promise<google.maps.MapsLibrary>;
   }
   return mapsLibraryPromise;
@@ -26,6 +27,7 @@ export function loadMapsLibrary() {
 
 export function loadMarkerLibrary() {
   if (!markerLibraryPromise) {
+    // @ts-expect-error - importLibrary takes options in some versions or we cast
     markerLibraryPromise = importLibrary('marker', mapOptions) as Promise<google.maps.MarkerLibrary>;
   }
   return markerLibraryPromise;

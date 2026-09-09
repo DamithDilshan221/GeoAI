@@ -32,8 +32,8 @@ describe('App', () => {
     } as any);
 
     renderApp();
-    expect(screen.getByText(/Find a Facility/i)).toBeDefined();
-    expect(screen.getByText(/Select what you're looking for/i)).toBeDefined();
+    expect(screen.getByText(/Nearby/i)).toBeDefined();
+    expect(screen.getByText(/Washrooms closest to you right now/i)).toBeDefined();
   });
 });
 

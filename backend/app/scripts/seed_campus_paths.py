@@ -14,7 +14,9 @@ from app.models.enums import DataSource, PathType
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-SEED_FILE = Path(__file__).parent.parent.parent / "database" / "seed" / "campus_paths_test_network.json"
+SEED_FILE = (
+    Path(__file__).parent.parent.parent / "database" / "seed" / "campus_paths_test_network.json"
+)
 
 
 def seed_campus_paths(session: Session) -> None:
@@ -54,14 +56,16 @@ def seed_campus_paths(session: Session) -> None:
 
     # Create topology
     logger.info("Generating pgRouting topology...")
-    session.execute(text("""
+    session.execute(
+        text("""
         DROP TABLE IF EXISTS campus_paths_vertices_pgr;
         CREATE TABLE campus_paths_vertices_pgr AS
         SELECT source AS id, ST_StartPoint(geom) AS the_geom FROM campus_paths
         UNION
         SELECT target AS id, ST_EndPoint(geom) AS the_geom FROM campus_paths;
         CREATE INDEX idx_campus_paths_vertices_pgr_id ON campus_paths_vertices_pgr (id);
-    """))
+    """)
+    )
     session.commit()
     logger.info("Topology generation complete.")
 

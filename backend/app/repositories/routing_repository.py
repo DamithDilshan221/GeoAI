@@ -1,11 +1,7 @@
 """Repository for pedestrian network routing via pgRouting."""
 
-from typing import Any
-
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-
-from app.models.campus_path import CampusPath
 
 
 class RoutingRepository:
@@ -95,7 +91,7 @@ class RoutingRepository:
         # might be the original edge IDs or they might be virtual edge IDs.
         # However, it's easier to just pull the vertices. But pgr_withPoints outputs node.
         # If node < 0, it's our virtual points.
-        # Actually, extracting geometries from pgr_withPoints is a bit complex. Let's just 
+        # Actually, extracting geometries from pgr_withPoints is a bit complex. Let's just
         # get the path as a single LineString using pgr_withPoints and the original geometries.
         # But wait, pgr_withPoints returns `node` and `edge`.
         # When `edge` is positive, it's a real edge, but we only traverse part of it if we
@@ -104,10 +100,10 @@ class RoutingRepository:
         # is to fetch the full path geometries. For virtual edges (edge < 0 or modifying existing),
         # pgRouting 3/4 `pgr_withPoints` documentation states that `edge` is the original edge id.
         # We can extract the points from the route using `node` geometries.
-        
+
         # A common pattern is to just select the nodes.
         # But wait, we need the exact coordinates along the path to return a list of lat/lon pairs.
-        
+
         query = text(
             f"""
             WITH route AS (
@@ -145,7 +141,7 @@ class RoutingRepository:
             """
         )
 
-        # Wait, if pgr_withPoints returns the sequence of nodes, joining to the geometries 
+        # Wait, if pgr_withPoints returns the sequence of nodes, joining to the geometries
         # of the nodes gives us the waypoints. This is a very clean way to get the path!
         # The path is just the sequence of nodes.
 

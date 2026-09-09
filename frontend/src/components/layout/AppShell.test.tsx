@@ -1,43 +1,20 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import { AppShell } from './AppShell';
-import apiClient from '../../api/client';
 import React from 'react';
-
-vi.mock('../../api/client', () => ({
-  default: {
-    get: vi.fn(),
-  },
-}));
+import { MemoryRouter } from 'react-router-dom';
 
 describe('AppShell', () => {
-  it('renders health check success', async () => {
-    vi.mocked(apiClient.get).mockResolvedValueOnce({ data: { status: 'ok' } });
-
+  it('renders header and content', () => {
     render(
-      <AppShell>
-        <div>Content</div>
-      </AppShell>
+      <MemoryRouter>
+        <AppShell>
+          <div data-testid="test-content">Content</div>
+        </AppShell>
+      </MemoryRouter>
     );
 
-    expect(screen.getByText('Checking backend...')).toBeDefined();
-    
-    await waitFor(() => {
-      expect(screen.getByText('Backend: connected')).toBeDefined();
-    });
-  });
-
-  it('renders health check failure', async () => {
-    vi.mocked(apiClient.get).mockRejectedValueOnce(new Error('Network error'));
-
-    render(
-      <AppShell>
-        <div>Content</div>
-      </AppShell>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText('Backend: unreachable')).toBeDefined();
-    });
+    expect(screen.getByText('Campus Washroom Finder')).toBeDefined();
+    expect(screen.getByTestId('test-content')).toBeDefined();
   });
 });

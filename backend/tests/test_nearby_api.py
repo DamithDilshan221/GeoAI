@@ -1,4 +1,3 @@
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
@@ -71,7 +70,9 @@ def test_get_nearby_facilities(client: TestClient, db_session: Session):
     _seed_gis_data(db_session)
 
     # Search at 10.0, 20.0 with 1000m radius for 'restroom'
-    response = client.get("/api/v1/facilities/nearby?lat=10.0&lon=20.0&category=restroom&radius_m=1000")
+    response = client.get(
+        "/api/v1/facilities/nearby?lat=10.0&lon=20.0&category=restroom&radius_m=1000"
+    )
     assert response.status_code == 200
 
     data = response.json()
@@ -110,5 +111,7 @@ def test_get_nearby_facilities_invalid_limit_and_radius(client: TestClient):
     response = client.get("/api/v1/facilities/nearby?lat=10.0&lon=20.0&category=restroom&limit=51")
     assert response.status_code == 422
 
-    response = client.get("/api/v1/facilities/nearby?lat=10.0&lon=20.0&category=restroom&radius_m=10001")
+    response = client.get(
+        "/api/v1/facilities/nearby?lat=10.0&lon=20.0&category=restroom&radius_m=10001"
+    )
     assert response.status_code == 422

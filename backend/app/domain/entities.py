@@ -15,7 +15,7 @@ dataclass will not need to change for that.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 from typing import Literal
 
 from app.models.enums import DataSource, FacilityStatus
@@ -86,3 +86,15 @@ class RouteResult:
     estimated_time_s: int
     path: list[tuple[float, float]]  # (lat, lon) pairs IN ORDER
     source: Literal["network", "straight_line_estimate"]
+
+
+@dataclass(frozen=True)
+class UsageRecord:
+    id: int
+    facility_id: int
+    date: date
+    hour: int
+    day_of_week: int
+    usage_count: int
+    selection_count: int
+    data_source: DataSource

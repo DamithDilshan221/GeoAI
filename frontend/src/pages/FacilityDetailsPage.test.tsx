@@ -38,7 +38,7 @@ describe('FacilityDetailsPage', () => {
     );
 
     expect(screen.getByText('Accessible Restroom')).toBeDefined();
-    expect(screen.getByText('Wheelchair accessible')).toBeDefined();
+    expect(screen.getByText('Wheelchair Accessible')).toBeDefined();
   });
 
   it('renders "not found" variant on 404', () => {
@@ -58,8 +58,8 @@ describe('FacilityDetailsPage', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText('Facility Not Found')).toBeDefined();
+    expect(screen.getByText('Washroom Not Found')).toBeDefined();
     // Does not render generic error message
-    expect(screen.queryByText('Failed to load facility details.')).toBeNull();
+    expect(screen.queryByText('Failed to load washroom details.')).toBeNull();
   });
 });

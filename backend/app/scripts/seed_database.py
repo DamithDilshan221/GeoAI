@@ -131,8 +131,7 @@ def run_seed() -> None:
 
     total_skipped = cat_skipped + fac_skipped
     print(
-        f"Inserted {cat_inserted} categories, {fac_inserted} facilities "
-        f"({total_skipped} skipped)"
+        f"Inserted {cat_inserted} categories, {fac_inserted} facilities ({total_skipped} skipped)"
     )
 
 

@@ -34,7 +34,7 @@ def test_invalid_longitude():
 def test_both_invalid_aggregates_errors():
     with pytest.raises(CoordinateValidationError) as exc:
         validate_coordinates(lat=91.0, lon=181.0)
-    
+
     error_msg = str(exc.value)
     assert "Latitude 91.0 is out of bounds" in error_msg
     assert "Longitude 181.0 is out of bounds" in error_msg

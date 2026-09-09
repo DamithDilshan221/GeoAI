@@ -21,12 +21,16 @@ depends_on = None
 
 # Pre-define ENUM types with create_type=False since we CREATE TYPE explicitly
 _facility_status = postgresql.ENUM(
-    "OPEN", "CLOSED", "TEMPORARILY_UNAVAILABLE",
+    "OPEN",
+    "CLOSED",
+    "TEMPORARILY_UNAVAILABLE",
     name="facility_status",
     create_type=False,
 )
 _data_source = postgresql.ENUM(
-    "REAL", "PUBLIC", "SYNTHETIC",
+    "REAL",
+    "PUBLIC",
+    "SYNTHETIC",
     name="data_source",
     create_type=False,
 )
@@ -34,18 +38,13 @@ _data_source = postgresql.ENUM(
 
 def upgrade() -> None:
     # ── ENUM types ───────────────────────────────────────────────────────
-    op.execute(
-        "CREATE TYPE facility_status AS ENUM "
-        "('OPEN', 'CLOSED', 'TEMPORARILY_UNAVAILABLE')"
-    )
+    op.execute("CREATE TYPE facility_status AS ENUM ('OPEN', 'CLOSED', 'TEMPORARILY_UNAVAILABLE')")
     op.execute("CREATE TYPE data_source AS ENUM ('REAL', 'PUBLIC', 'SYNTHETIC')")
 
     # ── categories (spec §18.2) ──────────────────────────────────────────
     op.create_table(
         "categories",
-        sa.Column(
-            "id", sa.SmallInteger, primary_key=True, autoincrement=True
-        ),
+        sa.Column("id", sa.SmallInteger, primary_key=True, autoincrement=True),
         sa.Column("code", sa.String(64), nullable=False),
         sa.Column("label", sa.String(128), nullable=False),
         sa.Column(
@@ -61,9 +60,7 @@ def upgrade() -> None:
     # ── facilities (spec §18.3) ──────────────────────────────────────────
     op.create_table(
         "facilities",
-        sa.Column(
-            "id", sa.BigInteger, primary_key=True, autoincrement=True
-        ),
+        sa.Column("id", sa.BigInteger, primary_key=True, autoincrement=True),
         sa.Column("name", sa.String(200), nullable=False),
         sa.Column("category_id", sa.SmallInteger, nullable=False),
         sa.Column(
@@ -134,9 +131,7 @@ def upgrade() -> None:
         ["geom"],
         postgresql_using="gist",
     )
-    op.create_index(
-        "idx_facilities_category", "facilities", ["category_id"]
-    )
+    op.create_index("idx_facilities_category", "facilities", ["category_id"])
     op.create_index(
         "idx_facilities_open",
         "facilities",
@@ -147,9 +142,7 @@ def upgrade() -> None:
     # ── usage_records (spec §18.4) ───────────────────────────────────────
     op.create_table(
         "usage_records",
-        sa.Column(
-            "id", sa.BigInteger, primary_key=True, autoincrement=True
-        ),
+        sa.Column("id", sa.BigInteger, primary_key=True, autoincrement=True),
         sa.Column("facility_id", sa.BigInteger, nullable=False),
         sa.Column("date", sa.Date, nullable=False),
         sa.Column("hour", sa.SmallInteger, nullable=False),
@@ -179,9 +172,7 @@ def upgrade() -> None:
             ["facilities.id"],
             name="fk_usage_records_facility_id_facilities",
         ),
-        sa.UniqueConstraint(
-            "facility_id", "date", "hour", name="uq_usage_bucket"
-        ),
+        sa.UniqueConstraint("facility_id", "date", "hour", name="uq_usage_bucket"),
         sa.CheckConstraint(
             "hour BETWEEN 0 AND 23",
             name="hour_range",
@@ -201,9 +192,7 @@ def upgrade() -> None:
     # ── recommendation_logs (spec §18.5) ─────────────────────────────────
     op.create_table(
         "recommendation_logs",
-        sa.Column(
-            "id", sa.BigInteger, primary_key=True, autoincrement=True
-        ),
+        sa.Column("id", sa.BigInteger, primary_key=True, autoincrement=True),
         sa.Column("request_id", sa.Uuid, nullable=False),
         sa.Column("facility_id", sa.BigInteger, nullable=True),
         sa.Column("category_id", sa.SmallInteger, nullable=True),
@@ -245,14 +234,10 @@ def upgrade() -> None:
     # ── ml_model_versions (spec §18.6) ───────────────────────────────────
     op.create_table(
         "ml_model_versions",
-        sa.Column(
-            "id", sa.Integer, primary_key=True, autoincrement=True
-        ),
+        sa.Column("id", sa.Integer, primary_key=True, autoincrement=True),
         sa.Column("version", sa.String(32), nullable=False),
         sa.Column("algorithm", sa.String(64), nullable=True),
-        sa.Column(
-            "trained_at", sa.DateTime(timezone=True), nullable=True
-        ),
+        sa.Column("trained_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("feature_list", sa.JSON, nullable=True),
         sa.Column("evaluation_metrics", sa.JSON, nullable=True),
         sa.Column("artifact_path", sa.String(255), nullable=True),
@@ -264,9 +249,7 @@ def upgrade() -> None:
         ),
         sa.Column("notes", sa.Text, nullable=True),
         sa.PrimaryKeyConstraint("id", name="pk_ml_model_versions"),
-        sa.UniqueConstraint(
-            "version", name="uq_ml_model_versions_version"
-        ),
+        sa.UniqueConstraint("version", name="uq_ml_model_versions_version"),
     )
 
     op.create_index(

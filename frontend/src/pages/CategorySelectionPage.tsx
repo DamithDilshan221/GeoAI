@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCategories } from '../hooks/useCategories';
 import { useGeolocation } from '../hooks/useGeolocation';
@@ -62,7 +62,7 @@ export function CategorySelectionPage() {
         </svg>
         <input 
           type="text" 
-          placeholder="Find a facility..." 
+          placeholder="Find a washroom..." 
           className="border-none bg-transparent outline-none text-inherit font-sans text-[14.5px] w-full placeholder:text-muted"
           readOnly
         />
@@ -92,7 +92,7 @@ export function CategorySelectionPage() {
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="m-0 mb-2 text-[18.5px] font-bold">Nearby</h2>
-            <p className="text-[12px] text-muted-soft font-medium m-0 mt-0.5">Facilities closest to you right now</p>
+            <p className="text-[12px] text-muted-soft font-medium m-0 mt-0.5">Washrooms closest to you right now</p>
           </div>
         </div>
       </div>

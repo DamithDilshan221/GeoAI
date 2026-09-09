@@ -94,6 +94,7 @@ def test_category_create_duplicate_code_raises_clear_error(db_session: Session) 
     repo = CategoryRepository(db_session)
     repo.create(code="PARK", label="Park")
     import pytest
+
     with pytest.raises(DuplicateCategoryCodeError) as exc_info:
         repo.create(code="PARK", label="Park Again")
     assert exc_info.value.code == "PARK"
@@ -142,6 +143,7 @@ def test_facility_create_with_all_optional_fields(db_session: Session) -> None:
 def test_facility_create_invalid_coordinate_raises_validation_error(db_session: Session) -> None:
     """create() with an out-of-range latitude raises FacilityValidationError."""
     import pytest
+
     cat = _make_category(db_session, code="VAL_ERR_CAT")
     fac_repo = FacilityRepository(db_session)
 
@@ -152,7 +154,7 @@ def test_facility_create_invalid_coordinate_raises_validation_error(db_session: 
         fac_repo.create(
             name="Bad Lat Facility",
             category_id=cat.id,
-            latitude=200.0,   # out of range
+            latitude=200.0,  # out of range
             longitude=79.8612,
             data_source=DataSource.SYNTHETIC,
         )
@@ -166,11 +168,12 @@ def test_facility_create_nonexistent_category_raises_reference_error(db_session:
     """create() with a non-existent category_id raises FacilityReferenceError,
     not a raw IntegrityError."""
     import pytest
+
     fac_repo = FacilityRepository(db_session)
     with pytest.raises(FacilityReferenceError) as exc_info:
         fac_repo.create(
             name="Orphan Facility",
-            category_id=999999,   # does not exist
+            category_id=999999,  # does not exist
             latitude=6.9271,
             longitude=79.8612,
             data_source=DataSource.SYNTHETIC,

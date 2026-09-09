@@ -107,7 +107,7 @@ def test_get_facility_not_found(client: TestClient, db_session: Session) -> None
 
 def test_get_facility_soft_deleted(client: TestClient, db_session: Session) -> None:
     _, fac_ids = _seed_data(db_session)
-    f3_id = fac_ids[2] # soft-deleted
+    f3_id = fac_ids[2]  # soft-deleted
 
     response = client.get(f"/api/v1/facilities/{f3_id}")
     assert response.status_code == 404

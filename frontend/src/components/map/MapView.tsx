@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { loadMapsLibrary, loadMarkerLibrary } from '../../lib/googleMapsLoader';
 import { LoadingState } from '../status/LoadingState';
 import { ErrorState } from '../status/ErrorState';

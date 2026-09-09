@@ -39,7 +39,7 @@ def get_pedestrian_routing_service(
 ) -> PedestrianRoutingService:
     from app.domain.gis.pedestrian_routing_service import PedestrianRoutingService
     from app.repositories.routing_repository import RoutingRepository
-    
+
     routing_repo = RoutingRepository(session)
     facility_repo = FacilityRepository(session)
     return PedestrianRoutingService(routing_repo, facility_repo)

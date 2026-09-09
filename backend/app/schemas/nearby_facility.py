@@ -8,7 +8,7 @@ from app.models.enums import FacilityStatus
 
 class NearbyFacilityRead(BaseModel):
     """Schema for a facility returned by the spatial search endpoint.
-    
+
     This is intentionally distinct from the standard FacilityRead, as it is a
     flat structure containing distance_m and is tailored for map/search clients
     rather than general-purpose CRUD.

@@ -20,7 +20,7 @@ def get_nearby_facilities(
     service: NearbySearchService = Depends(get_nearby_search_service),  # noqa: B008
 ) -> list[NearbyFacilityRead]:
     """Search for nearby facilities.
-    
+
     Returns a flat array of OPEN, active facilities of the requested category,
     ordered by distance from the provided point.
     """

@@ -52,6 +52,9 @@ class Settings(BaseSettings):
     # ── Recommendation engine ────────────────────────────────
     RECOMMENDATION_CONFIG_PATH: str = "config/recommendation_weights.yaml"
 
+    # ── Historical Usage ─────────────────────────────────────
+    USAGE_HISTORY_DAYS: int = 90
+
 
 @functools.lru_cache(maxsize=1)
 def get_settings() -> Settings:

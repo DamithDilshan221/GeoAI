@@ -11,7 +11,4 @@ router = APIRouter(tags=["Categories"])
 def list_categories(
     service: CategoryService = Depends(get_category_service),  # noqa: B008
 ) -> list[CategoryRead]:
-    return [
-        CategoryRead(id=c.id, code=c.code, label=c.label)
-        for c in service.list_active()
-    ]
+    return [CategoryRead(id=c.id, code=c.code, label=c.label) for c in service.list_active()]

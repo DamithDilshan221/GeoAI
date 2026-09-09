@@ -1,15 +1,25 @@
 import os
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), ".")))
+
+from sqlalchemy import text
 
 from app.core.database import SessionLocal
-from sqlalchemy import text
 
 db = SessionLocal()
 # Origin at (0, 0)
-origin_snap = db.execute(text("SELECT id, ST_LineLocatePoint(geom, ST_SetSRID(ST_MakePoint(0, 0), 4326)) as fraction FROM campus_paths ORDER BY geom <-> ST_SetSRID(ST_MakePoint(0, 0), 4326) LIMIT 1")).first()
+origin_snap = db.execute(
+    text(
+        "SELECT id, ST_LineLocatePoint(geom, ST_SetSRID(ST_MakePoint(0, 0), 4326)) as fraction FROM campus_paths ORDER BY geom <-> ST_SetSRID(ST_MakePoint(0, 0), 4326) LIMIT 1"
+    )
+).first()
 # Dest at (60, 80)
-dest_snap = db.execute(text("SELECT id, ST_LineLocatePoint(geom, ST_SetSRID(ST_MakePoint(60, 80), 4326)) as fraction FROM campus_paths ORDER BY geom <-> ST_SetSRID(ST_MakePoint(60, 80), 4326) LIMIT 1")).first()
+dest_snap = db.execute(
+    text(
+        "SELECT id, ST_LineLocatePoint(geom, ST_SetSRID(ST_MakePoint(60, 80), 4326)) as fraction FROM campus_paths ORDER BY geom <-> ST_SetSRID(ST_MakePoint(60, 80), 4326) LIMIT 1"
+    )
+).first()
 
 print(f"Origin snapped to edge {origin_snap.id} at {origin_snap.fraction}")
 print(f"Dest snapped to edge {dest_snap.id} at {dest_snap.fraction}")
@@ -43,4 +53,3 @@ try:
         print(r)
 except Exception as e:
     print(f"pgr_withPoints failed: {e}")
-

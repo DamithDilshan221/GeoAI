@@ -1,7 +1,6 @@
 """API routes for pedestrian routing."""
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import Field
 
 from app.api.v1.dependencies import get_pedestrian_routing_service
 from app.domain.gis.exceptions import CoordinateValidationError

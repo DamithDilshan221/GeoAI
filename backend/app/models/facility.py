@@ -97,9 +97,7 @@ class Facility(Base):
 def _sync_geom(_mapper: object, _connection: object, target: Facility) -> None:
     """Compute geom from latitude/longitude before INSERT or UPDATE."""
     if target.latitude is not None and target.longitude is not None:
-        target.geom = WKTElement(
-            f"POINT({target.longitude} {target.latitude})", srid=4326
-        )
+        target.geom = WKTElement(f"POINT({target.longitude} {target.latitude})", srid=4326)
 
 
 event.listens_for(Facility, "before_insert")(_sync_geom)
