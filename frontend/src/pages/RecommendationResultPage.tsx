@@ -19,7 +19,7 @@ function formatDistance(meters: number): string {
 
 export function RecommendationResultPage() {
   const { state } = useSearchContext();
-  const { selectedCategory, location, accessibleOnly } = state;
+  const { selectedCategory, location, selectedAudience } = state;
 
   const params =
     selectedCategory && location
@@ -28,7 +28,7 @@ export function RecommendationResultPage() {
           lon: location.lon,
           category: selectedCategory,
           radius_m: 1000,
-          accessibleOnly,
+          selectedAudience,
         }
       : null;
 

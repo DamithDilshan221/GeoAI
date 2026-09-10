@@ -8,13 +8,13 @@ function TestComponent() {
   
   useEffect(() => {
     dispatch({ type: 'SET_CATEGORY', payload: 'FEMALE' });
-    dispatch({ type: 'SET_ACCESSIBLE_ONLY', payload: true });
+    dispatch({ type: 'SET_AUDIENCE', payload: 'VISITOR' });
   }, [dispatch]);
 
   return (
     <div>
       <span data-testid="cat">{state.selectedCategory}</span>
-      <span data-testid="acc">{state.accessibleOnly ? 'yes' : 'no'}</span>
+      <span data-testid="aud">{state.selectedAudience}</span>
     </div>
   );
 }
@@ -28,7 +28,7 @@ describe('SearchContext', () => {
     );
 
     expect(screen.getByTestId('cat').textContent).toBe('FEMALE');
-    expect(screen.getByTestId('acc').textContent).toBe('yes');
+    expect(screen.getByTestId('aud').textContent).toBe('VISITOR');
   });
 
   it('throws if useSearchContext is outside provider', () => {

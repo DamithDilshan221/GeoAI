@@ -12,7 +12,7 @@ export function CategorySelectionPage() {
   const navigate = useNavigate();
   const { data: categories, isLoading, error, refetch } = useCategories();
   const { status: geoStatus, errorMessage, request: requestLocation } = useGeolocation();
-  const { state, dispatch } = useSearchContext();
+  const { dispatch } = useSearchContext();
 
   useEffect(() => {
     if (geoStatus === 'granted') {
@@ -36,8 +36,11 @@ export function CategorySelectionPage() {
     );
   }
 
-  const handleCategoryClick = (code: string) => {
+  const handleCategoryClick = (code: string, audience?: 'VISITOR' | 'STAFF' | null) => {
     dispatch({ type: 'SET_CATEGORY', payload: code });
+    if (audience) {
+      dispatch({ type: 'SET_AUDIENCE', payload: audience });
+    }
     requestLocation();
   };
 
@@ -74,8 +77,7 @@ export function CategorySelectionPage() {
             key={cat.id}
             label={cat.label}
             code={cat.code}
-            isSelected={state.selectedCategory === cat.code}
-            onClick={() => handleCategoryClick(cat.code)}
+            onClick={(audience?: 'VISITOR' | 'STAFF' | null) => handleCategoryClick(cat.code, audience)}
           />
         ))}
 
@@ -97,16 +99,6 @@ export function CategorySelectionPage() {
         </div>
       </div>
 
-      {/* Accessible routes toggle restyled as pill toggle */}
-      <div className="mt-2 flex items-center justify-end gap-2.5 text-[13px] font-semibold text-white">
-        <span>Wheelchair-accessible routes</span>
-        <div 
-          className={`relative w-11 h-[26px] rounded-full border shrink-0 cursor-pointer transition-colors duration-200 ${state.accessibleOnly ? 'bg-teal border-teal' : 'bg-pill-bg border-pill-border'}`}
-          onClick={() => dispatch({ type: 'SET_ACCESSIBLE_ONLY', payload: !state.accessibleOnly })}
-        >
-          <div className={`absolute top-[1.5px] left-[1.5px] w-5 h-5 rounded-full transition-all duration-200 ${state.accessibleOnly ? 'translate-x-[18px] bg-[#06302D]' : 'bg-muted'}`}></div>
-        </div>
-      </div>
     </div>
   );
 }

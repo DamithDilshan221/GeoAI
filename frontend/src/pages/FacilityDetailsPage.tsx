@@ -124,12 +124,20 @@ export function FacilityDetailsPage() {
           <div className="mb-6">
             <h3 className="m-0 mb-3 text-[15px] font-bold text-ink">Features & Accessibility</h3>
             <ul className="list-none p-0 m-0 space-y-3">
-              {facility.accessibility?.wheelchair_friendly && (
-                <li className="flex items-center gap-3 text-[14px] text-ink">
-                  <div className="w-8 h-8 rounded-full bg-[#E8F0FE] flex items-center justify-center text-indigo">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="4.2" r="1.7"/><path d="M11 8.5v4.5l-3.5 5.5"/><path d="M11 10h5l-1.2 3"/><circle cx="15" cy="17.5" r="3.3"/></svg>
+              {Object.keys(facility.fixtures || {}).length > 0 ? (
+                <li className="text-[14px] text-ink w-full">
+                  <div className="grid grid-cols-2 gap-3 mt-2">
+                    {Object.entries(facility.fixtures || {}).map(([key, count]) => (
+                      <div key={key} className="flex items-center justify-between p-3 rounded-xl bg-pill-bg border border-pill-border">
+                        <span className="capitalize font-medium">{key.replace('_', ' ')}</span>
+                        <span className="font-bold text-teal">{count as number}</span>
+                      </div>
+                    ))}
                   </div>
-                  Wheelchair Accessible
+                </li>
+              ) : (
+                <li className="text-[14px] text-muted-soft italic">
+                  No fixture details available
                 </li>
               )}
               <li className="flex items-center gap-3 text-[14px] text-ink">

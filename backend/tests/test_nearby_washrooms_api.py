@@ -21,9 +21,10 @@ def _seed_gis_data(db_session: Session) -> None:
         category_id=c_restroom.id,
         status=FacilityStatus.OPEN,
         audience=AudienceType.VISITOR,
-        fixtures={"sinks": 2},
+        fixtures={"normal": 2},
         latitude=10.001,
         longitude=20.0,
+        location_name="Location A",
         data_source=DataSource.SYNTHETIC,
     )
     # 1.b Close Staff Restroom
@@ -32,9 +33,10 @@ def _seed_gis_data(db_session: Session) -> None:
         category_id=c_restroom.id,
         status=FacilityStatus.OPEN,
         audience=AudienceType.STAFF,
-        fixtures={"sinks": 1},
+        fixtures={"normal": 1},
         latitude=10.001,
         longitude=20.0,
+        location_name="Location B",
         data_source=DataSource.SYNTHETIC,
     )
     # 2. Far, OPEN, active (Outside 1000m radius) - Dist ~1113m
@@ -44,6 +46,7 @@ def _seed_gis_data(db_session: Session) -> None:
         status=FacilityStatus.OPEN,
         latitude=10.01,
         longitude=20.0,
+        location_name="Location C",
         data_source=DataSource.SYNTHETIC,
     )
     # 3. Close, CLOSED, active (Should NOT match due to status)
@@ -53,6 +56,7 @@ def _seed_gis_data(db_session: Session) -> None:
         status=FacilityStatus.CLOSED,
         latitude=10.002,
         longitude=20.0,
+        location_name="Location D",
         data_source=DataSource.SYNTHETIC,
     )
     # 4. Close, OPEN, inactive (Should NOT match due to active status)
@@ -62,6 +66,7 @@ def _seed_gis_data(db_session: Session) -> None:
         status=FacilityStatus.OPEN,
         latitude=10.0005,
         longitude=20.0,
+        location_name="Location E",
         data_source=DataSource.SYNTHETIC,
     )
     row = db_session.query(FacilityORM).filter_by(id=f_inactive.id).first()
@@ -75,6 +80,7 @@ def _seed_gis_data(db_session: Session) -> None:
         status=FacilityStatus.OPEN,
         latitude=10.0,
         longitude=20.0,
+        location_name="Location F",
         data_source=DataSource.SYNTHETIC,
     )
 
@@ -97,7 +103,7 @@ def test_get_nearby_facilities(client: TestClient, db_session: Session):
     assert item["category"] == "restroom"
     assert item["status"] == "OPEN"
     assert item["audience"] == "VISITOR"
-    assert item["fixtures"] == {"sinks": 2}
+    assert item["fixtures"] == {"normal": 2}
     assert "location_name" not in item
     assert "total_stalls" not in item
     # distance should be ~111m, check magnitude

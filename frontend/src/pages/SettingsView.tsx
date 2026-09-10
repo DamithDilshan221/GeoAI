@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 export function SettingsView() {
   const [isDarkMode, setIsDarkMode] = useState(() => !document.body.classList.contains('day'));
+  const [preferStaffWashrooms, setPreferStaffWashrooms] = useState(() => localStorage.getItem('preferStaffWashrooms') === 'true');
 
   const toggleTheme = () => {
     const nextMode = !isDarkMode;
@@ -11,6 +12,12 @@ export function SettingsView() {
     } else {
       document.body.classList.add('day');
     }
+  };
+
+  const toggleStaffPreference = () => {
+    const nextPref = !preferStaffWashrooms;
+    setPreferStaffWashrooms(nextPref);
+    localStorage.setItem('preferStaffWashrooms', String(nextPref));
   };
 
   return (
@@ -52,6 +59,18 @@ export function SettingsView() {
             <div className="flex items-center justify-between p-4 border-b border-hairline">
               <span className="text-ink text-[15px] font-medium">Default Search Radius</span>
               <span className="text-muted-soft text-[14px]">500m</span>
+            </div>
+            <div className="flex items-center justify-between p-4 border-b border-hairline">
+              <div className="flex flex-col">
+                <span className="text-ink text-[15px] font-medium">Prefer Staff Washrooms</span>
+                <span className="text-muted-soft text-[13px] mt-0.5">Show staff facilities first when searching nearby</span>
+              </div>
+              <button 
+                className={`relative w-[52px] h-[28px] shrink-0 rounded-full transition-colors cursor-pointer border-none shadow-inner ${preferStaffWashrooms ? 'bg-teal' : 'bg-pill-border'}`}
+                onClick={toggleStaffPreference}
+              >
+                <div className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-white rounded-full transition-transform shadow-sm ${preferStaffWashrooms ? 'translate-x-[26px]' : 'translate-x-[4px]'}`}></div>
+              </button>
             </div>
             <div className="flex items-center justify-between p-4">
               <span className="text-ink text-[15px] font-medium">Push Notifications</span>

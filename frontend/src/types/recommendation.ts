@@ -1,10 +1,10 @@
-import type { Facility } from './facility';
+import type { Washroom } from './facility';
 
 export interface FacilityRecommendation {
   id: number;
   name: string;
   category: string;
-  status: Facility['status'];
+  status: Washroom['status'];
   rating: number | null;
   distance_m: number;
   estimated_time_s: number;

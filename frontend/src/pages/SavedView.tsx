@@ -1,28 +1,32 @@
 import { FacilityListItem } from '../components/facility/FacilityListItem';
-import type { NearbyFacility } from '../types/facility';
+import type { NearbyWashroom } from '../types/facility';
 
 export function SavedView() {
   // Mock saved facilities
-  const savedFacilities: NearbyFacility[] = [
+  const savedFacilities: NearbyWashroom[] = [
     {
       id: 1,
       name: 'Main Library Ground Floor',
-      category: 'Gender-Neutral',
+      category: 'UNISEX',
       status: 'OPEN',
       distance_m: 120,
-      latitude: 0,
-      longitude: 0,
+      latitude: 6.9022,
+      longitude: 79.8606,
       rating: 4.5,
+      audience: 'VISITOR',
+      fixtures: {},
     },
     {
       id: 2,
-      name: 'Engineering Block A',
-      category: 'Accessible',
+      name: 'Science Faculty Block A',
+      category: 'FEMALE',
       status: 'OPEN',
-      distance_m: 350,
-      latitude: 0,
-      longitude: 0,
+      distance_m: 450,
+      latitude: 6.9055,
+      longitude: 79.8622,
       rating: null,
+      audience: 'VISITOR',
+      fixtures: {},
     }
   ];
 

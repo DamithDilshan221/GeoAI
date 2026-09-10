@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 
 from app.core.config import get_settings
 from app.domain.gis.nearby_search_service import NearbySearchService
-from app.domain.gis.pedestrian_routing_service import PedestrianRoutingService
+# from app.domain.gis.pedestrian_routing_service import PedestrianRoutingService
 from app.domain.recommendation.candidate import (
     RecommendationCandidate,
     ScoredCandidate,

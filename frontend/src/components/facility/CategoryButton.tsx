@@ -2,8 +2,7 @@
 interface CategoryButtonProps {
   label: string;
   code: string;
-  isSelected: boolean;
-  onClick: () => void;
+  onClick: (audience?: 'VISITOR' | 'STAFF' | null) => void;
 }
 
 const getCategoryStyles = (code: string) => {
@@ -56,19 +55,39 @@ const getCategoryStyles = (code: string) => {
 
 export function CategoryButton({ label, code, onClick }: CategoryButtonProps) {
   const styles = getCategoryStyles(code);
+  const isGendered = code.toLowerCase().includes('men') || code.toLowerCase().includes('women') || code.toLowerCase().includes('female');
 
   return (
     <div
-      onClick={onClick}
-      className="flex items-center gap-4 bg-paper text-ink rounded-lg p-[18px] mb-3.5 shadow-card cursor-pointer transition-transform active:scale-[0.985]"
+      onClick={() => onClick()}
+      className="flex flex-col bg-paper text-ink rounded-lg p-[18px] mb-3.5 shadow-card cursor-pointer transition-transform active:scale-[0.985]"
     >
-      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${styles.bgClass} ${styles.colorClass}`}>
-        {styles.icon}
+      <div className="flex items-center gap-4">
+        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${styles.bgClass} ${styles.colorClass}`}>
+          {styles.icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h2 className="m-0 mb-2 text-[18.5px] font-bold">{label}</h2>
+          <p className="text-[12px] text-muted-soft font-medium m-0 mt-0.5">Explore {label.toLowerCase()}</p>
+        </div>
       </div>
-      <div className="flex-1 min-w-0">
-        <h2 className="m-0 mb-2 text-[18.5px] font-bold">{label}</h2>
-        <p className="text-[12px] text-muted-soft font-medium m-0 mt-0.5">Explore {label.toLowerCase()}</p>
-      </div>
+      
+      {isGendered && (
+        <div className="mt-4 flex gap-2">
+          <button 
+            onClick={(e) => { e.stopPropagation(); onClick('VISITOR'); }}
+            className="flex-1 py-2 px-3 rounded-xl bg-pill-bg text-ink border border-pill-border text-sm font-semibold hover:bg-pill-border/50"
+          >
+            Visitor
+          </button>
+          <button 
+            onClick={(e) => { e.stopPropagation(); onClick('STAFF'); }}
+            className="flex-1 py-2 px-3 rounded-xl bg-pill-bg text-ink border border-pill-border text-sm font-semibold hover:bg-pill-border/50"
+          >
+            Staff
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { NearbyFacility } from '../../types/facility';
+import type { NearbyWashroom } from '../../types/facility';
 
 interface FacilityListItemProps {
-  facility: NearbyFacility;
+  facility: NearbyWashroom;
 }
 
 export function FacilityListItem({ facility }: FacilityListItemProps) {

@@ -9,20 +9,20 @@ interface LocationData {
 
 interface SearchState {
   selectedCategory: string | null;
-  accessibleOnly: boolean;
+  selectedAudience: 'VISITOR' | 'STAFF' | null;
   location: LocationData | null;
   locationStatus: 'idle' | 'requesting' | 'granted' | 'denied' | 'unavailable';
 }
 
 type SearchAction =
   | { type: 'SET_CATEGORY'; payload: string }
-  | { type: 'SET_ACCESSIBLE_ONLY'; payload: boolean }
+  | { type: 'SET_AUDIENCE'; payload: 'VISITOR' | 'STAFF' | null }
   | { type: 'SET_LOCATION_STATUS'; payload: SearchState['locationStatus'] }
   | { type: 'SET_LOCATION'; payload: { location: LocationData; status: 'granted' } };
 
 const initialState: SearchState = {
   selectedCategory: null,
-  accessibleOnly: false,
+  selectedAudience: null,
   location: null,
   locationStatus: 'idle',
 };
@@ -31,8 +31,8 @@ function searchReducer(state: SearchState, action: SearchAction): SearchState {
   switch (action.type) {
     case 'SET_CATEGORY':
       return { ...state, selectedCategory: action.payload };
-    case 'SET_ACCESSIBLE_ONLY':
-      return { ...state, accessibleOnly: action.payload };
+    case 'SET_AUDIENCE':
+      return { ...state, selectedAudience: action.payload };
     case 'SET_LOCATION_STATUS':
       return { ...state, locationStatus: action.payload };
     case 'SET_LOCATION':

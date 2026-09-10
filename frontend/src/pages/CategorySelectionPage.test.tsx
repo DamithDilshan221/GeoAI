@@ -47,7 +47,7 @@ describe('CategorySelectionPage', () => {
 
   it('triggers geolocation request after category selection, not before', async () => {
     vi.mocked(useCategoriesModule.useCategories).mockReturnValue({
-      data: [{ id: 1, code: 'CAT_1', label: 'Category 1' }],
+      data: [{ id: 1, code: 'MEN', label: 'Men\'s' }],
       isLoading: false,
       error: null,
       refetch: vi.fn(),
@@ -64,7 +64,8 @@ describe('CategorySelectionPage', () => {
 
     expect(mockGetCurrentPosition).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByText('Category 1'));
+    // Click Visitor chip
+    fireEvent.click(screen.getByText('Visitor'));
 
     expect(mockGetCurrentPosition).toHaveBeenCalled();
   });

@@ -47,7 +47,7 @@ class GISRepository:
             FROM facilities f
             WHERE f.is_active
               AND f.category_id = :category_id
-              AND (:audience IS NULL OR f.audience = :audience)
+              AND (CAST(:audience AS audience_type) IS NULL OR f.audience = CAST(:audience AS audience_type))
               AND f.status = 'OPEN'
               AND ST_DWithin(f.geom, ST_MakePoint(:lon, :lat)::geography, :radius_m)
             ORDER BY distance_m ASC
@@ -59,7 +59,7 @@ class GISRepository:
             query,
             {
                 "category_id": category_id,
-                "audience": audience,
+                "audience": audience.value if audience else None,
                 "lat": lat,
                 "lon": lon,
                 "radius_m": radius_m,

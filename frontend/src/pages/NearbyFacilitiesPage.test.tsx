@@ -39,7 +39,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
 
 const defaultState = {
   selectedCategory: 'UNISEX',
-  accessibleOnly: false,
+  selectedAudience: null,
   location: { lat: 10, lon: 20, accuracy: 10 },
   locationStatus: 'granted' as const,
 };
@@ -165,19 +165,19 @@ describe('NearbyFacilitiesPage', () => {
     expect(screen.queryByText(SERVICE_UNAVAILABLE_MESSAGE)).not.toBeInTheDocument();
   });
 
-  it('renders MapView and FacilityList with real data, accessibleOnly has no effect', async () => {
+  it('renders MapView and FacilityList with real data, selectedAudience has no effect on api call', async () => {
     const mockData = [
       { id: 100, name: 'Real API Facility', category: 'UNISEX', status: 'OPEN', rating: 5, distance_m: 50, latitude: 10.1, longitude: 20.1 } as any
     ];
     vi.mocked(getNearbyFacilities).mockResolvedValue(mockData);
 
-    renderWithContext({ ...defaultState, accessibleOnly: true });
+    renderWithContext({ ...defaultState, selectedAudience: 'VISITOR' });
 
     await waitFor(() => {
       expect(screen.queryByText('Finding washrooms near you...')).not.toBeInTheDocument();
     });
 
-    // accessibleOnly should NOT be passed to API
+    // selectedAudience should NOT be passed to API
     expect(getNearbyFacilities).toHaveBeenCalledWith({
       lat: 10, lon: 20, category: 'UNISEX', radius_m: DEFAULT_RADIUS_M
     });

@@ -5,8 +5,8 @@ interface RecommendationParams {
   lat: number;
   lon: number;
   category: string;
-  radius_m: number;
-  accessibleOnly: boolean;
+  radius_m?: number;
+  selectedAudience?: 'VISITOR' | 'STAFF' | null;
 }
 
 /**
@@ -24,10 +24,9 @@ export function useRecommendation(params: RecommendationParams | null) {
         lat: params!.lat,
         lon: params!.lon,
         category: params!.category,
-        radius_m: params!.radius_m,
-        secondary_preference: params!.accessibleOnly
-          ? 'wheelchair_accessible'
-          : undefined,
+        radius_m: params!.radius_m ?? 1000,
+        secondary_preference:
+          params?.selectedAudience === 'STAFF' ? 'staff' : undefined,
       }),
     enabled: params !== null,
   });

@@ -1,13 +1,13 @@
-import type { NearbyFacility } from '../../types/facility';
+import type { NearbyWashroom } from '../../types/facility';
 import { FacilityListItem } from './FacilityListItem';
 import { EmptyState } from '../status/EmptyState';
 
 interface FacilityListProps {
-  facilities: NearbyFacility[];
+  facilities?: NearbyWashroom[];
 }
 
 export function FacilityList({ facilities }: FacilityListProps) {
-  if (facilities.length === 0) {
+  if (!facilities || facilities.length === 0) {
     return <EmptyState message="No facilities found nearby." />;
   }
 

@@ -39,7 +39,7 @@ describe('useRecommendation', () => {
       message: 'No suitable facilities were found within the current search radius.',
     });
 
-    const params = { lat: 6.9, lon: 79.8, category: 'male', radius_m: 1000, accessibleOnly: false };
+    const params = { lat: 6.9, lon: 79.8, category: 'male', radius_m: 1000, selectedAudience: null };
     const { result } = renderHook(() => useRecommendation(params), {
       wrapper: wrapper(client),
     });
@@ -56,7 +56,7 @@ describe('useRecommendation', () => {
     });
   });
 
-  it('maps accessibleOnly=true to secondary_preference="wheelchair_accessible"', async () => {
+  it('maps selectedAudience=STAFF to secondary_preference="staff"', async () => {
     const client = makeClient();
     vi.mocked(getRecommendations).mockResolvedValueOnce({
       recommended_facility: null,
@@ -65,7 +65,7 @@ describe('useRecommendation', () => {
       message: null,
     });
 
-    const params = { lat: 6.9, lon: 79.8, category: 'male', radius_m: 1000, accessibleOnly: true };
+    const params = { lat: 6.9, lon: 79.8, category: 'male', radius_m: 1000, selectedAudience: 'STAFF' as const };
     const { result } = renderHook(() => useRecommendation(params), {
       wrapper: wrapper(client),
     });
@@ -73,11 +73,11 @@ describe('useRecommendation', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(getRecommendations).toHaveBeenCalledWith(
-      expect.objectContaining({ secondary_preference: 'wheelchair_accessible' }),
+      expect.objectContaining({ secondary_preference: 'staff' }),
     );
   });
 
-  it('does NOT pass secondary_preference when accessibleOnly=false', async () => {
+  it('does NOT pass secondary_preference when selectedAudience=null', async () => {
     const client = makeClient();
     vi.mocked(getRecommendations).mockResolvedValueOnce({
       recommended_facility: null,
@@ -86,7 +86,7 @@ describe('useRecommendation', () => {
       message: null,
     });
 
-    const params = { lat: 6.9, lon: 79.8, category: 'male', radius_m: 1000, accessibleOnly: false };
+    const params = { lat: 6.9, lon: 79.8, category: 'male', radius_m: 1000, selectedAudience: null };
     const { result } = renderHook(() => useRecommendation(params), {
       wrapper: wrapper(client),
     });
