@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover" />
+<title>Pera Rest Nav — Campus Washroom Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+/* =========================================================
+   DESIGN TOKENS
+   ========================================================= */
+:root{
+  color-scheme: dark;
+
+  /* -- Night (default) palette -- */
+  --navy-950:#0A1826;
+  --navy-900:#0D2136;
+  --navy-800:#123048;
+  --navy-700:#1B4160;
+  --navy-600:#274F72;
+  --paper:#FFFFFF;
+  --ink:#0E1E2B;
+  --muted:#7F94A6;
+  --muted-soft:#4C6478;
+  --hairline:rgba(255,255,255,0.12);
+
+  --teal:#3FCBBE;
+  --teal-dark:#209A90;
+  --amber:#E7AE4E;
+  --amber-dark:#C88E2A;
+  --indigo:#6E7FD1;
+  --rose:#E28AA0;
+
+  --men:#2F6FED;
+  --women:#FF5FA0;
+  --unisex:#E7AE4E;
+  --accessible:#6E7FD1;
+
+  --pill-bg:rgba(255,255,255,0.08);
+  --pill-border:rgba(255,255,255,0.20);
+  --shadow-soft: 0 10px 28px rgba(4,12,20,0.35);
+  --shadow-card: 0 8px 22px rgba(4,12,20,0.28);
+
+  --radius-lg:22px;
+  --radius-md:16px;
+  --radius-sm:12px;
+}
+
+/* -- Day palette, toggled via body.day -- */
+body.day{
+  --navy-950:#EEF3F6;
+  --navy-900:#F5F8FA;
+  --navy-800:#FFFFFF;
+  --navy-700:#E4EBF0;
+  --navy-600:#D6E0E6;
+  --paper:#FFFFFF;
+  --ink:#0E1E2B;
+  --muted:#5C7080;
+  --muted-soft:#8298A8;
+  --hairline:rgba(14,30,43,0.10);
+  --pill-bg:rgba(14,30,43,0.05);
+  --pill-border:rgba(14,30,43,0.14);
+  --shadow-soft: 0 10px 24px rgba(20,40,60,0.10);
+  --shadow-card: 0 6px 16px rgba(20,40,60,0.08);
+  color-scheme: light;
+}
+
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:#060D15;
+  color:#fff;
+  -webkit-font-smoothing:antialiased;
+  transition:background .25s ease;
+}
+h1,h2,h3,.brand,.nav-label,button,.pill-search span{font-family:"Poppins",-apple-system,sans-serif;}
+
+/* =========================================================
+   PHONE FRAME
+   ========================================================= */
+#phone{
+  max-width:430px;
+  margin:0 auto;
+  height:100vh;
+  height:100dvh;
+  background:
+    radial-gradient(140% 60% at 15% -10%, var(--navy-700) 0%, transparent 60%),
+    linear-gradient(180deg, var(--navy-900) 0%, var(--navy-950) 55%, var(--navy-950) 100%);
+  color:var(--ink);
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 0 60px rgba(0,0,0,0.45);
+}
+body.day #phone{
+  background: linear-gradient(180deg, var(--navy-900) 0%, var(--navy-950) 100%);
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+header.topbar{
+  padding:22px 20px 4px;
+  flex-shrink:0;
+  color:#fff;
+}
+body.day header.topbar{color:var(--ink);}
+.topbar-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-mark{
+  width:34px;height:34px;
+  border-radius:11px;
+  background:linear-gradient(145deg, #16314C 0%, #0A1826 100%);
+  box-shadow:0 0 0 1px rgba(63,203,190,0.35), 0 0 14px rgba(63,203,190,0.45);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  position:relative;
+}
+.brand-mark svg{display:block;}
+.brand-mark .dot{
+  position:absolute;
+  bottom:-3px;left:50%;
+  transform:translateX(-50%);
+  width:9px;height:9px;
+  border-radius:50%;
+  background:var(--teal);
+  border:2px solid var(--navy-950);
+}
+.brand h1{
+  font-size:21px;
+  font-weight:700;
+  margin:0;
+  letter-spacing:0.1px;
+}
+.icon-btn{
+  width:40px;height:40px;
+  border-radius:12px;
+  border:1px solid var(--pill-border);
+  background:var(--pill-bg);
+  color:inherit;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:background .15s ease, transform .1s ease;
+  flex-shrink:0;
+}
+.icon-btn:active{transform:scale(0.94);}
+.icon-btn.active{background:var(--teal);border-color:var(--teal);color:#06302D;}
+
+/* Search pill */
+.pill-search{
+  margin-top:20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 18px;
+  border-radius:999px;
+  background:var(--pill-bg);
+  border:1px solid var(--pill-border);
+  cursor:text;
+}
+.pill-search svg{flex-shrink:0;color:var(--teal);}
+.pill-search input{
+  border:none;
+  background:transparent;
+  outline:none;
+  color:inherit;
+  font-family:"Inter",sans-serif;
+  font-size:14.5px;
+  width:100%;
+}
+.pill-search input::placeholder{color:var(--muted);}
+
+.chip-row{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  margin-top:14px;
+  padding-bottom:2px;
+  scrollbar-width:none;
+}
+.chip-row::-webkit-scrollbar{display:none;}
+.chip{
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 14px;
+  border-radius:999px;
+  font-size:12.5px;
+  font-weight:600;
+  color:inherit;
+  background:var(--pill-bg);
+  border:1px solid var(--pill-border);
+  cursor:pointer;
+  user-select:none;
+  transition:transform .1s ease, background .15s ease;
+}
+.chip:active{transform:scale(0.96);}
+.chip .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.chip.on{background:var(--teal);color:#06302D;border-color:var(--teal);}
+
+/* =========================================================
+   MAIN / VIEWS
+   ========================================================= */
+main{flex:1;position:relative;overflow:hidden;}
+.view{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.view.hidden{display:none;}
+
+/* ---------- HOME VIEW ---------- */
+#homeView{padding:22px 20px 24px;}
+.home-search{margin-bottom:22px;}
+
+.gender-card{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  background:var(--paper);
+  color:var(--ink);
+  border-radius:var(--radius-lg);
+  padding:18px 18px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow-card);
+  cursor:pointer;
+  transition:transform .12s ease;
+}
+.gender-card:active{transform:scale(0.985);}
+.gender-card .figure{
+  width:56px;height:56px;
+  border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.gender-card .figure.men{background:rgba(47,111,237,0.10);color:var(--men);}
+.gender-card .figure.women{background:rgba(255,95,160,0.14);color:var(--women);}
+.gender-card .figure.unisex{background:rgba(231,174,78,0.16);color:var(--amber-dark);}
+.gender-card .figure.accessible{background:rgba(110,127,209,0.14);color:var(--indigo);}
+.gender-card .figure.nearby{background:rgba(63,203,190,0.16);color:var(--teal-dark);}
+
+.gender-card .body{flex:1;min-width:0;}
+.gender-card .body h2{
+  margin:0 0 8px;
+  font-size:18.5px;
+  font-weight:700;
+}
+.gender-card .count{
+  font-size:12px;
+  color:var(--muted-soft);
+  font-weight:500;
+  margin:2px 0 0;
+}
+.audience-row{display:flex;gap:8px;}
+.audience-chip{
+  font-size:12px;
+  font-weight:600;
+  padding:6px 13px;
+  border-radius:999px;
+  border:1px solid transparent;
+  cursor:pointer;
+  transition:transform .1s ease;
+}
+.audience-chip:active{transform:scale(0.95);}
+.audience-chip.filled{background:var(--men);color:#fff;}
+.audience-chip.outline{background:transparent;color:var(--muted-soft);border-color:var(--hairline);}
+.gender-card[data-gender="female"] .audience-chip.filled{background:var(--women);}
+.gender-card[data-gender="unisex"] .audience-chip.filled{background:var(--amber-dark);}
+.gender-card[data-gender="accessible"] .audience-chip.filled{background:var(--indigo);}
+
+.secondary-row{display:flex;gap:12px;}
+.secondary-row .gender-card{flex:1;flex-direction:column;align-items:flex-start;gap:12px;}
+.secondary-row .gender-card .body h2{font-size:15.5px;}
+
+.settings-row{
+  margin-top:8px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  color:#fff;
+  font-size:13px;
+  font-weight:600;
+}
+body.day .settings-row{color:var(--ink);}
+.toggle{
+  width:44px;height:26px;
+  border-radius:999px;
+  background:var(--pill-bg);
+  border:1px solid var(--pill-border);
+  position:relative;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:background .2s ease;
+}
+.toggle .knob{
+  position:absolute;
+  top:2px;left:2px;
+  width:20px;height:20px;
+  border-radius:50%;
+  background:var(--muted);
+  transition:transform .2s ease, background .2s ease;
+}
+.toggle.on{background:var(--teal);border-color:var(--teal);}
+.toggle.on .knob{transform:translateX(18px);background:#06302D;}
+
+/* ---------- MAP VIEW ---------- */
+#map{width:100%;height:100%;background:#c9d3c0;}
+.fab{
+  position:absolute;
+  right:16px;
+  bottom:20px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:var(--teal);
+  color:#06302D;
+  border:none;
+  border-radius:999px;
+  padding:12px 18px;
+  font-weight:700;
+  font-size:13.5px;
+  box-shadow:var(--shadow-soft);
+  cursor:pointer;
+  z-index:500;
+  font-family:"Poppins",sans-serif;
+}
+.fab.on{background:var(--navy-900);color:#fff;}
+.fab:active{transform:scale(0.97);}
+
+/* ---------- LIST / SEARCH VIEW ---------- */
+#listView{padding:18px 18px 24px;}
+.result-meta{
+  font-size:12.5px;
+  color:var(--muted);
+  margin:2px 2px 14px;
+  font-weight:600;
+}
+.card{
+  display:flex;
+  gap:12px;
+  background:var(--paper);
+  color:var(--ink);
+  border-radius:var(--radius-md);
+  padding:13px;
+  margin-bottom:10px;
+  cursor:pointer;
+  border-left:5px solid var(--unisex);
+  box-shadow:var(--shadow-card);
+  transition:transform .1s ease;
+  position:relative;
+}
+.card:active{transform:scale(0.985);}
+.card .pin-icon{
+  width:40px;height:40px;
+  border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  color:#fff;
+}
+.card .info{flex:1;min-width:0;}
+.card .info h3{margin:0 0 2px;font-size:14.5px;font-weight:600;line-height:1.3;}
+.card .info p{margin:0;font-size:12.5px;color:var(--muted-soft);}
+.card .distance{
+  flex-shrink:0;
+  text-align:right;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:flex-end;
+  gap:5px;
+}
+.card .distance .m{font-weight:700;font-size:14px;color:var(--ink);}
+.badge{
+  font-size:10.5px;
+  font-weight:700;
+  padding:3px 9px;
+  border-radius:999px;
+  color:#fff;
+}
+.save-toggle{
+  position:absolute;
+  top:8px; right:8px;
+  width:26px;height:26px;
+  border-radius:50%;
+  border:none;
+  background:transparent;
+  color:var(--muted-soft);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.save-toggle.saved{color:var(--amber-dark);}
+
+/* ---------- Nearby section (under the main results list) ---------- */
+.nearby-section{
+  padding:0 18px 26px;
+  margin-top:6px;
+}
+.nearby-heading{
+  padding-top:18px;
+  border-top:1px solid var(--hairline);
+  margin-bottom:16px;
+}
+.nearby-heading h3{
+  margin:0 0 2px;
+  font-size:15.5px;
+  font-weight:700;
+  color:#fff;
+}
+body.day .nearby-heading h3{color:var(--ink);}
+.nearby-heading p{
+  margin:0;
+  font-size:12px;
+  color:var(--muted-soft);
+}
+.nearby-group{margin-bottom:18px;}
+.nearby-group:last-child{margin-bottom:0;}
+.nearby-group-head{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:0 2px 10px;
+}
+.nearby-group-head .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.nearby-group-head h4{
+  margin:0;
+  font-size:13px;
+  font-weight:700;
+  color:#fff;
+}
+body.day .nearby-group-head h4{color:var(--ink);}
+.nearby-empty{margin:0 2px 4px;font-size:12px;color:var(--muted);}
+
+/* ---------- Empty state ---------- */
+.empty-state{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  padding:64px 30px;
+  color:var(--muted);
+}
+.empty-state .icon-wrap{
+  width:64px;height:64px;
+  border-radius:50%;
+  background:var(--pill-bg);
+  border:1px solid var(--pill-border);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--teal);
+  margin-bottom:18px;
+}
+.empty-state h3{margin:0 0 6px;color:#fff;font-size:16px;}
+body.day .empty-state h3{color:var(--ink);}
+.empty-state p{margin:0 0 20px;font-size:13.5px;max-width:250px;}
+.btn-primary{
+  background:var(--teal);
+  color:#06302D;
+  border:none;
+  border-radius:11px;
+  padding:12px 22px;
+  font-weight:700;
+  font-size:13.5px;
+  cursor:pointer;
+  font-family:"Poppins",sans-serif;
+}
+
+/* ---------- SETTINGS VIEW ---------- */
+#settingsView{padding:22px 20px 24px;color:#fff;}
+body.day #settingsView{color:var(--ink);}
+#settingsView h2{font-size:18px;margin:0 0 18px;}
+.setting-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:var(--paper);
+  color:var(--ink);
+  border-radius:var(--radius-md);
+  padding:16px 18px;
+  margin-bottom:12px;
+  box-shadow:var(--shadow-card);
+}
+.setting-item .label{font-size:14px;font-weight:600;}
+.setting-item .sub{font-size:12px;color:var(--muted-soft);margin-top:2px;}
+.setting-item .unit-toggle{display:flex;gap:6px;}
+.unit-btn{
+  border:1px solid var(--hairline);
+  background:transparent;
+  color:var(--muted-soft);
+  border-radius:8px;
+  padding:6px 12px;
+  font-size:12.5px;
+  font-weight:600;
+  cursor:pointer;
+}
+.unit-btn.on{background:var(--navy-900);color:#fff;border-color:var(--navy-900);}
+.about-block{
+  font-size:12.5px;
+  color:var(--muted);
+  line-height:1.6;
+  padding:0 4px;
+  margin-top:18px;
+}
+
+/* =========================================================
+   BOTTOM NAV
+   ========================================================= */
+nav.bottom-nav{
+  display:flex;
+  background:var(--navy-950);
+  border-top:1px solid var(--hairline);
+  flex-shrink:0;
+  padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+  z-index:600;
+}
+.nav-btn{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+  padding:6px 0 4px;
+  border-radius:12px;
+  background:none;
+  border:none;
+  color:var(--muted-soft);
+  cursor:pointer;
+}
+.nav-btn.active{color:var(--teal);}
+.nav-label{font-size:11.5px;font-weight:700;}
+
+/* Bold "app icon" style square behind each nav glyph, sized up to match
+   the men's/women's washroom-symbol look — big, bold, high-contrast. */
+.nav-icon-wrap{
+  width:44px;height:44px;
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--pill-bg);
+  border:1px solid var(--pill-border);
+  transition:background .18s ease, border-color .18s ease, transform .15s ease;
+}
+.nav-btn svg{width:24px;height:24px;}
+.nav-btn.active .nav-icon-wrap{
+  background:var(--teal);
+  border-color:var(--teal);
+  box-shadow:0 6px 16px rgba(63,203,190,0.35);
+}
+.nav-btn.active .nav-icon-wrap svg{stroke:#06302D;color:#06302D;}
+.nav-btn:active .nav-icon-wrap{transform:scale(0.9);}
+
+/* =========================================================
+   DETAIL SHEET
+   ========================================================= */
+#backdrop{
+  position:absolute;inset:0;
+  background:rgba(6,13,21,0.55);
+  opacity:0;pointer-events:none;
+  transition:opacity .2s ease;
+  z-index:700;
+}
+#backdrop.show{opacity:1;pointer-events:auto;}
+
+#sheet{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  background:var(--paper);
+  color:var(--ink);
+  border-radius:22px 22px 0 0;
+  transform:translateY(100%);
+  transition:transform .25s ease;
+  z-index:800;
+  max-height:84%;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 -10px 34px rgba(0,0,0,0.35);
+}
+#sheet.show{transform:translateY(0);}
+.sheet-handle{width:40px;height:4px;background:var(--hairline);border-radius:99px;margin:10px auto 0;}
+.sheet-thumb{
+  margin:14px 18px 0;
+  height:96px;
+  border-radius:16px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(120deg, var(--navy-700), var(--navy-950));
+  position:relative;
+  overflow:hidden;
+}
+.sheet-thumb::after{
+  content:"";
+  position:absolute; inset:0;
+  background-image:radial-gradient(circle at 20% 30%, rgba(255,255,255,0.14) 0, transparent 40%),
+                    radial-gradient(circle at 80% 75%, rgba(255,255,255,0.10) 0, transparent 45%);
+}
+.sheet-rating{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  font-size:12.5px;
+  font-weight:700;
+  color:var(--ink);
+  margin:2px 0 3px;
+}
+.sheet-rating .reviews{font-weight:500;color:var(--muted-soft);}
+.sheet-status-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin:-6px 0 16px;
+}
+.status-pill{
+  font-size:11px;
+  font-weight:600;
+  padding:5px 10px;
+  border-radius:999px;
+  background:var(--navy-950);
+  color:#fff;
+}
+body.day .status-pill{background:var(--navy-700);color:var(--ink);}
+.status-pill.open{background:rgba(63,203,190,0.16);color:var(--teal-dark);}
+.status-pill.closed{background:rgba(226,85,78,0.14);color:#C23B34;}
+.sheet-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  padding:14px 18px 6px;
+}
+.sheet-header h2{margin:0 0 4px;font-size:17px;}
+.sheet-header .loc{font-size:13px;color:var(--muted-soft);margin:0;}
+.sheet-close{
+  width:32px;height:32px;
+  border-radius:50%;
+  border:1px solid var(--hairline);
+  background:transparent;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  color:var(--muted-soft);
+  flex-shrink:0;
+}
+.sheet-body{overflow-y:auto;padding:6px 18px 20px;}
+.sheet-tags{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+
+.inv-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:18px;
+}
+.inv-item{
+  background:var(--navy-950);
+  color:#fff;
+  border-radius:12px;
+  padding:12px 8px;
+  text-align:center;
+}
+body.day .inv-item{background:var(--navy-700);color:var(--ink);}
+.inv-item .n{font-size:20px;font-weight:700;display:block;}
+.inv-item .lbl{font-size:11px;color:var(--muted);font-weight:600;}
+.inv-item .ic{color:var(--teal);margin-bottom:4px;}
+
+.sheet-actions{display:flex;gap:10px;}
+.directions-btn, .save-btn{
+  border:none;
+  border-radius:12px;
+  padding:14px;
+  font-weight:700;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  cursor:pointer;
+  font-family:"Poppins",sans-serif;
+}
+.directions-btn{flex:1;background:var(--teal);color:#06302D;}
+.save-btn{width:52px;background:var(--navy-950);color:#fff;}
+.save-btn.saved{background:var(--amber);color:#4A3200;}
+
+/* Leaflet marker styling */
+.leaflet-div-pin{
+  width:30px;height:30px;
+  border-radius:50% 50% 50% 0;
+  transform:rotate(-45deg);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 8px rgba(0,0,0,0.3);
+  border:2px solid #fff;
+}
+.leaflet-div-pin svg{transform:rotate(45deg);}
+.user-dot{
+  width:16px;height:16px;
+  border-radius:50%;
+  background:#2C7BE5;
+  border:3px solid #fff;
+  box-shadow:0 0 0 4px rgba(44,123,229,0.25);
+}
+.leaflet-tooltip.you-label{
+  background:var(--navy-950);
+  color:#fff;
+  border:none;
+  border-radius:999px;
+  padding:2px 9px;
+  font-family:"Poppins",sans-serif;
+  font-size:10.5px;
+  font-weight:700;
+  box-shadow:0 3px 8px rgba(0,0,0,0.25);
+}
+.leaflet-tooltip.you-label::before{display:none;}
+
+/* =========================================================
+   TURN-BY-TURN NAVIGATION OVERLAY
+   ========================================================= */
+.directions-btn.secondary{
+  flex:none;
+  width:52px;
+  background:var(--navy-950);
+  color:#fff;
+}
+
+#navOverlay{
+  position:absolute;inset:0;
+  z-index:900;
+  background:var(--navy-950);
+  display:flex;
+  flex-direction:column;
+  transform:translateY(100%);
+  transition:transform .28s ease;
+}
+#navOverlay.show{transform:translateY(0);}
+#navOverlay.hidden{display:none;}
+
+.nav-topbar{
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:calc(16px + env(safe-area-inset-top)) 18px 16px;
+  background:linear-gradient(135deg, #BFE9E3 0%, #9FDCD3 100%);
+  color:#0E3B33;
+}
+.nav-title{font-family:"Poppins",sans-serif;font-weight:700;font-size:17px;line-height:1.25;}
+.nav-sub{font-size:12.5px;font-weight:600;color:#1F5B51;margin-top:2px;}
+.nav-stop-btn{
+  flex-shrink:0;
+  background:#fff;
+  color:#0E3B33;
+  border:none;
+  border-radius:999px;
+  padding:10px 16px;
+  font-weight:700;
+  font-size:12.5px;
+  font-family:"Poppins",sans-serif;
+  cursor:pointer;
+}
+.nav-stop-btn:active{transform:scale(0.96);}
+
+.nav-map-wrap{flex:1;position:relative;min-height:0;}
+#navMap{width:100%;height:100%;background:#c9d3c0;}
+
+.turn-banner{
+  position:absolute;
+  top:14px;left:14px;right:14px;
+  z-index:10;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  background:var(--paper);
+  color:var(--ink);
+  border-radius:18px;
+  padding:14px 16px;
+  box-shadow:var(--shadow-soft);
+}
+.turn-arrow{
+  flex-shrink:0;
+  width:48px;height:48px;
+  border-radius:14px;
+  background:linear-gradient(135deg, #BFE9E3 0%, #3FCBBE 100%);
+  color:#0E3B33;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .2s ease;
+}
+.turn-text{min-width:0;}
+.turn-instruction{font-family:"Poppins",sans-serif;font-weight:700;font-size:16px;line-height:1.25;color:var(--ink);}
+.turn-distance{font-size:12.5px;color:var(--muted-soft);font-weight:600;margin-top:2px;}
+
+.nav-sheet{
+  flex-shrink:0;
+  background:var(--paper);
+  color:var(--ink);
+  border-radius:22px 22px 0 0;
+  padding:16px 18px calc(16px + env(safe-area-inset-bottom));
+  box-shadow:0 -10px 30px rgba(0,0,0,0.3);
+}
+.nav-sheet-row{
+  display:flex;
+  gap:12px;
+  margin-bottom:14px;
+}
+.nav-sheet-col{
+  flex:1;
+  background:var(--navy-950);
+  color:#fff;
+  border-radius:14px;
+  padding:12px 14px;
+}
+body.day .nav-sheet-col{background:var(--navy-700);color:var(--ink);}
+.nav-sheet-label{font-size:11.5px;color:var(--muted);font-weight:600;}
+.nav-sheet-value{font-family:"Poppins",sans-serif;font-weight:700;font-size:16px;margin-top:3px;}
+
+.nav-sheet-actions{display:flex;align-items:center;gap:12px;}
+.nav-dest-pill{
+  flex:1;
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:var(--pill-bg);
+  border:1px solid var(--hairline);
+  border-radius:14px;
+  padding:10px 12px;
+}
+.nav-dest-icon{
+  flex-shrink:0;
+  width:36px;height:36px;
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;
+}
+.nav-dest-info{min-width:0;}
+.nav-dest-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nav-dest-sub{font-size:11px;color:var(--muted-soft);margin-top:1px;}
+.nav-end-btn{
+  flex-shrink:0;
+  width:52px;height:52px;
+  border-radius:16px;
+  border:none;
+  background:#E2554E;
+  color:#fff;
+  font-size:20px;
+  font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.nav-end-btn:active{transform:scale(0.94);}
+
+.nav-arrived-banner{
+  position:absolute;
+  top:14px;left:14px;right:14px;
+  z-index:10;
+  background:var(--teal);
+  color:#06302D;
+  border-radius:18px;
+  padding:16px;
+  text-align:center;
+  font-family:"Poppins",sans-serif;
+  font-weight:700;
+  font-size:15px;
+  box-shadow:var(--shadow-soft);
+}
+</style>
+</head>
+<body>
+
+<div id="phone">
+
+  <!-- ============ HEADER (shared) ============ -->
+  <header class="topbar">
+    <div class="topbar-row">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><circle cx="8.3" cy="4.8" r="2.3"/><path d="M8.3 8.2c-2.2 0-3.8 1.6-3.8 3.8v6h2.2v5h3.2v-5h2.2v-6c0-2.2-1.6-3.8-3.8-3.8z"/><circle cx="16.4" cy="4.3" r="2.1"/><path d="M16.4 7.6c-.8 0-1.5.5-1.7 1.3l-1.5 4.4h1.6l.3 5h2.6l.3-5h1.6l-1.5-4.4c-.2-.8-.9-1.3-1.7-1.3z"/></svg>
+          <div class="dot"></div>
+        </div>
+        <h1>Pera Rest Nav</h1>
+      </div>
+      <button class="icon-btn" id="menuBtn" aria-label="Menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ============ HOME VIEW ============ -->
+    <div class="view" id="homeView">
+      <div class="pill-search home-search" id="homeSearchPill">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="homeSearchInput" placeholder="Find nearest washroom..." />
+      </div>
+
+      <div class="gender-card" data-gender="male">
+        <div class="figure men">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="3"/><path d="M12 9c-3 0-5 2-5 5v7h3v-6h4v6h3v-7c0-3-2-5-5-5z"/></svg>
+        </div>
+        <div class="body">
+          <h2>Men's</h2>
+          <div class="audience-row">
+            <span class="audience-chip filled" data-audience="visitor">Visitor</span>
+            <span class="audience-chip outline" data-audience="staff">Staff</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="gender-card" data-gender="female">
+        <div class="figure women">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="4.5" r="3"/><path d="M12 8c-1 0-1.8.6-2.1 1.6L8 15h2l.4 6h3.2l.4-6h2l-1.9-5.4C13.8 8.6 13 8 12 8z"/></svg>
+        </div>
+        <div class="body">
+          <h2>Women's</h2>
+          <div class="audience-row">
+            <span class="audience-chip filled" data-audience="visitor">Visitor</span>
+            <span class="audience-chip outline" data-audience="staff">Staff</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="gender-card" data-gender="nearby" id="nearbyHomeCard">
+        <div class="figure nearby">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+        </div>
+        <div class="body">
+          <h2>Nearby</h2>
+          <p class="count">Washrooms closest to you right now</p>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <span>Night Mode</span>
+        <div class="toggle" id="nightToggleHome"><div class="knob"></div></div>
+      </div>
+    </div>
+
+    <!-- ============ MAP VIEW ============ -->
+    <div class="view hidden" id="mapView">
+      <div id="map"></div>
+      <button class="fab" id="nearMeBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+        <span>Near me (100m)</span>
+      </button>
+    </div>
+
+    <!-- ============ SEARCH / LIST VIEW ============ -->
+    <div class="view hidden" id="searchView">
+      <div style="padding:16px 18px 0;">
+        <div class="pill-search" id="listSearchPill">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Search building or location..." />
+        </div>
+        <div class="chip-row" id="chipRow">
+          <div class="chip on" data-gender="all"><span>All</span></div>
+          <div class="chip" data-gender="male"><span class="dot" style="background:var(--men)"></span><span>Men's</span></div>
+          <div class="chip" data-gender="female"><span class="dot" style="background:var(--women)"></span><span>Women's</span></div>
+        </div>
+      </div>
+      <div id="listView"></div>
+      <div id="nearbySection" class="nearby-section"></div>
+    </div>
+
+    <!-- ============ SAVED VIEW ============ -->
+    <div class="view hidden" id="savedView">
+      <div id="savedList" style="padding:18px 18px 24px;"></div>
+    </div>
+
+    <!-- ============ SETTINGS VIEW ============ -->
+    <div class="view hidden" id="settingsView">
+      <h2>Settings</h2>
+
+      <div class="setting-item">
+        <div>
+          <div class="label">Night Mode</div>
+          <div class="sub">Switch between dark &amp; light theme</div>
+        </div>
+        <div class="toggle" id="nightToggleSettings"><div class="knob"></div></div>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <div class="label">Distance unit</div>
+          <div class="sub">Used across map, list &amp; details</div>
+        </div>
+        <div class="unit-toggle">
+          <button class="unit-btn on" data-unit="m">Meters</button>
+          <button class="unit-btn" data-unit="ft">Feet</button>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <div class="label">Use precise location</div>
+          <div class="sub">Improves "Near me" accuracy</div>
+        </div>
+        <div class="toggle on" id="locToggleSettings"><div class="knob"></div></div>
+      </div>
+
+      <div class="about-block">
+        Pera Rest Nav helps visitors and staff find the nearest washroom on campus, filtered by
+        facility type, with live directions. Saved items are kept for this session only.
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="map">
+      <span class="nav-icon-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="1,6 1,22 8,18 16,22 23,18 23,2 16,6 8,2"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></span>
+      <span class="nav-label">Map</span>
+    </button>
+    <button class="nav-btn" data-view="search">
+      <span class="nav-icon-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <span class="nav-label">Search</span>
+    </button>
+    <button class="nav-btn" data-view="saved">
+      <span class="nav-icon-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg></span>
+      <span class="nav-label">Saved</span>
+    </button>
+    <button class="nav-btn" data-view="settings">
+      <span class="nav-icon-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 0 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 0 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 0 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg></span>
+      <span class="nav-label">Settings</span>
+    </button>
+  </nav>
+
+  <!-- ============ DETAIL SHEET ============ -->
+  <div id="backdrop"></div>
+  <div id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-thumb" id="sheetThumb"></div>
+    <div class="sheet-header">
+      <div>
+        <h2 id="sheetName">—</h2>
+        <div class="sheet-rating" id="sheetRating"></div>
+        <p class="loc" id="sheetLoc">—</p>
+      </div>
+      <button class="sheet-close" id="sheetClose">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg>
+      </button>
+    </div>
+    <div class="sheet-body">
+      <div class="sheet-tags" id="sheetTags"></div>
+      <div class="sheet-status-row" id="sheetStatusRow"></div>
+      <div class="inv-grid" id="invGrid"></div>
+      <div class="sheet-actions">
+        <button class="directions-btn" id="directionsBtn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3,11 22,2 13,21 11,13 3,11"/></svg>
+          Navigate
+        </button>
+        <button class="directions-btn secondary" id="gmapsBtn" aria-label="Open in Google Maps">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-7.3-7-12a7 7 0 0 1 14 0c0 4.7-7 12-7 12z"/><circle cx="12" cy="9" r="2.3"/></svg>
+        </button>
+        <button class="save-btn" id="sheetSaveBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TURN-BY-TURN NAVIGATION OVERLAY ============ -->
+  <div id="navOverlay" class="hidden">
+    <div class="nav-topbar">
+      <div>
+        <div class="nav-title">Walking to Washroom</div>
+        <div class="nav-sub" id="navSubtitle">Calculating route…</div>
+      </div>
+      <button class="nav-stop-btn" id="navStopBtn">Stop Navigation</button>
+    </div>
+    <div class="nav-map-wrap">
+      <div id="navMap"></div>
+      <div class="turn-banner" id="turnBanner">
+        <div class="turn-arrow" id="turnArrow">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="6,11 12,5 18,11"/></svg>
+        </div>
+        <div class="turn-text">
+          <div class="turn-instruction" id="turnInstruction">Getting your route…</div>
+          <div class="turn-distance" id="turnDistance">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-sheet">
+      <div class="nav-sheet-row">
+        <div class="nav-sheet-col">
+          <div class="nav-sheet-label">Next Turn</div>
+          <div class="nav-sheet-value" id="nextTurnValue">—</div>
+        </div>
+        <div class="nav-sheet-col">
+          <div class="nav-sheet-label">Remaining</div>
+          <div class="nav-sheet-value" id="remainingValue">—</div>
+        </div>
+      </div>
+      <div class="nav-sheet-actions">
+        <div class="nav-dest-pill">
+          <div class="nav-dest-icon" id="navDestIcon"></div>
+          <div class="nav-dest-info">
+            <div class="nav-dest-name" id="navDestName">—</div>
+            <div class="nav-dest-sub">Distance and time update as you walk</div>
+          </div>
+        </div>
+        <button class="nav-end-btn" id="navEndBtn" aria-label="End trip">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* =========================================================
+   DATA
+   Extend original dataset with an "audience" field
+   (visitor-facing vs staff-only) used by the home screen chips.
+   ========================================================= */
+const washroomData = [
+  { id: 1,  name: "WUS Canteen Washroom",                      genderCategory: "unisex",     audience: "visitor", fixtures: { attached: 1, normal: 2, shower: 4, sink: 6, mirror: 2 }, lat: 7.2541, lng: 80.5972, locationName: "WUS Canteen" },
+  { id: 2,  name: "GB Canteen Washroom (Female)",               genderCategory: "female",     audience: "visitor", fixtures: { attached: 1, normal: 2, shower: 4, sink: 6, mirror: 2 }, lat: 7.2583, lng: 80.5974, locationName: "GB Canteen" },
+  { id: 3,  name: "MA Canteen Washroom (Male)",                 genderCategory: "male",       audience: "visitor", fixtures: { attached: 1, normal: 2, shower: 4, sink: 6, mirror: 2 }, lat: 7.2530, lng: 80.5961, locationName: "MA Canteen" },
+  { id: 4,  name: "Gymnasium Female Washroom",                  genderCategory: "female",     audience: "visitor", fixtures: { attached: 1, normal: 2, shower: 4, sink: 6, mirror: 2 }, lat: 7.2515, lng: 80.5948, locationName: "University Gym" },
+  { id: 5,  name: "Gymnasium Male Washroom",                    genderCategory: "male",       audience: "visitor", fixtures: { attached: 1, normal: 2, shower: 4, sink: 6, mirror: 2 }, lat: 7.2516, lng: 80.5949, locationName: "University Gym" },
+  { id: 6,  name: "ICT Center Staff Washroom (Male)",           genderCategory: "male",       audience: "staff",   fixtures: { attached: 1, normal: 1, shower: 0, sink: 2, mirror: 1 }, lat: 7.2552, lng: 80.5980, locationName: "ICT Center" },
+  { id: 7,  name: "Faculty of Arts Main Complex (Accessible)",  genderCategory: "accessible", audience: "visitor", fixtures: { attached: 1, normal: 1, shower: 0, sink: 2, mirror: 1 }, lat: 7.2560, lng: 80.5968, locationName: "Arts Faculty" },
+  { id: 8,  name: "Faculty of Science Library Washroom",        genderCategory: "female",     audience: "visitor", fixtures: { attached: 0, normal: 3, shower: 0, sink: 4, mirror: 2 }, lat: 7.2545, lng: 80.5985, locationName: "Science Library" },
+  { id: 9,  name: "Senate Building Ground Floor Washroom",      genderCategory: "male",       audience: "staff",   fixtures: { attached: 1, normal: 2, shower: 0, sink: 3, mirror: 2 }, lat: 7.2571, lng: 80.5970, locationName: "Senate Building" },
+  { id: 10, name: "Engineering Canteen Washroom",               genderCategory: "unisex",     audience: "visitor", fixtures: { attached: 0, normal: 4, shower: 0, sink: 5, mirror: 3 }, lat: 7.2510, lng: 80.5930, locationName: "Engineering Faculty" },
+  { id: 11, name: "Health Center Visitor Washroom",             genderCategory: "accessible", audience: "visitor", fixtures: { attached: 1, normal: 1, shower: 1, sink: 2, mirror: 1 }, lat: 7.2528, lng: 80.5955, locationName: "Health Center" },
+  { id: 12, name: "Management Faculty Canteen Washroom",        genderCategory: "female",     audience: "visitor", fixtures: { attached: 1, normal: 2, shower: 0, sink: 4, mirror: 2 }, lat: 7.2588, lng: 80.5981, locationName: "Management Faculty" },
+  { id: 13, name: "Agriculture Faculty Main Washroom",          genderCategory: "male",       audience: "staff",   fixtures: { attached: 0, normal: 3, shower: 0, sink: 3, mirror: 2 }, lat: 7.2595, lng: 80.5990, locationName: "Agri Faculty" },
+  { id: 14, name: "Sarachchandra Open Air Theatre Washroom",    genderCategory: "unisex",     audience: "visitor", fixtures: { attached: 0, normal: 4, shower: 0, sink: 4, mirror: 2 }, lat: 7.2565, lng: 80.5950, locationName: "Open Air Theatre" },
+  { id: 15, name: "University Track & Field Washroom",          genderCategory: "female",     audience: "visitor", fixtures: { attached: 1, normal: 2, shower: 2, sink: 3, mirror: 1 }, lat: 7.2505, lng: 80.5940, locationName: "Grounds" }
+];
+
+/* Deterministic demo rating/review/status data, derived from each id so
+   values stay stable across reloads without needing browser storage. */
+washroomData.forEach(w => {
+  w.rating = (4.2 + ((w.id * 7) % 8) / 10).toFixed(1);
+  w.reviews = 28 + ((w.id * 37) % 160);
+  w.openNow = w.id % 11 !== 0; // almost always open, one or two demo exceptions
+  const cleanliness = ((w.id * 13) % 10) >= 3 ? "Very Clean" : "Clean";
+  w.statusTags = [cleanliness, w.openNow ? "Open Now" : "Closed", w.genderCategory === "accessible" ? "Accessible" : (w.fixtures.attached ? "Private stalls" : "Shared stalls")];
+});
+
+const CATEGORY_COLORS = { female: "#3FCBBE", male: "#1B4160", unisex: "#E7AE4E", accessible: "#6E7FD1" };
+const CATEGORY_LABELS = { female: "Women's", male: "Men's", unisex: "Gender-Neutral", accessible: "Accessible" };
+
+const ICONS = {
+  pin: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-7.3-7-12a7 7 0 0 1 14 0c0 4.7-7 12-7 12z"/><circle cx="12" cy="9" r="2.3"/></svg>`,
+  markerMale: `<svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="5" r="3"/><path d="M12 9c-3 0-5 2-5 5v7h3v-6h4v6h3v-7c0-3-2-5-5-5z"/></svg>`,
+  markerFemale: `<svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="4.5" r="3"/><path d="M12 8c-1 0-1.8.6-2.1 1.6L8 15h2l.4 6h3.2l.4-6h2l-1.9-5.4C13.8 8.6 13 8 12 8z"/></svg>`,
+  markerUnisex: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 8v8M15 8v8M9 12h6"/></svg>`,
+  markerAccessible: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.2" r="1.7"/><path d="M11 8.5v4.5l-3.5 5.5"/><path d="M11 10h5l-1.2 3"/><circle cx="15" cy="17.5" r="3.3"/></svg>`,
+  star: `<svg width="13" height="13" viewBox="0 0 24 24" fill="#E7AE4E" stroke="none"><path d="M12 2.5l2.9 6.3 6.9.7-5.2 4.7 1.5 6.8L12 17.6 5.9 21l1.5-6.8L2.2 9.5l6.9-.7z"/></svg>`,
+  attached: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h12v3a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5v-3z"/><path d="M8 12V6a2 2 0 0 1 2-2h1"/></svg>`,
+  normal: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="10" rx="6" ry="4"/><path d="M7 13v3a5 5 0 0 0 10 0v-3"/></svg>`,
+  shower: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5l1.5-1.5"/><path d="M15 4a5 5 0 0 1 5 5"/><rect x="4" y="8" width="12" height="4" rx="2"/><line x1="7" y1="15" x2="7" y2="16.5"/><line x1="10" y1="15" x2="10" y2="17.5"/><line x1="13" y1="15" x2="13" y2="16.5"/></svg>`,
+  sink: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"/><path d="M5 12a7 3.2 0 0 0 14 0"/><path d="M12 12V6"/><path d="M9 4h6"/></svg>`,
+  mirror: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="16" rx="3"/><line x1="9" y1="7" x2="9" y2="15"/></svg>`,
+  compassEmpty: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="14.5,9.5 10,10 9.5,14.5 14,14"/></svg>`,
+  bookmark: `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>`,
+  bookmarkOutline: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>`
+};
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const state = {
+  view: "home",              // home | map | search | saved | settings
+  activeGender: "all",
+  activeAudience: null,      // null | "visitor" | "staff" — set from home cards
+  searchText: "",
+  nearMeActive: false,
+  nightMode: false,          // spec: app must default to Light Mode on first launch
+  unit: "m",                 // m | ft
+  userLoc: { lat: 7.2545, lng: 80.5965 }, // fallback: approx campus centre
+  selectedId: null,
+  savedIds: new Set()        // in-memory only (resets on reload — no browser storage used)
+};
+
+/* =========================================================
+   GEOLOCATION + DISTANCE
+   ========================================================= */
+function distanceMeters(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const toRad = d => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function formatDistance(m) {
+  if (state.unit === "ft") {
+    const ft = m * 3.28084;
+    if (ft < 1000) return Math.round(ft) + " ft";
+    return (ft / 5280).toFixed(1) + " mi";
+  }
+  if (m < 1000) return Math.round(m) + " m";
+  return (m / 1000).toFixed(1) + " km";
+}
+
+function requestUserLocation() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      state.userLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      refreshAll();
+      if (userMarker) userMarker.setLatLng([state.userLoc.lat, state.userLoc.lng]);
+    },
+    () => { /* permission denied — keep fallback campus-centre location */ },
+    { enableHighAccuracy: true, timeout: 6000 }
+  );
+}
+
+/* =========================================================
+   FILTERING
+   ========================================================= */
+function getFilteredWashrooms({ ignoreAudience = false } = {}) {
+  let list = washroomData.map(w => ({
+    ...w,
+    distance: distanceMeters(state.userLoc.lat, state.userLoc.lng, w.lat, w.lng)
+  }));
+
+  if (state.activeGender !== "all") {
+    list = list.filter(w => w.genderCategory === state.activeGender);
+  }
+  if (!ignoreAudience && state.activeAudience) {
+    list = list.filter(w => w.audience === state.activeAudience);
+  }
+  if (state.searchText.trim()) {
+    const q = state.searchText.toLowerCase();
+    list = list.filter(w => w.name.toLowerCase().includes(q) || w.locationName.toLowerCase().includes(q));
+  }
+  if (state.nearMeActive) {
+    list = list.filter(w => w.distance <= 100);
+  }
+  list.sort((a, b) => a.distance - b.distance);
+  return list;
+}
+
+/* =========================================================
+   MAP (Leaflet)
+   ========================================================= */
+let map, markerLayer, userMarker;
+let navMap;
+
+function initMap() {
+  map = L.map("map", { zoomControl: false }).setView([state.userLoc.lat, state.userLoc.lng], 16);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(map);
+  L.control.zoom({ position: "bottomleft" }).addTo(map);
+
+  markerLayer = L.layerGroup().addTo(map);
+
+  userMarker = L.marker([state.userLoc.lat, state.userLoc.lng], {
+    icon: L.divIcon({ className: "", html: '<div class="user-dot"></div>', iconSize: [16, 16] })
+  }).addTo(map).bindTooltip("You", { permanent: true, direction: "top", offset: [0, -6], className: "you-label" });
+}
+
+const CATEGORY_MARKER_ICON = {
+  male: ICONS.markerMale,
+  female: ICONS.markerFemale,
+  unisex: ICONS.markerUnisex,
+  accessible: ICONS.markerAccessible
+};
+
+function makePinIcon(category, color) {
+  return L.divIcon({
+    className: "",
+    html: `<div class="leaflet-div-pin" style="background:${color}">${CATEGORY_MARKER_ICON[category] || ICONS.pin}</div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 28]
+  });
+}
+
+function renderMapMarkers(list) {
+  markerLayer.clearLayers();
+  list.forEach(w => {
+    const marker = L.marker([w.lat, w.lng], { icon: makePinIcon(w.genderCategory, CATEGORY_COLORS[w.genderCategory]) });
+    marker.on("click", () => openDetail(w.id));
+    marker.bindTooltip(w.name, { direction: "top", offset: [0, -26] });
+    marker.addTo(markerLayer);
+  });
+}
+
+/* =========================================================
+   LIST VIEW (search tab)
+   ========================================================= */
+function cardTemplate(w) {
+  const saved = state.savedIds.has(w.id);
+  return `
+    <div class="card" style="border-left-color:${CATEGORY_COLORS[w.genderCategory]}" data-id="${w.id}">
+      <button class="save-toggle ${saved ? "saved" : ""}" data-save-id="${w.id}" aria-label="Save">
+        ${saved ? ICONS.bookmark : ICONS.bookmarkOutline}
+      </button>
+      <div class="pin-icon" style="background:${CATEGORY_COLORS[w.genderCategory]}">${ICONS.pin}</div>
+      <div class="info">
+        <h3>${w.name}</h3>
+        <p>${w.locationName}</p>
+      </div>
+      <div class="distance">
+        <span class="m">${formatDistance(w.distance)}</span>
+        <span class="badge" style="background:${CATEGORY_COLORS[w.genderCategory]}">${CATEGORY_LABELS[w.genderCategory]}</span>
+      </div>
+    </div>`;
+}
+
+function emptyStateTemplate(message, sub) {
+  return `
+    <div class="empty-state">
+      <div class="icon-wrap">${ICONS.compassEmpty}</div>
+      <h3>${message}</h3>
+      <p>${sub}</p>
+      <button class="btn-primary" id="showAllBtn">Show all on map</button>
+    </div>`;
+}
+
+function wireCardEvents(root) {
+  root.querySelectorAll(".card").forEach(card => {
+    card.addEventListener("click", (e) => {
+      if (e.target.closest(".save-toggle")) return;
+      openDetail(Number(card.dataset.id));
+    });
+  });
+  root.querySelectorAll("[data-save-id]").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleSaved(Number(btn.dataset.saveId));
+    });
+  });
+  const showAllBtn = root.querySelector("#showAllBtn");
+  if (showAllBtn) {
+    showAllBtn.addEventListener("click", () => {
+      state.activeGender = "all";
+      state.activeAudience = null;
+      state.searchText = "";
+      state.nearMeActive = false;
+      document.getElementById("searchInput").value = "";
+      document.getElementById("nearMeBtn").classList.remove("on");
+      updateChipUI();
+      setView("map");
+      refreshAll();
+    });
+  }
+}
+
+function renderList(list) {
+  const el = document.getElementById("listView");
+  if (list.length === 0) {
+    el.innerHTML = emptyStateTemplate("No washrooms match this search.", "Try widening your search — clear filters to see every washroom on campus.");
+    wireCardEvents(el);
+    return;
+  }
+  el.innerHTML =
+    `<div class="result-meta">${list.length} washroom${list.length === 1 ? "" : "s"} found</div>` +
+    list.map(cardTemplate).join("");
+  wireCardEvents(el);
+}
+
+/* =========================================================
+   NEARBY SECTION (Men's / Women's shown separately)
+   ========================================================= */
+const NEARBY_LIMIT = 3; // closest washrooms shown per gender
+
+function nearbyByGender(gender) {
+  return washroomData
+    .filter(w => w.genderCategory === gender)
+    .map(w => ({ ...w, distance: distanceMeters(state.userLoc.lat, state.userLoc.lng, w.lat, w.lng) }))
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, NEARBY_LIMIT);
+}
+
+function nearbyGroupTemplate(label, colorVar, list) {
+  const head = `<div class="nearby-group-head"><span class="dot" style="background:${colorVar}"></span><h4>${label}</h4></div>`;
+  if (list.length === 0) {
+    return `<div class="nearby-group">${head}<p class="nearby-empty">No ${label.toLowerCase()} washrooms nearby.</p></div>`;
+  }
+  return `<div class="nearby-group">${head}${list.map(cardTemplate).join("")}</div>`;
+}
+
+function renderNearbySection() {
+  const el = document.getElementById("nearbySection");
+  if (!el) return;
+  const men = nearbyByGender("male");
+  const women = nearbyByGender("female");
+  el.innerHTML =
+    `<div class="nearby-heading">
+      <h3>Nearby</h3>
+      <p>The closest washrooms to your current location</p>
+    </div>` +
+    nearbyGroupTemplate("Men's", "var(--men)", men) +
+    nearbyGroupTemplate("Women's", "var(--women)", women);
+  wireCardEvents(el);
+}
+
+/* =========================================================
+   SAVED VIEW
+   ========================================================= */
+function toggleSaved(id) {
+  if (state.savedIds.has(id)) state.savedIds.delete(id);
+  else state.savedIds.add(id);
+  refreshAll();
+}
+
+function renderSaved() {
+  const el = document.getElementById("savedList");
+  const list = washroomData
+    .filter(w => state.savedIds.has(w.id))
+    .map(w => ({ ...w, distance: distanceMeters(state.userLoc.lat, state.userLoc.lng, w.lat, w.lng) }))
+    .sort((a, b) => a.distance - b.distance);
+
+  if (list.length === 0) {
+    el.innerHTML = `
+      <div class="empty-state">
+        <div class="icon-wrap">${ICONS.bookmarkOutline}</div>
+        <h3>No saved washrooms yet</h3>
+        <p>Tap the bookmark icon on any washroom to keep it here for this session.</p>
+      </div>`;
+    return;
+  }
+  el.innerHTML = `<div class="result-meta">${list.length} saved</div>` + list.map(cardTemplate).join("");
+  wireCardEvents(el);
+}
+
+/* =========================================================
+   DETAIL SHEET
+   ========================================================= */
+function openDetail(id) {
+  const w = washroomData.find(x => x.id === id);
+  if (!w) return;
+  state.selectedId = id;
+  const dist = distanceMeters(state.userLoc.lat, state.userLoc.lng, w.lat, w.lng);
+
+  document.getElementById("sheetName").textContent = w.name;
+  document.getElementById("sheetThumb").style.background =
+    `linear-gradient(135deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 60%), linear-gradient(120deg, ${CATEGORY_COLORS[w.genderCategory]}, var(--navy-950))`;
+  document.getElementById("sheetRating").innerHTML =
+    `${ICONS.star} <span>${w.rating}</span> <span class="reviews">(${w.reviews} reviews)</span>`;
+  document.getElementById("sheetLoc").textContent = `${w.locationName} · ${formatDistance(dist)} away`;
+  document.getElementById("sheetStatusRow").innerHTML = w.statusTags.map(tag =>
+    `<span class="status-pill ${tag === "Open Now" ? "open" : tag === "Closed" ? "closed" : ""}">${tag}</span>`
+  ).join("");
+  document.getElementById("sheetTags").innerHTML =
+    `<span class="badge" style="background:${CATEGORY_COLORS[w.genderCategory]}">${CATEGORY_LABELS[w.genderCategory]}</span>
+     <span class="badge" style="background:${w.audience === "staff" ? "#4C6478" : "#209A90"}">${w.audience === "staff" ? "Staff" : "Visitor"}</span>`;
+
+  const inv = w.fixtures;
+  const items = [
+    ["attached", "Attached", inv.attached],
+    ["normal", "Normal", inv.normal],
+    ["shower", "Showers", inv.shower],
+    ["sink", "Sinks", inv.sink],
+    ["mirror", "Mirrors", inv.mirror]
+  ];
+  document.getElementById("invGrid").innerHTML = items.map(([key, label, count]) => `
+    <div class="inv-item">
+      <div class="ic">${ICONS[key]}</div>
+      <span class="n">${count}</span>
+      <span class="lbl">${label}</span>
+    </div>`).join("");
+
+  document.getElementById("directionsBtn").onclick = () => {
+    openNavigation(w);
+  };
+  document.getElementById("gmapsBtn").onclick = () => {
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${state.userLoc.lat},${state.userLoc.lng}&destination=${w.lat},${w.lng}&travelmode=walking`;
+    window.open(url, "_blank");
+  };
+
+  const saveBtn = document.getElementById("sheetSaveBtn");
+  const applySaveBtnState = () => {
+    const saved = state.savedIds.has(w.id);
+    saveBtn.classList.toggle("saved", saved);
+    saveBtn.innerHTML = saved
+      ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>`
+      : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>`;
+  };
+  applySaveBtnState();
+  saveBtn.onclick = () => { toggleSaved(w.id); applySaveBtnState(); };
+
+  document.getElementById("sheet").classList.add("show");
+  document.getElementById("backdrop").classList.add("show");
+}
+
+function closeDetail() {
+  document.getElementById("sheet").classList.remove("show");
+  document.getElementById("backdrop").classList.remove("show");
+  state.selectedId = null;
+}
+
+/* =========================================================
+   TURN-BY-TURN NAVIGATION
+   ========================================================= */
+const navState = {
+  destination: null,
+  steps: [],
+  stepIdx: 0,
+  watchId: null,
+  mapInited: false,
+  routeLine: null,
+  destMarker: null,
+  userMarker: null
+};
+
+const MANEUVER_TEXT = {
+  "straight": "Continue straight",
+  "slight left": "Slight left",
+  "slight right": "Slight right",
+  "left": "Turn left",
+  "right": "Turn right",
+  "sharp left": "Sharp left",
+  "sharp right": "Sharp right",
+  "uturn": "Make a U-turn"
+};
+const MANEUVER_ROTATION = {
+  "straight": 0, "slight right": 35, "right": 90, "sharp right": 135,
+  "uturn": 180, "sharp left": -135, "left": -90, "slight left": -35
+};
+
+function stepInstruction(step) {
+  if (!step) return "Continue";
+  if (step.maneuver.type === "depart") return "Head out";
+  if (step.maneuver.type === "arrive") return "You've arrived";
+  return MANEUVER_TEXT[step.maneuver.modifier] || "Continue";
+}
+function stepRotation(step) {
+  if (!step) return 0;
+  if (step.maneuver.type === "arrive") return 0;
+  return MANEUVER_ROTATION[step.maneuver.modifier] ?? 0;
+}
+function remainingSecondsToMinutes(distM) {
+  const walkSpeed = 1.3; // m/s, average walking pace
+  return Math.max(1, Math.round(distM / walkSpeed / 60));
+}
+
+function initNavMap() {
+  navMap = L.map("navMap", { zoomControl: false }).setView([state.userLoc.lat, state.userLoc.lng], 17);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(navMap);
+  L.control.zoom({ position: "bottomleft" }).addTo(navMap);
+  navState.userMarker = L.marker([state.userLoc.lat, state.userLoc.lng], {
+    icon: L.divIcon({ className: "", html: '<div class="user-dot"></div>', iconSize: [16, 16] })
+  }).addTo(navMap).bindTooltip("You", { permanent: true, direction: "top", offset: [0, -6], className: "you-label" });
+  navState.mapInited = true;
+}
+
+async function loadRoute(w) {
+  document.getElementById("navSubtitle").textContent = "Calculating route…";
+  const origin = state.userLoc;
+  try {
+    const url = `https://router.project-osrm.org/route/v1/foot/${origin.lng},${origin.lat};${w.lng},${w.lat}?overview=full&geometries=geojson&steps=true`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const route = data.routes && data.routes[0];
+    if (!route) throw new Error("no route");
+
+    navState.steps = route.legs[0].steps;
+    navState.stepIdx = 0;
+
+    const latlngs = route.geometry.coordinates.map(c => [c[1], c[0]]);
+    if (navState.routeLine) navMap.removeLayer(navState.routeLine);
+    navState.routeLine = L.polyline(latlngs, {
+      color: "#3FCBBE", weight: 5, opacity: 0.95, dashArray: "1 10", lineCap: "round"
+    }).addTo(navMap);
+    navMap.fitBounds(navState.routeLine.getBounds(), { padding: [36, 36] });
+
+    document.getElementById("navSubtitle").textContent = `${formatDistance(route.distance)} · ${remainingSecondsToMinutes(route.distance)} min walk · Open Now`;
+    updateNavBanner(route.distance);
+  } catch (err) {
+    // Fallback: straight line if the routing service can't be reached
+    const straightDist = distanceMeters(origin.lat, origin.lng, w.lat, w.lng);
+    navState.steps = [{ maneuver: { type: "depart" }, distance: straightDist }, { maneuver: { type: "arrive" }, distance: 0 }];
+    navState.stepIdx = 0;
+    if (navState.routeLine) navMap.removeLayer(navState.routeLine);
+    navState.routeLine = L.polyline([[origin.lat, origin.lng], [w.lat, w.lng]], {
+      color: "#3FCBBE", weight: 5, opacity: 0.95, dashArray: "1 10"
+    }).addTo(navMap);
+    navMap.fitBounds(navState.routeLine.getBounds(), { padding: [36, 36] });
+    document.getElementById("navSubtitle").textContent = `${formatDistance(straightDist)} · ${remainingSecondsToMinutes(straightDist)} min walk (approx.)`;
+    updateNavBanner(straightDist);
+  }
+}
+
+function totalRemainingDistance() {
+  return navState.steps.slice(navState.stepIdx).reduce((sum, s) => sum + s.distance, 0);
+}
+
+function updateNavBanner(remainingOverride) {
+  const step = navState.steps[navState.stepIdx];
+  const nextStep = navState.steps[navState.stepIdx + 1];
+  const arrived = !step || step.maneuver.type === "arrive";
+
+  const banner = document.getElementById("turnBanner");
+  if (arrived) {
+    banner.innerHTML = `<div class="turn-arrow" style="background:var(--teal)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#06302D" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg></div>
+      <div class="turn-text"><div class="turn-instruction">You've arrived</div><div class="turn-distance">${navState.destination ? navState.destination.name : ""}</div></div>`;
+  } else {
+    document.getElementById("turnInstruction").textContent = stepInstruction(step);
+    document.getElementById("turnDistance").textContent = `${formatDistance(step.distance)} ahead`;
+    document.getElementById("turnArrow").style.transform = `rotate(${stepRotation(step)}deg)`;
+  }
+
+  const remaining = remainingOverride != null ? remainingOverride : totalRemainingDistance();
+  document.getElementById("nextTurnValue").textContent = arrived ? "Arrived" : formatDistance(step.distance);
+  document.getElementById("remainingValue").textContent = `${formatDistance(remaining)} · ${remainingSecondsToMinutes(remaining)} min`;
+}
+
+function startWatchingPosition() {
+  if (!navigator.geolocation) return;
+  navState.watchId = navigator.geolocation.watchPosition(
+    pos => {
+      const cur = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      state.userLoc = cur;
+      if (navState.userMarker) navState.userMarker.setLatLng([cur.lat, cur.lng]);
+
+      const step = navState.steps[navState.stepIdx];
+      if (step && step.maneuver.type !== "arrive") {
+        const loc = step.maneuver.location; // [lng, lat] — the point where this maneuver happens
+        const distToManeuver = loc ? distanceMeters(cur.lat, cur.lng, loc[1], loc[0]) : step.distance;
+        if (distToManeuver < 15 && navState.stepIdx < navState.steps.length - 1) {
+          navState.stepIdx += 1;
+        }
+        updateNavBanner();
+      }
+    },
+    () => { /* keep last known position if permission denied */ },
+    { enableHighAccuracy: true, maximumAge: 2000 }
+  );
+}
+
+function openNavigation(w) {
+  closeDetail();
+  navState.destination = w;
+  navState.stepIdx = 0;
+  navState.steps = [];
+
+  document.getElementById("navDestName").textContent = w.name;
+  document.getElementById("navDestIcon").style.background = CATEGORY_COLORS[w.genderCategory];
+  document.getElementById("navDestIcon").innerHTML = ICONS.pin;
+  document.getElementById("navSubtitle").textContent = "Calculating route…";
+  document.getElementById("turnInstruction").textContent = "Getting your route…";
+  document.getElementById("turnDistance").textContent = "—";
+  document.getElementById("turnArrow").style.transform = "rotate(0deg)";
+
+  const overlay = document.getElementById("navOverlay");
+  overlay.classList.remove("hidden");
+  requestAnimationFrame(() => overlay.classList.add("show"));
+
+  if (!navState.mapInited) initNavMap();
+
+  // Refresh to the user's current live location before building the route,
+  // instead of trusting whatever was fetched once back at app load —
+  // that stored location can be stale/wrong by the time navigation starts.
+  refreshUserLocationThen(() => {
+    navMap.invalidateSize();
+    navMap.setView([state.userLoc.lat, state.userLoc.lng], 17);
+    if (navState.userMarker) navState.userMarker.setLatLng([state.userLoc.lat, state.userLoc.lng]);
+    if (navState.destMarker) navMap.removeLayer(navState.destMarker);
+    navState.destMarker = L.marker([w.lat, w.lng], { icon: makePinIcon(w.genderCategory, CATEGORY_COLORS[w.genderCategory]) }).addTo(navMap);
+    loadRoute(w);
+  });
+
+  startWatchingPosition();
+}
+
+/* Get a fresh GPS fix (falling back to whatever we already have if it fails
+   or geolocation isn't available), then run the callback. Used right before
+   navigation starts so directions are based on the current position, not a
+   possibly stale one from earlier in the session. */
+function refreshUserLocationThen(callback) {
+  if (!navigator.geolocation) {
+    setTimeout(callback, 80);
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      state.userLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      if (userMarker) userMarker.setLatLng([state.userLoc.lat, state.userLoc.lng]);
+      refreshAll();
+      setTimeout(callback, 80);
+    },
+    () => { setTimeout(callback, 80); }, // permission denied / unavailable — proceed with last known location
+    { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
+  );
+}
+
+function closeNavigation() {
+  const overlay = document.getElementById("navOverlay");
+  overlay.classList.remove("show");
+  if (navState.watchId != null) {
+    navigator.geolocation.clearWatch(navState.watchId);
+    navState.watchId = null;
+  }
+  setTimeout(() => overlay.classList.add("hidden"), 280);
+}
+
+document.getElementById("navStopBtn").addEventListener("click", closeNavigation);
+document.getElementById("navEndBtn").addEventListener("click", closeNavigation);
+
+/* =========================================================
+   VIEW SWITCHING
+   ========================================================= */
+function setView(view) {
+  state.view = view;
+  ["home", "map", "search", "saved", "settings"].forEach(v => {
+    document.getElementById(v + "View").classList.toggle("hidden", v !== view);
+  });
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.view === view);
+  });
+  if (view === "map") setTimeout(() => map.invalidateSize(), 50);
+  if (view === "saved") renderSaved();
+}
+
+/* =========================================================
+   HOME → drills into Search view with a gender pre-selected
+   ========================================================= */
+function openGenderFromHome(gender, audience) {
+  state.activeGender = gender;
+  state.activeAudience = audience;
+  state.searchText = "";
+  document.getElementById("searchInput").value = "";
+  updateChipUI();
+  setView("search");
+  refreshAll();
+}
+
+/* =========================================================
+   HOME → Nearby drills into Search view showing everything,
+   with results grouped by Men's / Women's underneath
+   ========================================================= */
+function openNearbyFromHome() {
+  state.activeGender = "all";
+  state.activeAudience = null;
+  state.searchText = "";
+  document.getElementById("searchInput").value = "";
+  updateChipUI();
+  setView("search");
+  refreshAll();
+  const section = document.getElementById("nearbySection");
+  if (section) {
+    requestAnimationFrame(() => section.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }
+}
+
+/* =========================================================
+   MASTER REFRESH
+   ========================================================= */
+function refreshAll() {
+  const list = getFilteredWashrooms();
+  renderMapMarkers(getFilteredWashrooms({ ignoreAudience: true }));
+  renderList(list);
+  renderNearbySection();
+  updateHomeCounts();
+  if (state.view === "saved") renderSaved();
+}
+
+function updateHomeCounts() {
+  // Unisex/Accessible home cards removed — no counts to update.
+}
+
+function updateChipUI() {
+  document.querySelectorAll(".chip").forEach(c => {
+    c.classList.toggle("on", c.dataset.gender === state.activeGender);
+  });
+}
+
+/* =========================================================
+   NIGHT MODE
+   ========================================================= */
+function applyNightMode() {
+  document.body.classList.toggle("day", !state.nightMode);
+  [document.getElementById("nightToggleHome"), document.getElementById("nightToggleSettings")].forEach(t => {
+    t.classList.toggle("on", state.nightMode);
+  });
+}
+function toggleNightMode() {
+  state.nightMode = !state.nightMode;
+  applyNightMode();
+}
+
+/* =========================================================
+   EVENT WIRING
+   ========================================================= */
+
+/* Home search pill routes into Search tab */
+document.getElementById("homeSearchPill").addEventListener("click", () => setView("search"));
+document.getElementById("homeSearchInput").addEventListener("focus", () => setView("search"));
+document.getElementById("homeSearchInput").addEventListener("input", e => {
+  state.searchText = e.target.value;
+  document.getElementById("searchInput").value = e.target.value;
+  setView("search");
+  refreshAll();
+});
+
+/* Gender cards on Home */
+document.querySelectorAll(".gender-card").forEach(card => {
+  card.addEventListener("click", (e) => {
+    if (e.target.closest(".audience-chip")) return;
+    if (card.dataset.gender === "nearby") {
+      openNearbyFromHome();
+      return;
+    }
+    openGenderFromHome(card.dataset.gender, state.activeAudience);
+  });
+});
+document.querySelectorAll(".audience-chip").forEach(chip => {
+  chip.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const card = chip.closest(".gender-card");
+    card.querySelectorAll(".audience-chip").forEach(c => {
+      c.classList.toggle("filled", c === chip);
+      c.classList.toggle("outline", c !== chip);
+    });
+    openGenderFromHome(card.dataset.gender, chip.dataset.audience);
+  });
+});
+
+/* Search view */
+document.getElementById("searchInput").addEventListener("input", e => {
+  state.searchText = e.target.value;
+  document.getElementById("homeSearchInput").value = e.target.value;
+  refreshAll();
+});
+document.querySelectorAll(".chip").forEach(chip => {
+  chip.addEventListener("click", () => {
+    state.activeGender = chip.dataset.gender;
+    updateChipUI();
+    refreshAll();
+  });
+});
+
+/* Map view */
+document.getElementById("nearMeBtn").addEventListener("click", () => {
+  state.nearMeActive = !state.nearMeActive;
+  document.getElementById("nearMeBtn").classList.toggle("on", state.nearMeActive);
+  refreshAll();
+});
+
+/* Bottom nav */
+document.querySelectorAll(".nav-btn").forEach(btn => {
+  btn.addEventListener("click", () => setView(btn.dataset.view));
+});
+
+/* Menu button → Settings */
+document.getElementById("menuBtn").addEventListener("click", () => setView("settings"));
+
+/* Night mode toggles (home + settings) */
+document.getElementById("nightToggleHome").addEventListener("click", toggleNightMode);
+document.getElementById("nightToggleSettings").addEventListener("click", toggleNightMode);
+
+/* Location precision toggle (visual only) */
+document.getElementById("locToggleSettings").addEventListener("click", (e) => {
+  e.currentTarget.classList.toggle("on");
+});
+
+/* Distance unit toggle */
+document.querySelectorAll(".unit-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    state.unit = btn.dataset.unit;
+    document.querySelectorAll(".unit-btn").forEach(b => b.classList.toggle("on", b === btn));
+    refreshAll();
+    if (state.selectedId) openDetail(state.selectedId);
+  });
+});
+
+/* Sheet close */
+document.getElementById("sheetClose").addEventListener("click", closeDetail);
+document.getElementById("backdrop").addEventListener("click", closeDetail);
+
+/* =========================================================
+   INIT
+   ========================================================= */
+initMap();
+applyNightMode();
+refreshAll();
+requestUserLocation();
+</script>
+</body>
+</html>

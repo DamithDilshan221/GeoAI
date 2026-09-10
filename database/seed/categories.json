@@ -1,6 +1,18 @@
 [
-  {"code": "male", "label": "Men's"},
-  {"code": "female", "label": "Women's"},
-  {"code": "accessible", "label": "Accessible"},
-  {"code": "unisex", "label": "Gender-Neutral"}
+  {
+    "code": "male",
+    "label": "Men's"
+  },
+  {
+    "code": "female",
+    "label": "Women's"
+  },
+  {
+    "code": "unisex",
+    "label": "Gender-Neutral"
+  },
+  {
+    "code": "accessible",
+    "label": "Accessible"
+  }
 ]

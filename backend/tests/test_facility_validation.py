@@ -21,7 +21,8 @@ def _valid_kwargs(**overrides):  # type: ignore[return]
         "latitude": 6.9271,
         "longitude": 79.8612,
         "rating": None,
-        "capacity": None,
+        "location_name": "Test Location",
+        "fixtures": {"normal": 2},
     }
     defaults.update(overrides)
     return defaults
@@ -35,9 +36,8 @@ def test_valid_input_raises_nothing() -> None:
     validate_facility_input(**_valid_kwargs())
 
 
-def test_valid_input_with_rating_and_capacity_raises_nothing() -> None:
-    """Valid rating and capacity together must not raise."""
-    validate_facility_input(**_valid_kwargs(rating=4.5, capacity=10))
+def test_valid_input_with_rating_raises_nothing() -> None:
+    validate_facility_input(**_valid_kwargs(rating=4.5))
 
 
 def test_boundary_latitude_90_raises_nothing() -> None:
@@ -64,8 +64,7 @@ def test_boundary_rating_five_raises_nothing() -> None:
     validate_facility_input(**_valid_kwargs(rating=5.0))
 
 
-def test_minimum_capacity_one_raises_nothing() -> None:
-    validate_facility_input(**_valid_kwargs(capacity=1))
+
 
 
 # ── Latitude validation ───────────────────────────────────────────────────────
@@ -119,21 +118,7 @@ def test_rating_negative_raises() -> None:
     assert "-0.1" in str(exc_info.value)
 
 
-# ── Capacity validation ───────────────────────────────────────────────────────
 
-
-def test_capacity_zero_raises() -> None:
-    """capacity = 0 must raise (must be > 0)."""
-    with pytest.raises(FacilityValidationError) as exc_info:
-        validate_facility_input(**_valid_kwargs(capacity=0))
-    assert "0" in str(exc_info.value)
-
-
-def test_capacity_negative_raises() -> None:
-    """capacity = -5 must raise."""
-    with pytest.raises(FacilityValidationError) as exc_info:
-        validate_facility_input(**_valid_kwargs(capacity=-5))
-    assert "-5" in str(exc_info.value)
 
 
 # ── Name validation ───────────────────────────────────────────────────────────
@@ -178,25 +163,29 @@ def test_three_simultaneous_violations_all_reported() -> None:
             latitude=200.0,  # violation 2: out of range
             longitude=300.0,  # violation 3: out of range
             rating=None,
-            capacity=None,
+            location_name="",
+            fixtures={"bad": 1},
         )
     error = exc_info.value
-    assert len(error.errors) == 3, f"Expected 3 errors, got {len(error.errors)}: {error.errors}"
+    assert len(error.errors) == 5, f"Expected 3 errors, got {len(error.errors)}: {error.errors}"
     combined = str(error)
     # Each violation message must appear in the combined string
     assert "name" in combined
     assert "200.0" in combined
     assert "300.0" in combined
+    assert "location_name" in combined
+    assert "bad" in combined
 
 
 def test_two_violations_both_in_errors_list() -> None:
-    """rating=5.5 and capacity=0 together must yield exactly 2 errors."""
+    """rating=5.5 and invalid fixtures together must yield exactly 2 errors."""
     with pytest.raises(FacilityValidationError) as exc_info:
         validate_facility_input(
             name="Fine Name",
+            location_name="Test Location",
             latitude=6.9271,
             longitude=79.8612,
             rating=5.5,
-            capacity=0,
+            fixtures={"normal": -1},
         )
     assert len(exc_info.value.errors) == 2

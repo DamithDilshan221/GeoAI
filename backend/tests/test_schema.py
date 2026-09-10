@@ -4,8 +4,8 @@ Each test function verifies a specific constraint, index, or behavior
 described in spec §18 against the real ``geoai_test`` database.
 """
 
-import uuid
 import sys
+import uuid
 from datetime import date
 from decimal import Decimal
 
@@ -288,6 +288,7 @@ def test_delete_facility_sets_recommendation_log_facility_id_null(
 import subprocess
 from pathlib import Path
 
+
 def test_alembic_migrations_apply_cleanly() -> None:
     backend_dir = Path(__file__).parent.parent
     result = subprocess.run(["alembic", "upgrade", "head"], cwd=backend_dir, capture_output=True, text=True)
@@ -307,7 +308,7 @@ def test_total_stalls_generated_column_computation(db_session: Session) -> None:
         {"cat_id": cat.id}
     )
     fac_id = db_session.execute(text("SELECT id FROM facilities WHERE name = 'Washroom A'")).scalar()
-    
+
     row = db_session.execute(text("SELECT total_stalls FROM facilities WHERE id = :fid"), {"fid": fac_id}).fetchone()
     assert row is not None
     assert row.total_stalls == 6
@@ -320,7 +321,7 @@ def test_total_stalls_generated_column_default(db_session: Session) -> None:
         {"cat_id": cat.id}
     )
     fac_id = db_session.execute(text("SELECT id FROM facilities WHERE name = 'Washroom B'")).scalar()
-    
+
     row = db_session.execute(text("SELECT total_stalls FROM facilities WHERE id = :fid"), {"fid": fac_id}).fetchone()
     assert row is not None
     assert row.total_stalls == 0
@@ -355,12 +356,12 @@ def test_campus_paths_no_longer_exists(db_session: Session) -> None:
 
 def test_alembic_downgrade_upgrade() -> None:
     backend_dir = Path(__file__).parent.parent
-    
+
     res1 = subprocess.run([sys.executable, "-m", "alembic", "downgrade", "-1"], cwd=backend_dir, capture_output=True, text=True)
     assert res1.returncode == 0, f"Alembic downgrade -1 failed: {res1.stderr}"
     res2 = subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], cwd=backend_dir, capture_output=True, text=True)
     assert res2.returncode == 0, f"Alembic upgrade failed: {res2.stderr}"
-    
+
     res3 = subprocess.run([sys.executable, "-m", "alembic", "downgrade", "-2"], cwd=backend_dir, capture_output=True, text=True)
     assert res3.returncode == 0, f"Alembic downgrade -2 failed: {res3.stderr}"
     res4 = subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], cwd=backend_dir, capture_output=True, text=True)

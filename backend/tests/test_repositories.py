@@ -41,7 +41,9 @@ def _make_facility(
     longitude: float = 79.8612,
     status: FacilityStatus = FacilityStatus.OPEN,
     rating: float | None = None,
-    capacity: int | None = None,
+    location_name: str = "Test Location",
+    audience: str = "VISITOR",
+    fixtures: dict | None = None,
 ) -> FacilityEntity:
     """Insert a facility via the repository and return the domain entity."""
     return FacilityRepository(session).create(
@@ -51,7 +53,9 @@ def _make_facility(
         longitude=longitude,
         status=status,
         rating=rating,
-        capacity=capacity,
+        location_name=location_name,
+        audience=audience,
+        fixtures=fixtures if fixtures is not None else {"normal": 2},
         data_source=DataSource.SYNTHETIC,
     )
 
@@ -131,13 +135,23 @@ def test_facility_create_returns_facility_dataclass(db_session: Session) -> None
 
 
 def test_facility_create_with_all_optional_fields(db_session: Session) -> None:
-    """create() with rating and capacity returns correct values."""
-    cat = _make_category(db_session, code="OPT_CAT")
-    result = _make_facility(
-        db_session, cat, rating=4.5, capacity=20, name="Optional Fields Facility"
+    cat = _make_category(db_session, code="test_cat")
+    result = FacilityRepository(db_session).create(
+        name="Optional Fields Facility",
+        location_name="Test Location",
+        category_id=cat.id,
+        latitude=6.9,
+        longitude=79.8,
+        rating=4.5,
+        fixtures={"attached": 2, "normal": 4},
+        audience="VISITOR",
+        status=FacilityStatus.OPEN,
+        data_source=DataSource.SYNTHETIC,
     )
+    assert result.name == "Optional Fields Facility"
     assert result.rating == 4.5
-    assert result.capacity == 20
+    assert result.total_stalls == 6
+    assert result.fixtures == {"attached": 2, "normal": 4}
 
 
 def test_facility_create_invalid_coordinate_raises_validation_error(db_session: Session) -> None:
@@ -153,6 +167,7 @@ def test_facility_create_invalid_coordinate_raises_validation_error(db_session: 
     with pytest.raises(FacilityValidationError):
         fac_repo.create(
             name="Bad Lat Facility",
+            location_name="Test Location",
             category_id=cat.id,
             latitude=200.0,  # out of range
             longitude=79.8612,
@@ -173,6 +188,7 @@ def test_facility_create_nonexistent_category_raises_reference_error(db_session:
     with pytest.raises(FacilityReferenceError) as exc_info:
         fac_repo.create(
             name="Orphan Facility",
+            location_name="Test Location",
             category_id=999999,  # does not exist
             latitude=6.9271,
             longitude=79.8612,
@@ -347,6 +363,7 @@ def test_geom_derived_from_lat_lon_via_repository(db_session: Session) -> None:
     lat, lon = 6.9271, 79.8612
     fac = FacilityRepository(db_session).create(
         name="Geom Test Facility",
+        location_name="Test Location",
         category_id=cat.id,
         latitude=lat,
         longitude=lon,
