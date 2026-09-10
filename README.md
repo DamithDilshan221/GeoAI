@@ -12,7 +12,7 @@ GeoAI is a location-aware web application that helps users discover nearby facil
 | ORM          | SQLAlchemy 2.0 + GeoAlchemy2                |
 | Migrations   | Alembic                                     |
 | ML (future)  | scikit-learn, pandas (lives under `ml/`)    |
-| Maps         | Google Maps JavaScript API (Phase 7+)       |
+| Maps         | OpenStreetMap (Phase 7+)                    |
 | Dev Tooling  | Ruff, ESLint, Prettier, Vitest, pytest      |
 
 ## Prerequisites
@@ -127,5 +127,5 @@ GeoAI/
 
 ## Project Status
 
-**Phase 4 of 20** — Business-logic orchestration services & Pydantic schemas.
+**Phase 11 of 20** — Facility Data Layer (repositories, validation, seed data).
 See [`docs/architecture/`](docs/architecture/) for the full specification.
