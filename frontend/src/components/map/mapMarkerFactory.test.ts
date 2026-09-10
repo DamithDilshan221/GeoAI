@@ -1,48 +1,35 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import {
-  buildFacilityPin,
-  buildUserLocationPin,
-  buildFacilityInfoWindowContent,
-} from './mapMarkerFactory';
-import { setupGoogleMapsMock, resetGoogleMapsMock } from '../../test-utils/googleMapsMock';
+import { describe, it, expect } from 'vitest';
+import { buildFacilityDivIcon, buildUserLocationDivIcon } from './mapMarkerFactory';
 
 describe('mapMarkerFactory', () => {
-  beforeEach(() => {
-    setupGoogleMapsMock();
+  describe('buildFacilityDivIcon', () => {
+    it('returns a divIcon for male category', () => {
+      const icon = buildFacilityDivIcon('male');
+      expect(icon.options.className).toBe('');
+      expect(icon.options.iconSize).toEqual([30, 30]);
+      expect(icon.options.html).toContain('background:#2F6FED');
+      expect(icon.options.html).toContain('<svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="5" r="3"/><path d="M12 9c-3 0-5 2-5 5v7h3v-6h4v6h3v-7c0-3-2-5-5-5z"/></svg>');
+    });
+
+    it('returns a default pin for unknown category', () => {
+      const icon = buildFacilityDivIcon('unknown_cat');
+      expect(icon.options.html).toContain('background:#3FCBBE');
+      expect(icon.options.html).toContain('<circle cx="12" cy="9" r="2.3"/>');
+    });
+
+    it('returns a default pin when category is undefined', () => {
+      const icon = buildFacilityDivIcon(undefined);
+      expect(icon.options.html).toContain('background:#3FCBBE');
+      expect(icon.options.html).toContain('<circle cx="12" cy="9" r="2.3"/>');
+    });
   });
 
-  afterEach(() => {
-    resetGoogleMapsMock();
-  });
-
-  it('buildFacilityPin constructs a red-ish PinElement', () => {
-    const pin = buildFacilityPin(google.maps.marker.PinElement) as any;
-    expect(pin.options.background).toBe('#3FCBBE');
-    expect(pin.options.borderColor).toBe('#FFFFFF');
-    expect(pin.options.glyphColor).toBe('#FFFFFF');
-  });
-
-  it('buildUserLocationPin constructs a blue PinElement', () => {
-    const pin = buildUserLocationPin(google.maps.marker.PinElement) as any;
-    expect(pin.options.background).toBe('#2C7BE5');
-    expect(pin.options.borderColor).toBe('#FFFFFF');
-    expect(pin.options.glyph).toBe('●');
-    expect(pin.options.scale).toBe(0.8);
-  });
-
-  it('buildFacilityInfoWindowContent returns an HTMLElement that triggers onViewDetails on click', () => {
-    const onViewDetails = vi.fn();
-    const content = buildFacilityInfoWindowContent('Test Facility', onViewDetails);
-    
-    expect(content).toBeInstanceOf(HTMLElement);
-    expect(content.querySelector('h3')?.textContent).toBe('Test Facility');
-    
-    const button = content.querySelector('button');
-    expect(button).not.toBeNull();
-    expect(button?.textContent).toBe('View details');
-    
-    button?.click();
-    expect(onViewDetails).toHaveBeenCalledTimes(1);
+  describe('buildUserLocationDivIcon', () => {
+    it('returns a user-dot icon', () => {
+      const icon = buildUserLocationDivIcon();
+      expect(icon.options.html).toContain('class="user-dot"');
+      expect(icon.options.iconSize).toEqual([16, 16]);
+    });
   });
 });

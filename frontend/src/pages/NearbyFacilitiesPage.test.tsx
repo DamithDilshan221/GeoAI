@@ -19,10 +19,7 @@ import {
   SERVICE_UNAVAILABLE_MESSAGE
 } from '../constants/search';
 
-vi.mock('../lib/googleMapsLoader', () => ({
-  loadMapsLibrary: vi.fn().mockImplementation(() => Promise.resolve(global.google.maps)),
-  loadMarkerLibrary: vi.fn().mockImplementation(() => Promise.resolve(global.google.maps.marker)),
-}));
+vi.mock('react-leaflet', () => import('../test-utils/leafletMock'));
 
 vi.mock('../api/facilities', () => ({
   getNearbyFacilities: vi.fn(),
@@ -74,9 +71,11 @@ const renderWithContext = (state = defaultState) => {
 describe('NearbyFacilitiesPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    setupGoogleMapsMock();
-    vi.mocked(loaderModule.loadMapsLibrary).mockResolvedValue(global.google.maps as any);
-    vi.mocked(loaderModule.loadMarkerLibrary).mockResolvedValue(global.google.maps.marker as any);
+    setupLeafletMock();
+  });
+
+  afterEach(() => {
+    resetLeafletMock();
   });
 
   it('redirects to / when location is null', () => {
