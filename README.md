@@ -127,5 +127,5 @@ GeoAI/
 
 ## Project Status
 
-**Phase 3 of 20** — Facility Data Layer (repositories, validation, seed data).
+**Phase 4 of 20** — Business-logic orchestration services & Pydantic schemas.
 See [`docs/architecture/`](docs/architecture/) for the full specification.
