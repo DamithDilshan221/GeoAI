@@ -15,9 +15,7 @@ _TEMPLATES: dict[str, str] = {
 }
 
 
-def build_explanation(
-    top: ScoredCandidate, weights: RecommendationWeights
-) -> str:
+def build_explanation(top: ScoredCandidate, weights: RecommendationWeights) -> str:
     """Build a natural-language explanation naming the top 1-2 contributors.
 
     "Contributor" means weight × sub-score (weighted contribution),
@@ -34,14 +32,9 @@ def build_explanation(
         "suitability": weights.suitability,
     }
 
-    contributions = {
-        factor: weight_map[factor] * top.sub_scores[factor]
-        for factor in weight_map
-    }
+    contributions = {factor: weight_map[factor] * top.sub_scores[factor] for factor in weight_map}
 
-    ranked = sorted(
-        contributions.items(), key=lambda kv: kv[1], reverse=True
-    )
+    ranked = sorted(contributions.items(), key=lambda kv: kv[1], reverse=True)
 
     top_factors = [ranked[0]]
     if len(ranked) > 1 and ranked[1][1] > 0:

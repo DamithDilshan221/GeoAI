@@ -5,6 +5,7 @@ described in spec §18 against the real ``geoai_test`` database.
 """
 
 import uuid
+import sys
 from datetime import date
 from decimal import Decimal
 
@@ -355,12 +356,12 @@ def test_campus_paths_no_longer_exists(db_session: Session) -> None:
 def test_alembic_downgrade_upgrade() -> None:
     backend_dir = Path(__file__).parent.parent
     
-    res1 = subprocess.run(["alembic", "downgrade", "-1"], cwd=backend_dir, capture_output=True, text=True)
+    res1 = subprocess.run([sys.executable, "-m", "alembic", "downgrade", "-1"], cwd=backend_dir, capture_output=True, text=True)
     assert res1.returncode == 0, f"Alembic downgrade -1 failed: {res1.stderr}"
-    res2 = subprocess.run(["alembic", "upgrade", "head"], cwd=backend_dir, capture_output=True, text=True)
+    res2 = subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], cwd=backend_dir, capture_output=True, text=True)
     assert res2.returncode == 0, f"Alembic upgrade failed: {res2.stderr}"
     
-    res3 = subprocess.run(["alembic", "downgrade", "-2"], cwd=backend_dir, capture_output=True, text=True)
+    res3 = subprocess.run([sys.executable, "-m", "alembic", "downgrade", "-2"], cwd=backend_dir, capture_output=True, text=True)
     assert res3.returncode == 0, f"Alembic downgrade -2 failed: {res3.stderr}"
-    res4 = subprocess.run(["alembic", "upgrade", "head"], cwd=backend_dir, capture_output=True, text=True)
+    res4 = subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], cwd=backend_dir, capture_output=True, text=True)
     assert res4.returncode == 0, f"Alembic upgrade failed: {res4.stderr}"

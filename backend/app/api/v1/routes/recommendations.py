@@ -51,9 +51,7 @@ def get_recommendations(
                 id=fac.id,
                 name=fac.name,
                 category=(
-                    fac.category_id
-                    if isinstance(fac.category_id, str)
-                    else str(fac.category_id)
+                    fac.category_id if isinstance(fac.category_id, str) else str(fac.category_id)
                 ),
                 status=fac.status.value if hasattr(fac.status, "value") else str(fac.status),
                 rating=fac.rating,

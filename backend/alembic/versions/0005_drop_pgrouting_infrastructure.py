@@ -8,19 +8,20 @@ Create Date: 2026-09-10 16:56:00.000000
 
 import geoalchemy2
 import sqlalchemy as sa
-from alembic import op
 from sqlalchemy.dialects.postgresql import ENUM
 
+from alembic import op
+
 # revision identifiers, used by Alembic.
-revision = '0005'
-down_revision = '0004'
+revision = "0005"
+down_revision = "0004"
 branch_labels = None
 depends_on = None
 
 
 def upgrade() -> None:
     op.execute("DROP TABLE IF EXISTS campus_paths_vertices_pgr")
-    op.drop_table('campus_paths')
+    op.drop_table("campus_paths")
     op.execute("DROP TYPE IF EXISTS path_type")
 
 
@@ -28,7 +29,7 @@ def downgrade() -> None:
     # Note: campus_paths_vertices_pgr is NOT recreated here.
     # It's a derived artifact of pgr_createTopology, not something a plain
     # migration can reconstruct.
-    
+
     op.execute("CREATE TYPE path_type AS ENUM ('SIDEWALK','STAIRS','RAMP','CORRIDOR','CROSSING')")
 
     op.create_table(

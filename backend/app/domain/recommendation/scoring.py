@@ -12,9 +12,7 @@ def distance_score(distance_m: float, radius_m: float) -> float:
     return max(0.0, 100.0 * (1.0 - distance_m / radius_m))
 
 
-def travel_time_score(
-    estimated_time_s: float, radius_m: float, walking_speed_mps: float
-) -> float:
+def travel_time_score(estimated_time_s: float, radius_m: float, walking_speed_mps: float) -> float:
     """Travel Time: 100 × (1 − time / max_acceptable_time).
 
     max_acceptable_time is derived from radius_m / walking_speed_mps
@@ -25,9 +23,7 @@ def travel_time_score(
     return max(0.0, 100.0 * (1.0 - estimated_time_s / max_acceptable))
 
 
-def freshness_score(
-    status_updated_at: datetime, now: datetime, horizon_hours: float
-) -> float:
+def freshness_score(status_updated_at: datetime, now: datetime, horizon_hours: float) -> float:
     """§15.3 Freshness: 100 × (1 − hours_since_update / horizon)."""
     hours_since = (now - status_updated_at).total_seconds() / 3600.0
     return max(0.0, 100.0 * (1.0 - hours_since / horizon_hours))
@@ -56,7 +52,5 @@ def suitability_score(
     """
     if secondary_preference != "wheelchair_accessible":
         return 100.0
-    is_accessible = bool(
-        (accessibility or {}).get("wheelchair_friendly", False)
-    )
+    is_accessible = bool((accessibility or {}).get("wheelchair_friendly", False))
     return 100.0 if is_accessible else penalty

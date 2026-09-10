@@ -7,6 +7,7 @@ class UsagePredictionRequest(BaseModel):
     hour: int = Field(ge=0, le=23)
     recent_usage: float | None = None
 
+
 class UsagePredictionResponse(BaseModel):
     facility_id: int
     predicted_usage: float

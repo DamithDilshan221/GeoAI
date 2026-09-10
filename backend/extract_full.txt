@@ -1,0 +1,300 @@
+<USER_REQUEST>
+PHASE 3 (v3 CORRECTION) — WASHROOM DATA
+Project: GeoAI / Pera Rest Nav — Campus Washroom Finder
+Reference spec: docs/architecture/PeraRestNav_Technical_Architecture_Specification_v3.md — read §19.2
+(categories) and §19.3 (facilities) again alongside this prompt; the exact values below are transcribed
+directly from those sections, not reconstructed from memory.
+Reference plan: this is the second correction in the "one phase at a time, in order" sequence — depends
+on Phase 2 (v3 correction) having already landed (audience/location_name/fixtures/total_stalls columns
+exist; capacity/accessibility are gone).
+
+═══════════════════════════════════════════════════════════════
+CONTEXT
+═══════════════════════════════════════════════════════════════
+This is a correction to already-completed work. Phase 2's correction
+changed the schema; this phase updates everything one layer up — domain
+validation, the repository, and seed data — to match. It also closes a
+loose end Phase 2's correction deliberately left open: `location_name` was
+added nullable specifically so this phase could backfill real values
+before tightening it.
+
+Before writing anything: check whether the actual `pera-rest-nav.html`
+prototype file (the one used as the visual reference for the Phase 8B
+reskin) is present anywhere in this repository or workspace — check the
+repo root, and anywhere the reskin brief's attachments might have landed.
+v3 spec §28's phase table says this phase's seed dataset should match
+"the prototype's 15 campus locations" — that file is the authoritative
+source for those 15, not this prompt. If you find it, extract its
+washroom data (look for a JS array/object literal inside a `<script>`
+tag — common variable names to check for include something like
+`washrooms`, `locations`, `PLACES`, or similar; there is no guaranteed
+exact name, inspect the file). If you cannot find it after a genuine
+search, use the fallback dataset in §4 below instead, and say so plainly
+in your walkthrough — do not silently fabricate data without noting which
+source you actually used.
+
+═══════════════════════════════════════════════════════════════
+OBJECTIVE
+═══════════════════════════════════════════════════════════════
+Update facility validation, `FacilityRepository`, and seed data to the v3
+shape (`location_name`, `audience`, `fixtures` — no `capacity`, no
+`accessibility`), seed exactly the four v3 categories, seed a 15-washroom
+dataset (real, if the prototype file is found; the documented fallback
+otherwise), and apply the follow-up migration that tightens
+`location_name` to `NOT NULL` now that every row will have a real value.
+
+═══════════════════════════════════════════════════════════════
+EXPLICIT NON-GOALS (do not implement any of this in this phase)
+═══════════════════════════════════════════════════════════════
+- Do NOT touch `backend/app/api/` (routes, schemas) — `FacilityRead` and
+  the `/facilities` → `/washrooms` path rename are the next correction in
+  this sequence, not this one.
+- Do NOT touch `NearbySearchService`, `MLInferenceService`, or
+  `RecommendationService` — they remain in their expected, temporarily
+  broken state (per Phase 2 correction's CONTEXT) until their own turns.
+- Do NOT build any OSRM or audience-based ML feature logic here — this
+  phase seeds data; Phase 9's correction is where the synthetic usage
+  generator gets audience-aware, and Phase 15 is where `audience_code`
+  becomes a real ML feature.
+- Do NOT invent a 6th fixture key. The schema and this phase's data use
+  exactly `attached`, `normal`, `shower`, `sink`, `mirror` — nothing else,
+  even where a real-world washroom might also have e.g. urinals; that
+  distinction isn't part of this schema and isn't this phase's call to
+  add.
+
+═══════════════════════════════════════════════════════════════
+RESOLVED DESIGN DECISIONS — READ BEFORE BUILDING
+═══════════════════════════════════════════════════════════════
+
+1. `name` AND `location_name` ARE DIFFERENT FIELDS — DO NOT COLLAPSE THEM.
+   Per §19.3's comment and the worked examples in §6.3: `name` is the
+   full, category-qualified display name (e.g. "MA Canteen Washroom
+   (Male)"); `location_name` is just the building/place ("MA Canteen").
+   Both are required on every seeded facility. `location_name` exists
+   specifically to support location/building-name search (v3 §31's note:
+   "Search already filters by name/location string") — it is not a
+   duplicate of `name`, and validation must not allow it to be blank
+   while `name` isn't, or vice versa.
+
+2. MIGRATION 0006 BACKFILLS BEFORE TIGHTENING, EVEN THOUGH THE DEV
+   WORKFLOW WILL TRUNCATE AND RESEED ANYWAY. Don't skip the backfill step
+   on the reasoning that dev data will be truncated — write the migration
+   to be correct for a database with real pre-existing NULL
+   `location_name` rows regardless of how you personally plan to use it
+   this session, since a future environment (e.g. a teammate's machine
+   that already ran Phase 2's correction and seeded old-style data before
+   this phase landed) won't get the truncate-and-reseed treatment:
+     UPDATE facilities SET location_name = name WHERE location_name IS NULL;
+     ALTER TABLE facilities ALTER COLUMN location_name SET NOT NULL;
+   Both statements in one migration, backfill first.
+
+3. FIXTURE VALIDATION IS A CONTROLLED VOCABULARY, NOT FREE-FORM JSON. Every
+   other enum-like concept in this schema (`facility_status`,
+   `data_source`, now `audience_type`) is a real Postgres ENUM specifically
+   so a typo can't silently create an unfilterable value. `fixtures` is
+   JSONB (it has to be, it's a count map, not a single value) but the
+   application-level validation must still reject unknown keys and
+   negative/non-integer counts — the schema-level looseness of JSONB is
+   not a license for the validation layer to also be loose.
+
+4. `FacilityRepository.create()` GAINS `location_name` AND `audience` AS
+   REQUIRED PARAMETERS AND `fixtures` AS AN OPTIONAL ONE (DEFAULTING TO
+   `{}`), REPLACING THE REMOVED `capacity`/`accessibility` PARAMETERS
+   ENTIRELY — NOT ADDING TO THEM. Confirm the old parameters are actually
+   gone from the method signature, not just unused.
+
+═══════════════════════════════════════════════════════════════
+FILES TO CREATE / MODIFY
+═══════════════════════════════════════════════════════════════
+CREATE:
+  backend/alembic/versions/0006_location_name_not_null.py
+
+MODIFY:
+  backend/app/domain/facility_validation.py
+  backend/app/repositories/facility_repository.py
+  database/seed/categories.json
+  database/seed/facilities.json
+  backend/app/scripts/seed_database.py
+  backend/tests/test_facility_validation.py
+  backend/tests/test_repositories.py
+
+═══════════════════════════════════════════════════════════════
+1. MIGRATION 0006 (backend/alembic/versions/0006_location_name_not_null.py)
+═══════════════════════════════════════════════════════════════
+    def upgrade():
+        op.execute("UPDATE facilities SET location_name = name WHERE location_name IS NULL")
+        op.alter_column('facilities', 'location_name', nullable=False)
+
+    def downgrade():
+        op.alter_column('facilities', 'location_name', nullable=True)
+
+`down_revision` = `0005` (Phase 2 correction's pgRouting-removal migration
+— confirm via `alembic heads`, don't assume).
+
+═══════════════════════════════════════════════════════════════
+2. VALIDATION (backend/app/domain/facility_validation.py)
+═══════════════════════════════════════════════════════════════
+Remove any `capacity > 0` check (the column is gone). Add:
+
+    VALID_FIXTURE_KEYS = {"attached", "normal", "shower", "sink", "mirror"}
+
+    def validate_fixtures(fixtures: dict) -> list[str]:
+        """Returns a list of error strings (empty if valid) -- aggregate,
+        same pattern as the rest of this file's validation, don't
+        short-circuit on the first problem."""
+        errors = []
+        for key, value in fixtures.items():
+            if key not in VALID_FIXTURE_KEYS:
+                errors.append(f"unknown fixture key '{key}'")
+            elif not isinstance(value, int) or value < 0:
+                errors.append(f"fixture '{key}' must be a non-negative integer, got {value!r}")
+        return errors
+
+Extend the existing `validate_facility_input()` aggregate-error function
+to also validate `location_name` (non-empty, ≤200 chars — same pattern
+already applied to `name`) and to call `validate_fixtures()`, folding its
+errors into the same aggregated `FacilityValidationError`.
+
+═══════════════════════════════════════════════════════════════
+3. REPOSITORY (backend/app/repositories/facility_repository.py)
+═══════════════════════════════════════════════════════════════
+Update `create()`'s signature:
+    def create(
+        self, *, name: str, location_name: str, category_id: int,
+        latitude: float, longitude: float, audience: AudienceType = AudienceType.VISITOR,
+        status: FacilityStatus = FacilityStatus.OPEN, rating: float | None = None,
+        fixtures: dict | None = None, data_source: DataSource,
+    ) -> Facility:
+        """Same flow as before (validate -> insert -> catch FK violation
+        as FacilityReferenceError -> flush -> map to Facility) with
+        fixtures defaulting to {} when None. capacity and accessibility
+        are gone from this signature entirely -- do not leave them as
+        unused optional parameters "for compatibility"."""
+
+Update every row-to-entity mapping in this file (`get_by_id`, `list`,
+whatever else constructs a `Facility` from an ORM row) to read
+`audience`, `location_name`, `fixtures`, `total_stalls` from the ORM
+object and stop referencing `capacity`/`accessibility` — this should
+already partially follow from Phase 2 correction's entity-shape change,
+but verify every construction site, not just the obvious ones.
+
+═══════════════════════════════════════════════════════════════
+4. SEED DATA (database/seed/categories.json)
+═══════════════════════════════════════════════════════════════
+Exactly these four rows, in this order (matches v3 §19.2 exactly):
+    [
+      {"code": "male", "label": "Men's"},
+      {"code": "female", "label": "Women's"},
+      {"code": "accessible", "label": "Accessible"}
+    ]
+
+═══════════════════════════════════════════════════════════════
+5. SEED DATA (database/seed/facilities.json) — FALLBACK DATASET
+═══════════════════════════════════════════════════════════════
+Use this ONLY if the real prototype file's 15 locations cannot be found
+(per this prompt's CONTEXT section). Reference coordinate is the real
+campus point from v3's own worked example (§6.3): lat=7.2545, lon=80.5965.
+Scatter each entry within roughly 200-900m of that point (vary
+lat/lon by small deltas, consistent with how Phase 3's original synthetic
+placement worked). All `data_source: "SYNTHETIC"`. `total_stalls` values
+below are pre-verified against the generated-column formula — use these
+exact `fixtures` objects, not approximations:
+
+| name | location_name | category | audience | fixtures | total_stalls |
+|---|---|---|---|---|---|
+| MA Canteen Washroom (Male) | MA Canteen | male | VISITOR | {"normal":4,"sink":3,"mirror":2} | 4 |
+| MA Canteen Washroom (Female) | MA Canteen | female | VISITOR | {"normal":5,"attached":1,"sink":3,"mirror":2} | 6 |
+| GB Canteen Washroom (Male) | GB Canteen | male | VISITOR | {"normal":3,"sink":2,"mirror":1} | 3 |
+| GB Canteen Washroom (Female) | GB Canteen | female | VISITOR | {"normal":4,"attached":1,"sink":2,"mirror":1} | 5 |
+| Senate Building Ground Floor Washroom | Senate Building | male | VISITOR | {"normal":3,"sink":2,"mirror":1} | 3 |
+| Engineering Faculty Washroom (Male) | Engineering Faculty | male | VISITOR | {"normal":6,"sink":4,"mirror":2} | 6 |
+| Engineering Faculty Washroom (Female) | Engineering Faculty | female | VISITOR | {"normal":5,"attached":1,"sink":3,"mirror":2} | 6 |
+| Science Faculty Washroom (Gender-Neutral) | Science Faculty | unisex | VISITOR | {"attached":3,"sink":2,"mirror":1} | 3 |
+| Arts Faculty Washroom (Male) | Arts Faculty | male | VISITOR | {"normal":4,"sink":3,"mirror":1} | 4 |
+| Arts Faculty Washroom (Female) | Arts Faculty | female | VISITOR | {"normal":4,"attached":1,"sink":2,"mirror":1} | 5 |
+| Main Library Washroom (Accessible) | Main Library | accessible | VISITOR | {"attached":1,"sink":1,"mirror":1} | 1 |
+| Medical Faculty Staff Washroom (Male) | Medical Faculty | male | STAFF | {"normal":2,"sink":1,"mirror":1} | 2 |
+| Administration Building Staff Washroom (Female) | Administration Building | female | STAFF | {"normal":2,"attached":1,"sink":1,"mirror":1} | 3 |
+| Sports Complex Washroom (Gender-Neutral) | Sports Complex | unisex | VISITOR | {"attached":2,"shower":4,"sink":2,"mirror":1} | 2 |
+| Botanical Garden Entrance Washroom (Accessible) | Botanical Garden Entrance | accessible | VISITOR | {"attached":1,"sink":1,"mirror":1} | 1 |
+
+Vary `status` (mostly OPEN; make Senate Building's entry CLOSED
+specifically, matching v3's own §6.4 worked example table — this keeps
+manual testing against the spec's own examples meaningful later). Vary
+`rating` (most 3.8-4.9, a couple null to exercise the neutral-default
+path). This gives a category split of 6 male / 5 female / 2 unisex /
+2 accessible and an audience split of 13 visitor / 2 staff — deliberately
+not all-visitor, since Phase 9/15's audience-based signal needs real
+variation to exist against.
+
+═══════════════════════════════════════════════════════════════
+6. SEED SCRIPT (backend/app/scripts/seed_database.py)
+═══════════════════════════════════════════════════════════════
+Update to pass `location_name`, `audience` (parse `"VISITOR"`/`"STAFF"`
+strings from the JSON into `AudienceType`), and `fixtures` through to
+`FacilityRepository.create()`; remove any `capacity`/`accessibility`
+handling. Keep the existing idempotent skip-if-exists-by-name pattern
+Phase 3 originally built — this phase changes what fields get passed, not
+the idempotency mechanism itself.
+
+═══════════════════════════════════════════════════════════════
+7. TESTS
+═══════════════════════════════════════════════════════════════
+test_facility_validation.py: add cases for `validate_fixtures` — an
+unknown key, a negative count, a non-integer count, all aggregated in one
+error list when multiple problems exist simultaneously (same
+aggregation-not-short-circuit pattern as every other validator in this
+codebase); a valid fixtures dict raises nothing. Add a `location_name`
+blank/too-long case to the existing aggregate test.
+
+test_repositories.py: `FacilityRepository.create()` with a full v3-shape
+payload returns a `Facility` with `total_stalls` correctly reflecting the
+generated column (insert with `fixtures={"attached":2,"normal":4}`, read
+back, assert `total_stalls == 6` — the direct proof that the repository
+layer correctly surfaces a value the database computed, not something
+Python computed and could get out of sync with). Confirm `audience`
+defaults to `VISITOR` when not specified. Confirm `location_name` is
+required (omitting it is a `TypeError` at the Python level, not a
+runtime validation error, since it's a required keyword argument now).
+
+═══════════════════════════════════════════════════════════════
+REQUIRED VERIFICATION — run every command below and paste the output
+═══════════════════════════════════════════════════════════════
+1. $env:PGPASSWORD = "<your password>"
+2. cd backend && alembic upgrade head → migration 0006 applies cleanly
+3. pytest backend/tests/test_facility_validation.py -v → all pass, no DB
+4. pytest backend/tests/test_repositories.py -v → all pass against geoai_test
+5. psql -U postgres -h localhost -d geoai -c "TRUNCATE facilities, categories RESTART IDENTITY CASCADE;"
+   (dev data is disposable synthetic data — fresh reseed is the clean path)
+6. python -m app.scripts.seed_database → prints 4 categories inserted, 15
+   facilities inserted (or however many the real prototype file yielded,
+   if you used that path instead of the fallback — report which source
+   was used)
+7. psql -U postgres -h localhost -d geoai -c "SELECT code, label FROM categories ORDER BY id;"
+   → exactly the 4 rows from §4, in order
+8. psql -U postgres -h localhost -d geoai -c "SELECT name, location_name, audience, total_stalls FROM facilities ORDER BY id;"
+   → every row has a non-null location_name distinct from name where
+   appropriate, audience populated, total_stalls matching the fixtures
+9. psql -U postgres -h localhost -d geoai -c "SELECT audience, count(*) FROM facilities GROUP BY audience;"
+   → both VISITOR and STAFF present
+10. python -m app.scripts.seed_database (run again) → idempotent, 0 new
+    inserts reported
+11. ruff check . → clean
+12. Confirm geoai_test has zero persisted rows from this phase's tests
+    after the suite finishes
+
+Do not report this phase as complete until every verification step above
+has been run and its actual output captured — not assumed.
+
+═══════════════════════════════════════════════════════════════
+DELIVERABLE
+═══════════════════════════════════════════════════════════════
+A walkthrough stating clearly which seed-data source was used (the real
+prototype file, or the documented fallback), every file created/modified,
+the exact terminal output for each of the 12 verification steps, and
+line-by-line confirmation against the Completion Checklist below.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-10T17:15:25+05:30.
+</ADDITIONAL_METADATA>
+---

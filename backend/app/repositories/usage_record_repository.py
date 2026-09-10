@@ -75,14 +75,17 @@ class UsageRecordRepository:
         )
 
     def get_facility_bucket_average(
-        self, *, facility_id: int, day_of_week: int, hour: int,
+        self,
+        *,
+        facility_id: int,
+        day_of_week: int,
+        hour: int,
     ) -> tuple[float, int] | None:
         """Returns (mean_usage_count, sample_count), or None if zero rows
         match. SELECT AVG(usage_count), COUNT(*) FROM usage_records WHERE
         facility_id=:fid AND day_of_week=:dow AND hour=:h."""
         row = self._session.execute(
-            sa.select(sa.func.avg(UsageRecordORM.usage_count), sa.func.count())
-            .where(
+            sa.select(sa.func.avg(UsageRecordORM.usage_count), sa.func.count()).where(
                 UsageRecordORM.facility_id == facility_id,
                 UsageRecordORM.day_of_week == day_of_week,
                 UsageRecordORM.hour == hour,
@@ -93,7 +96,11 @@ class UsageRecordRepository:
         return (float(row[0]), int(row[1]))
 
     def get_category_bucket_average(
-        self, *, category_id: int, day_of_week: int, hour: int,
+        self,
+        *,
+        category_id: int,
+        day_of_week: int,
+        hour: int,
     ) -> tuple[float, int] | None:
         """Same shape, joined against facilities to filter by category_id
         instead of a single facility_id."""
@@ -112,12 +119,14 @@ class UsageRecordRepository:
         return (float(row[0]), int(row[1]))
 
     def get_global_bucket_average(
-        self, *, day_of_week: int, hour: int,
+        self,
+        *,
+        day_of_week: int,
+        hour: int,
     ) -> tuple[float, int] | None:
         """Same shape, no facility/category filter at all."""
         row = self._session.execute(
-            sa.select(sa.func.avg(UsageRecordORM.usage_count), sa.func.count())
-            .where(
+            sa.select(sa.func.avg(UsageRecordORM.usage_count), sa.func.count()).where(
                 UsageRecordORM.day_of_week == day_of_week,
                 UsageRecordORM.hour == hour,
             )

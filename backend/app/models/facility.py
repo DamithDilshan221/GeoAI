@@ -13,8 +13,8 @@ from typing import Any
 import sqlalchemy as sa
 from geoalchemy2 import Geography, WKTElement
 from sqlalchemy import event
-from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
 from app.models.enums import AudienceType, DataSource, FacilityStatus
@@ -64,12 +64,14 @@ class Facility(Base):
     )
     audience: Mapped[AudienceType] = mapped_column(
         sa.Enum(AudienceType, name="audience_type", create_type=False),
-        nullable=False, default=AudienceType.VISITOR,
+        nullable=False,
+        default=AudienceType.VISITOR,
     )
     location_name: Mapped[str | None] = mapped_column(sa.String(200), nullable=True)
     fixtures: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     total_stalls: Mapped[int] = mapped_column(
-        sa.Integer, sa.Computed(
+        sa.Integer,
+        sa.Computed(
             "COALESCE((fixtures->>'attached')::INT,0) + COALESCE((fixtures->>'normal')::INT,0)",
             persisted=True,
         ),

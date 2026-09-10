@@ -27,12 +27,14 @@ def health(session: Session = Depends(get_db_session)) -> HealthRead | JSONRespo
     if db_status == "connected":
         try:
             active_row = session.execute(
-                text("SELECT version, algorithm FROM ml_model_versions WHERE is_active = true LIMIT 1")
+                text(
+                    "SELECT version, algorithm FROM ml_model_versions WHERE is_active = true LIMIT 1"  # noqa: E501
+                )
             ).one_or_none()
             if active_row:
                 prediction_provider = {
                     "version": active_row.version,
-                    "algorithm": active_row.algorithm
+                    "algorithm": active_row.algorithm,
                 }
         except Exception:
             pass

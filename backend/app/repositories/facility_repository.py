@@ -24,7 +24,7 @@ from sqlalchemy.orm import Session
 
 from app.domain.entities import Facility as FacilityEntity
 from app.domain.facility_validation import validate_facility_input
-from app.models.enums import DataSource, FacilityStatus
+from app.models.enums import AudienceType, DataSource, FacilityStatus
 from app.models.facility import Facility as FacilityORM
 from app.repositories.exceptions import FacilityReferenceError
 
@@ -36,8 +36,8 @@ _MAX_LIMIT = 50
 def _to_entity(orm: FacilityORM) -> FacilityEntity:
     """Map a SQLAlchemy ORM instance to the domain ``Facility`` dataclass.
 
-    ``rating`` and ``capacity`` are stored as ``Decimal`` / ``int`` in the ORM
-    but are converted to ``float`` / ``int`` here for ergonomic downstream use
+    ``rating`` is stored as ``Decimal`` in the ORM
+    but is converted to ``float`` here for ergonomic downstream use
     (JSON serialisation, arithmetic, etc.).  Precision is not lost because the
     DB column is Numeric(2,1) — one decimal place — which is fully representable
     as a float.
@@ -51,12 +51,14 @@ def _to_entity(orm: FacilityORM) -> FacilityEntity:
         status=orm.status,
         status_updated_at=orm.status_updated_at,
         rating=float(orm.rating) if orm.rating is not None else None,
-        capacity=orm.capacity,
-        accessibility=orm.accessibility,
         data_source=orm.data_source,
         is_active=orm.is_active,
         created_at=orm.created_at,
         updated_at=orm.updated_at,
+        audience=orm.audience,
+        location_name=orm.location_name,
+        fixtures=orm.fixtures,
+        total_stalls=orm.total_stalls,
     )
 
 
@@ -174,13 +176,14 @@ class FacilityRepository:
         self,
         *,
         name: str,
+        location_name: str,
         category_id: int,
         latitude: float,
         longitude: float,
+        audience: AudienceType = AudienceType.VISITOR,
         status: FacilityStatus = FacilityStatus.OPEN,
         rating: float | None = None,
-        capacity: int | None = None,
-        accessibility: dict | None = None,
+        fixtures: dict | None = None,
         data_source: DataSource,
     ) -> FacilityEntity:
         """Insert a new facility and return the persisted domain entity.
@@ -198,13 +201,14 @@ class FacilityRepository:
 
         Args:
             name: Facility name (≤ 200 chars, non-empty).
+            location_name: Building/place name (≤ 200 chars, non-empty).
             category_id: FK reference to ``categories.id``.
             latitude: Geographic latitude in [-90, 90].
             longitude: Geographic longitude in [-180, 180].
+            audience: Target audience for the facility.
             status: Operational status; defaults to ``OPEN``.
             rating: Optional star rating in [0, 5].
-            capacity: Optional capacity count (must be > 0 if provided).
-            accessibility: Optional JSON blob of accessibility features.
+            fixtures: Optional dictionary of fixtures.
             data_source: Provenance of the record.
 
         Returns:
@@ -219,24 +223,26 @@ class FacilityRepository:
         # Step 1 — fail-fast validation before touching the DB
         validate_facility_input(
             name=name,
+            location_name=location_name,
             latitude=latitude,
             longitude=longitude,
             rating=rating,
-            capacity=capacity,
+            fixtures=fixtures,
         )
 
         # Step 2 — insert; catch FK violations cleanly
         orm = FacilityORM(
             name=name,
+            location_name=location_name,
             category_id=category_id,
             # latitude/longitude are stored on the ORM object;
             # the before_insert listener derives geom from them automatically.
             latitude=latitude,
             longitude=longitude,
+            audience=audience,
             status=status,
             rating=rating,
-            capacity=capacity,
-            accessibility=accessibility,
+            fixtures=fixtures if fixtures is not None else {},
             data_source=data_source,
         )
         self._session.add(orm)
@@ -254,17 +260,5 @@ class FacilityRepository:
         return _to_entity(orm)
 
     def get_category_median_capacity(self, category_id: int) -> float | None:
-        """Median capacity among active facilities in this category that
-        have a non-NULL capacity. None if no such facility exists (the
-        service falls back to a hard-coded sane default in that case, per
-        crowd_level.py's docstring)."""
-        import sqlalchemy as sa
-        row = self._session.execute(
-            sa.select(sa.func.percentile_cont(0.5).within_group(FacilityORM.capacity))
-            .where(
-                FacilityORM.category_id == category_id,
-                FacilityORM.is_active,
-                FacilityORM.capacity.isnot(None),
-            )
-        ).scalar()
-        return float(row) if row is not None else None
+        """Removed in v3."""
+        return None

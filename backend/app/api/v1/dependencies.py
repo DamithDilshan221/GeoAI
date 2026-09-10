@@ -44,9 +44,10 @@ def get_pedestrian_routing_service(
     facility_repo = FacilityRepository(session)
     return PedestrianRoutingService(routing_repo, facility_repo)
 
+
 def get_ml_inference_service(
     session: Session = Depends(get_db_session),  # noqa: B008
-) -> "MLInferenceService":
+) -> "MLInferenceService":  # noqa: F821
     from app.repositories.facility_repository import FacilityRepository
     from app.repositories.usage_record_repository import UsageRecordRepository
     from app.services.ml_inference_service import MLInferenceService
@@ -60,8 +61,8 @@ def get_recommendation_service(
     session: Session = Depends(get_db_session),  # noqa: B008
     nearby_search: NearbySearchService = Depends(get_nearby_search_service),  # noqa: B008
     routing_service: PedestrianRoutingService = Depends(get_pedestrian_routing_service),  # noqa: B008
-    ml_service: "MLInferenceService" = Depends(get_ml_inference_service),  # noqa: B008
-) -> "RecommendationService":
+    ml_service: "MLInferenceService" = Depends(get_ml_inference_service),  # noqa: B008, F821
+) -> "RecommendationService":  # noqa: F821
     from app.services.recommendation_service import RecommendationService
 
     facility_repo = FacilityRepository(session)
@@ -71,4 +72,3 @@ def get_recommendation_service(
         ml_service=ml_service,
         facility_repo=facility_repo,
     )
-

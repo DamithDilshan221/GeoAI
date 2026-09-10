@@ -8,4 +8,3 @@ class HealthRead(BaseModel):
     app_env: str
     database: Literal["connected", "unreachable"]
     prediction_provider: dict  # {"version": str, "algorithm": str | None}
-

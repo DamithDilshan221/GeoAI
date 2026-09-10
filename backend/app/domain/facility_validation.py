@@ -18,6 +18,21 @@ real category — that requires a DB query and is the repository's responsibilit
 
 from __future__ import annotations
 
+VALID_FIXTURE_KEYS = {"attached", "normal", "shower", "sink", "mirror"}
+
+
+def validate_fixtures(fixtures: dict) -> list[str]:
+    """Returns a list of error strings (empty if valid) -- aggregate,
+    same pattern as the rest of this file's validation, don't
+    short-circuit on the first problem."""
+    errors = []
+    for key, value in fixtures.items():
+        if key not in VALID_FIXTURE_KEYS:
+            errors.append(f"unknown fixture key '{key}'")
+        elif not isinstance(value, int) or value < 0:
+            errors.append(f"fixture '{key}' must be a non-negative integer, got {value!r}")
+    return errors
+
 
 class FacilityValidationError(Exception):
     """Raised when one or more facility input fields are invalid.
@@ -35,19 +50,21 @@ class FacilityValidationError(Exception):
 def validate_facility_input(
     *,
     name: str,
+    location_name: str,
     latitude: float,
     longitude: float,
     rating: float | None = None,
-    capacity: int | None = None,
+    fixtures: dict | None = None,
 ) -> None:
     """Validate facility input fields, collecting ALL violations before raising.
 
     Args:
         name: Facility name — must be non-empty and ≤ 200 characters.
+        location_name: Building/place name — must be non-empty and ≤ 200 chars.
         latitude: Geographic latitude — must be in [-90, 90].
         longitude: Geographic longitude — must be in [-180, 180].
         rating: Optional star rating — if provided, must be in [0, 5].
-        capacity: Optional capacity count — if provided, must be > 0.
+        fixtures: Optional fixtures dict — valid keys only, non-negative ints.
 
     Raises:
         FacilityValidationError: If any field fails validation.  The
@@ -62,6 +79,12 @@ def validate_facility_input(
     elif len(name) > 200:
         errors.append(f"name must be ≤ 200 characters (got {len(name)})")
 
+    # ── Location Name ───────────────────────────────────────────────────────
+    if not location_name or not location_name.strip():
+        errors.append("location_name must not be empty")
+    elif len(location_name) > 200:
+        errors.append(f"location_name must be ≤ 200 characters (got {len(location_name)})")
+
     # ── Latitude ─────────────────────────────────────────────────────────────
     if not (-90.0 <= latitude <= 90.0):
         errors.append(f"latitude must be in [-90, 90] (got {latitude})")
@@ -75,10 +98,9 @@ def validate_facility_input(
     if rating is not None and not (0.0 <= rating <= 5.0):
         errors.append(f"rating must be in [0, 5] (got {rating})")
 
-    # ── Capacity ─────────────────────────────────────────────────────────────
-    # Mirrors CHECK (capacity > 0) from Phase 2 migration
-    if capacity is not None and capacity <= 0:
-        errors.append(f"capacity must be > 0 (got {capacity})")
+    # ── Fixtures ─────────────────────────────────────────────────────────────
+    if fixtures is not None:
+        errors.extend(validate_fixtures(fixtures))
 
     if errors:
         raise FacilityValidationError(errors)

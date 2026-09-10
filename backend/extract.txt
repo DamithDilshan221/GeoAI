@@ -1,0 +1,64 @@
+<USER_REQUEST>
+PHASE 3 (v3 CORRECTION) — WASHROOM DATA
+Project: GeoAI / Pera Rest Nav — Campus Washroom Finder
+Reference spec: docs/architecture/PeraRestNav_Technical_Architecture_Specification_v3.md — read §19.2
+(categories) and §19.3 (facilities) again alongside this prompt; the exact values below are transcribed
+directly from those sections, not reconstructed from memory.
+Reference plan: this is the second correction in the "one phase at a time, in order" sequence — depends
+on Phase 2 (v3 correction) having already landed (audience/location_name/fixtures/total_stalls columns
+exist; capacity/accessibility are gone).
+
+═══════════════════════════════════════════════════════════════
+CONTEXT
+═══════════════════════════════════════════════════════════════
+This is a correction to already-completed work. Phase 2's correction
+changed the schema; this phase updates everything one layer up — domain
+validation, the repository, and seed data — to match. It also closes a
+loose end Phase 2's correction deliberately left open: `location_name` was
+added nullable specifically so this phase could backfill real values
+before tightening it.
+
+Before writing anything: check whether the actual `pera-rest-nav.html`
+prototype file (the one used as the visual reference for the Phase 8B
+reskin) is present anywhere in this repository or workspace — check the
+repo root, and anywhere the reskin brief's attachments might have landed.
+v3 spec §28's phase table says this phase's seed dataset should match
+"the prototype's 15 campus locations" — that file is the authoritative
+source for those 15, not this prompt. If you find it, extract its
+washroom data (look for a JS array/object literal inside a `<script>`
+tag — common variable names to check for i
+<truncated 17239 bytes>
+CADE;"
+   (dev data is disposable synthetic data — fresh reseed is the clean path)
+6. python -m app.scripts.seed_database → prints 4 categories inserted, 15
+   facilities inserted (or however many the real prototype file yielded,
+   if you used that path instead of the fallback — report which source
+   was used)
+7. psql -U postgres -h localhost -d geoai -c "SELECT code, label FROM categories ORDER BY id;"
+   → exactly the 4 rows from §4, in order
+8. psql -U postgres -h localhost -d geoai -c "SELECT name, location_name, audience, total_stalls FROM facilities ORDER BY id;"
+   → every row has a non-null location_name distinct from name where
+   appropriate, audience populated, total_stalls matching the fixtures
+9. psql -U postgres -h localhost -d geoai -c "SELECT audience, count(*) FROM facilities GROUP BY audience;"
+   → both VISITOR and STAFF present
+10. python -m app.scripts.seed_database (run again) → idempotent, 0 new
+    inserts reported
+11. ruff check . → clean
+12. Confirm geoai_test has zero persisted rows from this phase's tests
+    after the suite finishes
+
+Do not report this phase as complete until every verification step above
+has been run and its actual output captured — not assumed.
+
+═══════════════════════════════════════════════════════════════
+DELIVERABLE
+═══════════════════════════════════════════════════════════════
+A walkthrough stating clearly which seed-data source was used (the real
+prototype file, or the documented fallback), every file created/modified,
+the exact terminal output for each of the 12 verification steps, and
+line-by-line confirmation against the Completion Checklist below.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-10T17:15:25+05:30.
+</ADDITIONAL_METADATA>
+---

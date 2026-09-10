@@ -38,9 +38,7 @@ def score_candidate(
 
     sub = {
         "distance": distance_score(candidate.distance_m, radius_m),
-        "travel_time": travel_time_score(
-            candidate.estimated_time_s, radius_m, walking_speed_mps
-        ),
+        "travel_time": travel_time_score(candidate.estimated_time_s, radius_m, walking_speed_mps),
         "freshness": freshness_score(
             candidate.facility.status_updated_at, now, staleness_horizon_hours
         ),

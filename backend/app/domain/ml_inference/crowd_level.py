@@ -29,6 +29,7 @@ def derive_crowd_level(predicted_usage: float, effective_capacity: float) -> str
         return "MEDIUM"
     return "HIGH"
 
+
 def bucket_confidence(sample_count: int) -> str:
     """
     Tier-1-only confidence grading. Callers at Tier 2/3 do not call this — they

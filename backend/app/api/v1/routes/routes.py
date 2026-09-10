@@ -16,7 +16,7 @@ def get_route(
     lon: float = Query(..., description="Origin longitude (-180 to 180)."),
     facility_id: int = Query(..., description="Target facility ID."),
     accessible_only: bool = Query(False, description="Exclude non-accessible paths like stairs."),
-    routing_service: PedestrianRoutingService = Depends(get_pedestrian_routing_service),
+    routing_service: PedestrianRoutingService = Depends(get_pedestrian_routing_service),  # noqa: B008
 ) -> RouteResultRead:
     """Calculate the shortest walking path to a facility.
 

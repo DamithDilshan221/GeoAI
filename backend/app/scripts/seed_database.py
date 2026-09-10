@@ -26,7 +26,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.core.config import get_settings
-from app.models.enums import DataSource, FacilityStatus
+from app.models.enums import AudienceType, DataSource, FacilityStatus
 from app.repositories.category_repository import CategoryRepository
 from app.repositories.exceptions import DuplicateCategoryCodeError
 from app.repositories.facility_repository import FacilityRepository
@@ -112,13 +112,14 @@ def run_seed() -> None:
 
                 fac_repo.create(
                     name=name,
+                    location_name=entry["location_name"],
                     category_id=code_to_id[cat_code],
                     latitude=float(entry["latitude"]),
                     longitude=float(entry["longitude"]),
+                    audience=AudienceType(entry.get("audience", "VISITOR")),
                     status=FacilityStatus(entry["status"]),
                     rating=float(entry["rating"]) if entry.get("rating") is not None else None,
-                    capacity=entry.get("capacity"),
-                    accessibility=entry.get("accessibility"),
+                    fixtures=entry.get("fixtures", {}),
                     data_source=DataSource(entry["data_source"]),
                 )
                 fac_inserted += 1

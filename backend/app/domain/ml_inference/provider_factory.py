@@ -8,7 +8,9 @@ from app.repositories.usage_record_repository import UsageRecordRepository
 
 
 def get_active_provider(
-    session: Session, usage_repo: UsageRecordRepository, facility_repo: FacilityRepository,
+    session: Session,
+    usage_repo: UsageRecordRepository,
+    facility_repo: FacilityRepository,
 ) -> UsagePredictionProvider:
     active_row = session.execute(
         text("SELECT algorithm FROM ml_model_versions WHERE is_active = true LIMIT 1")

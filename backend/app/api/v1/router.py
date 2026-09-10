@@ -2,7 +2,15 @@
 
 from fastapi import APIRouter
 
-from app.api.v1.routes import categories, facilities, health, nearby, predictions, recommendations, routes
+from app.api.v1.routes import (
+    categories,
+    facilities,
+    health,
+    nearby,
+    predictions,
+    recommendations,
+    routes,
+)
 
 router = APIRouter()
 

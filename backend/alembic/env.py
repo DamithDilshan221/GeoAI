@@ -50,10 +50,7 @@ def include_object(
     compare_to: object | None,
 ) -> bool:
     """Exclude PostGIS and pgRouting system tables from autogenerate diffs."""
-    if type_ == "table":
-        if name == "spatial_ref_sys" or name.endswith("_vertices_pgr"):
-            return False
-    return True
+    return not (type_ == "table" and (name == "spatial_ref_sys" or name.endswith("_vertices_pgr")))
 
 
 def run_migrations_offline() -> None:

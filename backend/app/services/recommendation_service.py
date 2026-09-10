@@ -20,9 +20,7 @@ from app.domain.recommendation.weights import get_recommendation_weights
 from app.repositories.facility_repository import FacilityRepository
 from app.services.ml_inference_service import MLInferenceService
 
-EMPTY_MESSAGE = (
-    "No suitable facilities were found within the current search radius."
-)
+EMPTY_MESSAGE = "No suitable facilities were found within the current search radius."
 
 
 @dataclass
@@ -113,9 +111,7 @@ class RecommendationService:
             else:
                 # Routing returned None (facility inactive/missing) — use
                 # straight-line from the nearby result's distance
-                estimated_time_s = (
-                    item.distance_m / settings.PEDESTRIAN_WALKING_SPEED_MPS
-                )
+                estimated_time_s = item.distance_m / settings.PEDESTRIAN_WALKING_SPEED_MPS
                 travel_source = "straight_line_estimate"
 
             # Usage prediction
@@ -126,11 +122,7 @@ class RecommendationService:
             )
 
             # Category median for crowd scoring
-            category_median = (
-                self._facility_repo.get_category_median_capacity(
-                    facility.category_id
-                )
-            )
+            category_median = self._facility_repo.get_category_median_capacity(facility.category_id)
 
             candidate = RecommendationCandidate(
                 facility=facility,

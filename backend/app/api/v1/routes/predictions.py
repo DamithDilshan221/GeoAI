@@ -7,6 +7,7 @@ from app.services.ml_inference_service import MLInferenceService
 
 router = APIRouter(tags=["Predictions"])
 
+
 @router.post("/predictions/usage", response_model=UsagePredictionResponse)
 def predict_usage(
     body: UsagePredictionRequest,
@@ -28,5 +29,5 @@ def predict_usage(
         predicted_usage=result.predicted_usage,
         crowd_level=result.crowd_level,
         source=result.source,
-        confidence=result.confidence
+        confidence=result.confidence,
     )

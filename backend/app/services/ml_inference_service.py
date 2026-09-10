@@ -16,7 +16,11 @@ class MLInferenceService:
         self._facility_repo = facility_repo
 
     def predict_usage(
-        self, *, facility_id: int, day_of_week: int, hour: int,
+        self,
+        *,
+        facility_id: int,
+        day_of_week: int,
+        hour: int,
         recent_usage: float | None = None,
     ) -> PredictionResult:
         """
@@ -45,7 +49,7 @@ class MLInferenceService:
             capacity=facility.capacity,
             day_of_week=day_of_week,
             hour=hour,
-            recent_usage=recent_usage
+            recent_usage=recent_usage,
         )
 
         provider = get_active_provider(self._session, self._usage_repo, self._facility_repo)
