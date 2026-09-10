@@ -73,8 +73,10 @@ class NearbyFacility:
     id: int
     name: str
     category_code: str
+    audience: AudienceType
     status: FacilityStatus
     rating: float | None
+    fixtures: dict
     distance_m: float
     latitude: float
     longitude: float

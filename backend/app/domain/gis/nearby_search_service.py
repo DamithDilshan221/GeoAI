@@ -4,6 +4,7 @@ from app.domain.entities import NearbyFacility
 from app.domain.gis.coordinate_validation import validate_coordinates
 from app.repositories.category_repository import CategoryRepository
 from app.repositories.gis_repository import GISRepository
+from app.models.enums import AudienceType
 
 
 class NearbySearchService:
@@ -15,6 +16,7 @@ class NearbySearchService:
         self,
         *,
         category_code: str,
+        audience: AudienceType | None,
         lat: float,
         lon: float,
         radius_m: int,
@@ -36,6 +38,7 @@ class NearbySearchService:
         # 3. Query GIS repository
         rows = self.gis_repo.find_nearby(
             category_id=category.id,
+            audience=audience,
             lat=lat,
             lon=lon,
             radius_m=radius_m,
@@ -48,8 +51,10 @@ class NearbySearchService:
                 id=row.id,
                 name=row.name,
                 category_code=category_code,
+                audience=row.audience,
                 status=row.status,
                 rating=row.rating,
+                fixtures=row.fixtures,
                 distance_m=row.distance_m,
                 latitude=row.latitude,
                 longitude=row.longitude,
