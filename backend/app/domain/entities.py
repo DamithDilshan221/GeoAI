@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Literal
 
-from app.models.enums import DataSource, FacilityStatus
+from app.models.enums import AudienceType, DataSource, FacilityStatus
 
 
 @dataclass(frozen=True)
@@ -49,8 +49,10 @@ class Facility:
     status: FacilityStatus
     status_updated_at: datetime
     rating: float | None
-    capacity: int | None
-    accessibility: dict | None
+    audience: AudienceType
+    location_name: str | None
+    fixtures: dict
+    total_stalls: int
     data_source: DataSource
     is_active: bool
     created_at: datetime

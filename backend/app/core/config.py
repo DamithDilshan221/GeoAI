@@ -45,9 +45,6 @@ class Settings(BaseSettings):
 
     # ── Pedestrian Routing ───────────────────────────────────
     PEDESTRIAN_WALKING_SPEED_MPS: float = 1.2
-    PEDESTRIAN_RAMP_SPEED_MPS: float = 1.0
-    PEDESTRIAN_STAIRS_SPEED_MPS: float = 0.5
-    PGR_TOPOLOGY_TOLERANCE_DEGREES: float = 0.00001
 
     # ── Recommendation engine ────────────────────────────────
     RECOMMENDATION_CONFIG_PATH: str = "config/recommendation_weights.yaml"

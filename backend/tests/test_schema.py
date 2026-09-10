@@ -77,8 +77,10 @@ def test_all_five_tables_exist_with_expected_columns(db_session: Session) -> Non
             "status",
             "status_updated_at",
             "rating",
-            "capacity",
-            "accessibility",
+            "audience",
+            "location_name",
+            "fixtures",
+            "total_stalls",
             "data_source",
             "is_active",
             "created_at",
@@ -238,13 +240,13 @@ def test_duplicate_usage_bucket_rejected(db_session: Session) -> None:
 
 def test_only_one_active_ml_model_version(db_session: Session) -> None:
     """Two ml_model_versions rows with is_active=True must violate the index."""
-    v1 = MLModelVersion(version="heuristic-v0", is_active=True)
+    v1 = MLModelVersion(version="test-model-v1", is_active=True)
     db_session.add(v1)
     db_session.flush()
 
     db_session.begin_nested()
     with pytest.raises(IntegrityError):
-        v2 = MLModelVersion(version="heuristic-v1", is_active=True)
+        v2 = MLModelVersion(version="test-model-v2", is_active=True)
         db_session.add(v2)
         db_session.flush()
 
@@ -280,3 +282,85 @@ def test_delete_facility_sets_recommendation_log_facility_id_null(
     ).fetchone()
     assert row is not None
     assert row.facility_id is None
+
+
+import subprocess
+from pathlib import Path
+
+def test_alembic_migrations_apply_cleanly() -> None:
+    backend_dir = Path(__file__).parent.parent
+    result = subprocess.run(["alembic", "upgrade", "head"], cwd=backend_dir, capture_output=True, text=True)
+    assert result.returncode == 0, f"Alembic upgrade failed: {result.stderr}"
+
+def test_idx_facilities_audience_exists(db_session: Session) -> None:
+    result = db_session.execute(
+        text("SELECT indexname FROM pg_indexes WHERE tablename = 'facilities' AND indexname = 'idx_facilities_audience'")
+    ).fetchone()
+    assert result is not None, "idx_facilities_audience does not exist"
+
+def test_total_stalls_generated_column_computation(db_session: Session) -> None:
+    cat = _make_category(db_session, code="WASH1")
+    db_session.execute(
+        text("INSERT INTO facilities (name, category_id, geom, latitude, longitude, fixtures, data_source) "
+             "VALUES ('Washroom A', :cat_id, ST_GeogFromText('POINT(79.86 6.93)'), 6.93, 79.86, '{\"attached\": 2, \"normal\": 4}'::jsonb, 'SYNTHETIC')"),
+        {"cat_id": cat.id}
+    )
+    fac_id = db_session.execute(text("SELECT id FROM facilities WHERE name = 'Washroom A'")).scalar()
+    
+    row = db_session.execute(text("SELECT total_stalls FROM facilities WHERE id = :fid"), {"fid": fac_id}).fetchone()
+    assert row is not None
+    assert row.total_stalls == 6
+
+def test_total_stalls_generated_column_default(db_session: Session) -> None:
+    cat = _make_category(db_session, code="WASH2")
+    db_session.execute(
+        text("INSERT INTO facilities (name, category_id, geom, latitude, longitude, data_source) "
+             "VALUES ('Washroom B', :cat_id, ST_GeogFromText('POINT(79.86 6.93)'), 6.93, 79.86, 'SYNTHETIC')"),
+        {"cat_id": cat.id}
+    )
+    fac_id = db_session.execute(text("SELECT id FROM facilities WHERE name = 'Washroom B'")).scalar()
+    
+    row = db_session.execute(text("SELECT total_stalls FROM facilities WHERE id = :fid"), {"fid": fac_id}).fetchone()
+    assert row is not None
+    assert row.total_stalls == 0
+
+def test_total_stalls_direct_insert_fails(db_session: Session) -> None:
+    cat = _make_category(db_session, code="WASH3")
+    db_session.begin_nested()
+    with pytest.raises(sa.exc.ProgrammingError):
+        db_session.execute(
+            text("INSERT INTO facilities (name, category_id, geom, latitude, longitude, total_stalls, data_source) "
+                 "VALUES ('Washroom C', :cat_id, ST_GeogFromText('POINT(79.86 6.93)'), 6.93, 79.86, 10, 'SYNTHETIC')"),
+            {"cat_id": cat.id}
+        )
+
+def test_location_name_accepts_null(db_session: Session) -> None:
+    cat = _make_category(db_session, code="WASH4")
+    db_session.execute(
+        text("INSERT INTO facilities (name, category_id, geom, latitude, longitude, location_name, data_source) "
+             "VALUES ('Washroom D', :cat_id, ST_GeogFromText('POINT(79.86 6.93)'), 6.93, 79.86, NULL, 'SYNTHETIC')"),
+        {"cat_id": cat.id}
+    )
+    fac_id = db_session.execute(text("SELECT id FROM facilities WHERE name = 'Washroom D'")).scalar()
+    row = db_session.execute(text("SELECT location_name FROM facilities WHERE id = :fid"), {"fid": fac_id}).fetchone()
+    assert row is not None
+    assert row.location_name is None
+
+def test_campus_paths_no_longer_exists(db_session: Session) -> None:
+    row = db_session.execute(
+        text("SELECT table_name FROM information_schema.tables WHERE table_name = 'campus_paths'")
+    ).fetchone()
+    assert row is None
+
+def test_alembic_downgrade_upgrade() -> None:
+    backend_dir = Path(__file__).parent.parent
+    
+    res1 = subprocess.run(["alembic", "downgrade", "-1"], cwd=backend_dir, capture_output=True, text=True)
+    assert res1.returncode == 0, f"Alembic downgrade -1 failed: {res1.stderr}"
+    res2 = subprocess.run(["alembic", "upgrade", "head"], cwd=backend_dir, capture_output=True, text=True)
+    assert res2.returncode == 0, f"Alembic upgrade failed: {res2.stderr}"
+    
+    res3 = subprocess.run(["alembic", "downgrade", "-2"], cwd=backend_dir, capture_output=True, text=True)
+    assert res3.returncode == 0, f"Alembic downgrade -2 failed: {res3.stderr}"
+    res4 = subprocess.run(["alembic", "upgrade", "head"], cwd=backend_dir, capture_output=True, text=True)
+    assert res4.returncode == 0, f"Alembic upgrade failed: {res4.stderr}"

@@ -14,9 +14,10 @@ import sqlalchemy as sa
 from geoalchemy2 import Geography, WKTElement
 from sqlalchemy import event
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.dialects.postgresql import JSONB
 
 from app.models.base import Base
-from app.models.enums import DataSource, FacilityStatus
+from app.models.enums import AudienceType, DataSource, FacilityStatus
 
 
 class Facility(Base):
@@ -61,12 +62,18 @@ class Facility(Base):
         sa.CheckConstraint("rating BETWEEN 0 AND 5", name="rating_range"),
         nullable=True,
     )
-    capacity: Mapped[int | None] = mapped_column(
-        sa.Integer,
-        sa.CheckConstraint("capacity > 0", name="capacity_positive"),
-        nullable=True,
+    audience: Mapped[AudienceType] = mapped_column(
+        sa.Enum(AudienceType, name="audience_type", create_type=False),
+        nullable=False, default=AudienceType.VISITOR,
     )
-    accessibility: Mapped[dict | None] = mapped_column(sa.JSON, nullable=True)
+    location_name: Mapped[str | None] = mapped_column(sa.String(200), nullable=True)
+    fixtures: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    total_stalls: Mapped[int] = mapped_column(
+        sa.Integer, sa.Computed(
+            "COALESCE((fixtures->>'attached')::INT,0) + COALESCE((fixtures->>'normal')::INT,0)",
+            persisted=True,
+        ),
+    )
     data_source: Mapped[DataSource] = mapped_column(
         sa.Enum(DataSource, name="data_source", create_type=False),
         nullable=False,

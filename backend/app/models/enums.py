@@ -24,11 +24,8 @@ class DataSource(enum.StrEnum):
     SYNTHETIC = "SYNTHETIC"
 
 
-class PathType(enum.StrEnum):
-    """The type of a pedestrian path segment, affecting routing cost and accessibility."""
+class AudienceType(enum.StrEnum):
+    """Target audience for a facility."""
 
-    SIDEWALK = "SIDEWALK"
-    STAIRS = "STAIRS"
-    RAMP = "RAMP"
-    CORRIDOR = "CORRIDOR"
-    CROSSING = "CROSSING"
+    VISITOR = "VISITOR"
+    STAFF = "STAFF"
