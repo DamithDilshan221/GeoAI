@@ -7,6 +7,7 @@ import { EmptyState } from '../components/status/EmptyState';
 import { useRecommendation } from '../hooks/useRecommendation';
 import { NavigationOverlay } from '../components/navigation/NavigationOverlay';
 import { GEOLOCATION_MESSAGES } from '../hooks/useGeolocation';
+import { SERVICE_UNAVAILABLE_MESSAGE } from '../constants/search';
 
 function formatTime(seconds: number, isEstimate: boolean): string {
   const mins = Math.round(seconds / 60);
@@ -39,7 +40,7 @@ export function RecommendationResultPage() {
         }
       : null;
 
-  const { data, isLoading, isError, refetch } = useRecommendation(params);
+  const { data, isLoading, isError, error, refetch } = useRecommendation(params);
 
   if (!selectedCategory || !location) {
     return <Navigate to="/" replace />;
@@ -50,9 +51,12 @@ export function RecommendationResultPage() {
   }
 
   if (isError) {
+    // §22.1: distinguish a backend-unavailable 503 from a generic error so the
+    // user sees the same consistent message as NearbyFacilitiesPage does.
+    const is503 = (error as { response?: { status?: number } })?.response?.status === 503;
     return (
       <ErrorState
-        message="Failed to fetch recommendations. Please try again."
+        message={is503 ? SERVICE_UNAVAILABLE_MESSAGE : 'Failed to fetch recommendations. Please try again.'}
         onRetry={refetch}
       />
     );

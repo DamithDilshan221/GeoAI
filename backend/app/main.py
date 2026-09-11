@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import router as v1_router
 from app.core.config import get_settings
+from app.core.exception_handlers import register_exception_handlers
 from app.core.logging import setup_logging
 
 logger = logging.getLogger(__name__)
@@ -38,6 +39,12 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # Global exception handlers — maps OperationalError → 503 and any other
+    # unhandled exception → 500, both with a consistent JSON envelope carrying
+    # a per-request correlation ID.  Must be registered before routes are added
+    # so the middleware runs on every request.  §22.1, §22.2.
+    register_exception_handlers(application)
 
     # Versioned API routes
     application.include_router(v1_router, prefix="/api/v1")

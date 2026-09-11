@@ -91,4 +91,32 @@ describe('NavigationOverlay', () => {
       expect(fetchWalkingRoute).toHaveBeenCalledWith(ORIGIN, DEST);
     });
   });
+
+  it('shows fallback notice when route source is straight_line_estimate', async () => {
+    vi.mocked(fetchWalkingRoute).mockResolvedValue({
+      ...MOCK_ROUTE,
+      source: 'straight_line_estimate' as const,
+    });
+    render(<NavigationOverlay origin={ORIGIN} destination={DEST} onClose={vi.fn()} />);
+    await waitFor(() => {
+      expect(
+        screen.getByText(/couldn't calculate a walking route/i),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('does NOT show fallback notice when route source is network', async () => {
+    vi.mocked(fetchWalkingRoute).mockResolvedValue({
+      ...MOCK_ROUTE,
+      source: 'network' as const,
+    });
+    render(<NavigationOverlay origin={ORIGIN} destination={DEST} onClose={vi.fn()} />);
+    // Wait for the route to load, then assert the notice is absent
+    await waitFor(() => {
+      expect(screen.getByTestId('navigation-map')).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByText(/couldn't calculate a walking route/i),
+    ).toBeNull();
+  });
 });

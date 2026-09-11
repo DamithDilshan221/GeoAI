@@ -120,7 +120,7 @@ def test_empty_result(db_session: Session) -> None:
 
     assert result.recommended_facility is None
     assert result.ranked_facilities == []
-    assert result.message == "No suitable facilities were found within the current search radius."
+    assert result.message == "No suitable washrooms were found within the current search radius."
     assert result.explanation is None
 
 

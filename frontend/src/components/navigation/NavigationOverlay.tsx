@@ -17,6 +17,7 @@
 import { useState, useEffect } from 'react';
 import { NavigationMap } from '../map/NavigationMap';
 import { TurnBanner } from './TurnBanner';
+import { RouteFallbackNotice } from './RouteFallbackNotice';
 import { useLiveNavigation } from '../../hooks/useLiveNavigation';
 import { fetchWalkingRoute } from '../../routing/osrmClient';
 import { remainingSecondsToMinutes } from '../../routing/maneuvers';
@@ -77,6 +78,10 @@ export function NavigationOverlay({ origin, destination, onClose }: NavigationOv
           Stop
         </button>
       </div>
+
+      {/* OSRM-fallback notice — §14.4: shown whenever the route source is a
+          straight-line estimate rather than a real OSRM walking route. */}
+      <RouteFallbackNotice visible={route?.source === 'straight_line_estimate'} />
 
       {/* Turn banner */}
       <TurnBanner

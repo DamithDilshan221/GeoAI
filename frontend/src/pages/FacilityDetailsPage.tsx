@@ -6,6 +6,7 @@ import { ErrorState } from '../components/status/ErrorState';
 import { MapView } from '../components/map/MapView';
 import { NavigationOverlay } from '../components/navigation/NavigationOverlay';
 import { GEOLOCATION_MESSAGES } from '../hooks/useGeolocation';
+import { SERVICE_UNAVAILABLE_MESSAGE } from '../constants/search';
 
 export function FacilityDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -23,7 +24,9 @@ export function FacilityDetailsPage() {
   if (error) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const is404 = (error as any).response?.status === 404;
-    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const is503 = (error as any).response?.status === 503;
+
     if (is404) {
       return (
         <div className="text-center p-8 text-white h-full flex flex-col justify-center">
@@ -33,7 +36,13 @@ export function FacilityDetailsPage() {
         </div>
       );
     }
-    return <ErrorState message="Failed to load washroom details." onRetry={refetch} />;
+    // §22.1: distinguish a backend-unavailable 503 from a generic error.
+    return (
+      <ErrorState
+        message={is503 ? SERVICE_UNAVAILABLE_MESSAGE : 'Failed to load washroom details.'}
+        onRetry={refetch}
+      />
+    );
   }
 
   if (!facility) return null;

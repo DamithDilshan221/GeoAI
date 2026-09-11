@@ -10,6 +10,7 @@ import { RecommendationResultPage } from './RecommendationResultPage';
 import * as SearchContextModule from '../context/SearchContext';
 import * as useRecommendationModule from '../hooks/useRecommendation';
 import type { RecommendationResponse } from '../types/recommendation';
+import { SERVICE_UNAVAILABLE_MESSAGE } from '../constants/search';
 
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router-dom')>();
@@ -215,5 +216,24 @@ describe('RecommendationResultPage', () => {
     await waitFor(() => {
       expect(screen.getByTestId('rec-nav-error')).toBeInTheDocument();
     });
+  });
+
+  it('shows SERVICE_UNAVAILABLE_MESSAGE when error status is 503', () => {
+    mockUseRecommendation({
+      isError: true,
+      error: { response: { status: 503 } } as any,
+    });
+    renderPage();
+    expect(screen.getByText(SERVICE_UNAVAILABLE_MESSAGE)).toBeInTheDocument();
+  });
+
+  it('shows generic fallback message when error is non-503', () => {
+    mockUseRecommendation({
+      isError: true,
+      error: { response: { status: 500 } } as any,
+    });
+    renderPage();
+    expect(screen.getByText(/failed to fetch recommendations/i)).toBeInTheDocument();
+    expect(screen.queryByText(SERVICE_UNAVAILABLE_MESSAGE)).toBeNull();
   });
 });

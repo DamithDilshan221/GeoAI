@@ -5,6 +5,7 @@ import { FacilityDetailsPage } from './FacilityDetailsPage';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import * as useFacilityModule from '../hooks/useFacility';
 import React from 'react';
+import { SERVICE_UNAVAILABLE_MESSAGE } from '../constants/search';
 
 vi.mock('../hooks/useFacility');
 
@@ -163,5 +164,33 @@ describe('FacilityDetailsPage', () => {
     await waitFor(() => {
       expect(screen.getByTestId('nav-error')).toBeInTheDocument();
     });
+  });
+
+  it('shows SERVICE_UNAVAILABLE_MESSAGE when error status is 503', () => {
+    vi.mocked(useFacilityModule.useFacility).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: { response: { status: 503 } },
+      refetch: vi.fn(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
+
+    renderPage();
+    expect(screen.getByText(SERVICE_UNAVAILABLE_MESSAGE)).toBeInTheDocument();
+    expect(screen.queryByText('Failed to load washroom details.')).toBeNull();
+  });
+
+  it('shows generic fallback message when error is non-503, non-404', () => {
+    vi.mocked(useFacilityModule.useFacility).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: { response: { status: 500 } },
+      refetch: vi.fn(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
+
+    renderPage();
+    expect(screen.getByText('Failed to load washroom details.')).toBeInTheDocument();
+    expect(screen.queryByText(SERVICE_UNAVAILABLE_MESSAGE)).toBeNull();
   });
 });

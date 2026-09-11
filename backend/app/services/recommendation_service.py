@@ -26,7 +26,7 @@ from app.services.ml_inference_service import MLInferenceService
 
 logger = logging.getLogger(__name__)
 
-EMPTY_MESSAGE = "No suitable facilities were found within the current search radius."
+EMPTY_MESSAGE = "No suitable washrooms were found within the current search radius."
 
 
 @dataclass
