@@ -1,6 +1,7 @@
 """API integration tests for GET /api/v1/recommendations against geoai_test."""
 
 from fastapi.testclient import TestClient
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.models.enums import AudienceType, DataSource, FacilityStatus
@@ -113,3 +114,22 @@ def test_recommendations_api_staff_preferred(client: TestClient, db_session: Ses
 def test_recommendations_api_missing_params(client: TestClient) -> None:
     resp = client.get("/api/v1/recommendations?lat=10.0&lon=20.0")
     assert resp.status_code == 422  # missing category
+
+
+def test_recommendations_api_writes_log_rows(client: TestClient, db_session: Session) -> None:
+    """A successful API call must persist one log row per ranked facility."""
+    _seed_api_data(db_session)
+
+    resp = client.get("/api/v1/recommendations?lat=10.0&lon=20.0&category=api_test&radius_m=2000")
+    assert resp.status_code == 200
+
+    body = resp.json()
+    expected_count = len(body["ranked_facilities"])
+    assert expected_count > 0
+
+    # Give the request-scoped session time to commit; then query via the test session.
+    count = db_session.execute(
+        text("SELECT COUNT(*) FROM recommendation_logs")
+    ).scalar()
+    assert count == expected_count
+

@@ -1,7 +1,10 @@
 """Integration tests for RecommendationService against geoai_test."""
 
+import uuid
 from datetime import UTC, datetime
+from unittest.mock import patch
 
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.domain.gis.nearby_search_service import NearbySearchService
@@ -10,6 +13,8 @@ from app.models.enums import AudienceType, DataSource, FacilityStatus
 from app.repositories.category_repository import CategoryRepository
 from app.repositories.facility_repository import FacilityRepository
 from app.repositories.gis_repository import GISRepository
+from app.repositories.ml_model_version_repository import MLModelVersionRepository
+from app.repositories.recommendation_log_repository import RecommendationLogRepository
 from app.repositories.usage_record_repository import UsageRecordRepository
 from app.services.ml_inference_service import MLInferenceService
 from app.services.recommendation_service import RecommendationService
@@ -63,12 +68,16 @@ def _build_service(db_session: Session) -> RecommendationService:
         walking_speed_mps=1.2,
     )
     ml = MLInferenceService(db_session, usage_repo, fac_repo)
+    log_repo = RecommendationLogRepository(db_session)
+    model_version_repo = MLModelVersionRepository(db_session)
 
     return RecommendationService(
         nearby_search=nearby,
         routing_service=routing,
         ml_service=ml,
         facility_repo=fac_repo,
+        log_repo=log_repo,
+        model_version_repo=model_version_repo,
     )
 
 
@@ -162,3 +171,93 @@ def test_staff_preferred_affects_suitability(db_session: Session) -> None:
     # Under staff_preferred, f2 (STAFF) gets full suitability (audience matches)
     f2_staff = result_staff.ranked_facilities[0]
     assert f2_staff.sub_scores["suitability"] == 100.0
+
+
+def test_logging_writes_rows_per_ranked_candidate(db_session: Session) -> None:
+    """Each scored candidate produces exactly one recommendation_logs row.
+
+    Verifies:
+    - row count == len(ranked_facilities)
+    - all rows share one request_id
+    - exactly one row has was_top_recommendation = true, matching the top facility
+    - model_version == 'heuristic-v0' (seeded by migration 0003)
+    - stored lat/lon are the rounded versions of the call coordinates
+    """
+    data = _seed_recommendation_data(db_session)
+    svc = _build_service(db_session)
+
+    call_lat = 10.0
+    call_lon = 20.0
+
+    result = svc.get_recommendations(
+        lat=call_lat,
+        lon=call_lon,
+        category_code="rec_test",
+        radius_m=2000,
+        limit=25,
+    )
+    assert result.recommended_facility is not None
+    expected_count = len(result.ranked_facilities)
+
+    # Read back all log rows written for this call
+    rows = db_session.execute(
+        text(
+            "SELECT request_id, facility_id, user_lat_rounded, user_lon_rounded, "
+            "rank_position, was_top_recommendation, model_version "
+            "FROM recommendation_logs ORDER BY rank_position"
+        )
+    ).all()
+
+    # One row per scored candidate
+    assert len(rows) == expected_count
+
+    # All rows share one request_id
+    request_ids = {r.request_id for r in rows}
+    assert len(request_ids) == 1
+
+    # Exactly one was_top_recommendation = true
+    top_rows = [r for r in rows if r.was_top_recommendation]
+    assert len(top_rows) == 1
+    assert top_rows[0].facility_id == result.recommended_facility.candidate.facility.id
+
+    # model_version matches the seeded active version
+    assert all(r.model_version == "heuristic-v0" for r in rows)
+
+    # Stored coordinates are rounded to 3 decimal places
+    expected_lat = round(call_lat, 3)
+    expected_lon = round(call_lon, 3)
+    assert all(float(r.user_lat_rounded) == expected_lat for r in rows)
+    assert all(float(r.user_lon_rounded) == expected_lon for r in rows)
+
+    _ = data  # suppress unused-variable warning
+
+
+def test_logging_failure_does_not_affect_response(db_session: Session) -> None:
+    """A log-write failure must not propagate — response is still returned normally.
+
+    Resolved decision #5: best-effort logging.  Monkeypatches log_candidate to
+    raise so there is no transient-network dependency for this test.
+    """
+    _seed_recommendation_data(db_session)
+    svc = _build_service(db_session)
+
+    with patch.object(svc._log_repo, "log_candidate", side_effect=Exception("DB exploded")):
+        result = svc.get_recommendations(
+            lat=10.0,
+            lon=20.0,
+            category_code="rec_test",
+            radius_m=2000,
+            limit=25,
+        )
+
+    # The recommendation result is unaffected despite the logging failure
+    assert result.recommended_facility is not None
+    assert len(result.ranked_facilities) == 2
+    assert result.message is None
+    assert result.explanation is not None
+
+    # No rows should have been written (the patch raised before any flush)
+    count = db_session.execute(
+        text("SELECT COUNT(*) FROM recommendation_logs")
+    ).scalar()
+    assert count == 0

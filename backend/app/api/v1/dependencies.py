@@ -67,12 +67,18 @@ def get_recommendation_service(
     routing_service: "PedestrianRoutingService" = Depends(get_pedestrian_routing_service),  # noqa: B008, F821
     ml_service: "MLInferenceService" = Depends(get_ml_inference_service),  # noqa: B008, F821
 ) -> "RecommendationService":  # noqa: F821
+    from app.repositories.ml_model_version_repository import MLModelVersionRepository
+    from app.repositories.recommendation_log_repository import RecommendationLogRepository
     from app.services.recommendation_service import RecommendationService
 
     facility_repo = FacilityRepository(session)
+    log_repo = RecommendationLogRepository(session)
+    model_version_repo = MLModelVersionRepository(session)
     return RecommendationService(
         nearby_search=nearby_search,
         routing_service=routing_service,
         ml_service=ml_service,
         facility_repo=facility_repo,
+        log_repo=log_repo,
+        model_version_repo=model_version_repo,
     )
