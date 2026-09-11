@@ -15,7 +15,7 @@ from app.domain.usage_data.synthetic_generator import (
     date_range_for_history,
     generate_synthetic_usage_count,
 )
-from app.models.enums import DataSource
+from app.models.enums import DataSource, AudienceType
 from app.repositories.facility_repository import FacilityRepository
 from app.repositories.usage_record_repository import UsageRecordRepository
 
@@ -55,6 +55,10 @@ def main() -> None:
         total_upserted = 0
         hour_9_total = 0
         hour_3_total = 0
+        visitor_9_total = 0
+        visitor_count = 0
+        staff_9_total = 0
+        staff_count = 0
 
         # We loop over facilities, caching their capacity
         for f_id in active_ids:
@@ -62,13 +66,19 @@ def main() -> None:
             if not facility:
                 continue
 
-            capacity = facility.capacity
+            total_stalls = facility.total_stalls
+            audience = facility.audience
+
+            if audience == AudienceType.VISITOR:
+                visitor_count += 1
+            elif audience == AudienceType.STAFF:
+                staff_count += 1
 
             for d in dates:
                 day_of_week = d.weekday()
                 for hour in range(24):
                     usage_count = generate_synthetic_usage_count(
-                        facility_id=f_id, capacity=capacity, target_date=d, hour=hour
+                        facility_id=f_id, total_stalls=total_stalls, audience=audience, target_date=d, hour=hour
                     )
 
                     usage_repo.upsert_hourly_record(
@@ -83,6 +93,11 @@ def main() -> None:
 
                     if hour == 9:
                         hour_9_total += usage_count
+                        if day_of_week < 5:  # Weekdays only for the comparison metric
+                            if audience == AudienceType.VISITOR:
+                                visitor_9_total += usage_count
+                            elif audience == AudienceType.STAFF:
+                                staff_9_total += usage_count
                     elif hour == 3:
                         hour_3_total += usage_count
 
@@ -95,11 +110,22 @@ def main() -> None:
         hour_3_avg = (
             hour_3_total / (facility_count * args.days) if facility_count * args.days > 0 else 0
         )
+        
+        # Calculate for weekdays only
+        weekday_days = sum(1 for d in dates if d.weekday() < 5)
+        visitor_9_avg = (
+            visitor_9_total / (visitor_count * weekday_days) if visitor_count * weekday_days > 0 else 0
+        )
+        staff_9_avg = (
+            staff_9_total / (staff_count * weekday_days) if staff_count * weekday_days > 0 else 0
+        )
 
         print("\n--- Summary ---")
         print(f"Total rows upserted: {total_upserted}")
         print(f"Sanity Check: Avg usage at 09:00 (peak): {hour_9_avg:.1f}")
         print(f"Sanity Check: Avg usage at 03:00 (off-peak): {hour_3_avg:.1f}")
+        print(f"Sanity Check: Visitor weekday 09:00 avg: {visitor_9_avg:.1f}")
+        print(f"Sanity Check: Staff weekday 09:00 avg: {staff_9_avg:.1f}")
 
 
 if __name__ == "__main__":

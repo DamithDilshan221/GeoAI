@@ -1,8 +1,8 @@
 import { vi } from 'vitest';
 
 export const mockInstances = {
-  maps: [] as any[],
-  markers: [] as any[],
+  maps: [] as unknown[],
+  markers: [] as unknown[],
 };
 
 export function setupLeafletMock() {
@@ -49,7 +49,7 @@ export const Marker = vi.fn(({ position, icon, eventHandlers, children }) => {
   );
 });
 
-export const Tooltip = vi.fn(({ direction, offset, permanent, className, children }) => (
+export const Tooltip = vi.fn(({ className, children }) => (
   <div data-testid="tooltip" className={className}>
     {children}
   </div>

@@ -23,7 +23,7 @@ export function NearbyFacilitiesPage() {
   const queryParams = new URLSearchParams(locationObj.search);
   const currentView = queryParams.get('view') || 'list';
 
-  const { selectedCategory, location } = state;
+  const { selectedCategory, selectedAudience, location } = state;
 
   useEffect(() => {
     if (!selectedCategory || !location) {
@@ -35,7 +35,7 @@ export function NearbyFacilitiesPage() {
   
   const { data, isLoading, isError, error, refetch } = useNearbyFacilities(
     selectedCategory && location
-      ? { lat: location.lat, lon: location.lon, category: selectedCategory, radius_m: radiusM }
+      ? { lat: location.lat, lon: location.lon, category: selectedCategory, radius_m: radiusM, audience: selectedAudience }
       : null
   );
 

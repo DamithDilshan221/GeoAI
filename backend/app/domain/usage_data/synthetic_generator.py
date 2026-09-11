@@ -2,37 +2,25 @@
 
 import random
 from datetime import date, timedelta
+from app.models.enums import AudienceType
 
 # Hourly traffic shape: low overnight, peaks around lunch/class-changes
-HOURLY_CURVE = [
-    0.05,
-    0.05,
-    0.05,
-    0.05,
-    0.05,
-    0.10,  # 0-5: overnight
-    0.20,
-    0.50,
-    0.90,
-    1.00,
-    0.70,
-    0.80,  # 6-11: morning ramp + peak
-    1.00,
-    0.90,
-    0.60,
-    0.70,
-    0.90,
-    0.80,  # 12-17: lunch peak + afternoon
-    0.50,
-    0.40,
-    0.30,
-    0.20,
-    0.10,
-    0.05,  # 18-23: evening taper
+VISITOR_HOURLY_CURVE = [
+    0.05, 0.05, 0.05, 0.05, 0.05, 0.10,
+    0.20, 0.50, 0.90, 1.00, 0.70, 0.80,
+    1.00, 0.90, 0.60, 0.70, 0.90, 0.80,
+    0.50, 0.40, 0.30, 0.20, 0.10, 0.05,
+]
+STAFF_HOURLY_CURVE = [
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.3, 0.7, 0.9, 1.0, 0.7,
+    0.8, 0.9, 0.7, 0.6, 0.5, 0.3,
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
 ]
 
-WEEKEND_MULTIPLIER = 0.15
-
+AUDIENCE_MULTIPLIER = {"VISITOR": 1.0, "STAFF": 0.4}
+VISITOR_WEEKEND_MULTIPLIER = 0.15
+STAFF_WEEKEND_MULTIPLIER = 0.05
 
 def deterministic_unit_random(key: str) -> float:
     """Return a deterministic float in [0, 1) based on the string key."""
@@ -40,7 +28,7 @@ def deterministic_unit_random(key: str) -> float:
 
 
 def generate_synthetic_usage_count(
-    *, facility_id: int, capacity: int | None, target_date: date, hour: int
+    *, facility_id: int, total_stalls: int, audience: AudienceType, target_date: date, hour: int
 ) -> int:
     """Deterministically generate a synthetic usage count bucket.
 
@@ -50,16 +38,19 @@ def generate_synthetic_usage_count(
     """
     day_of_week = target_date.weekday()
 
-    base_rate = (capacity if capacity is not None else 10) * 0.8
+    effective_stalls = total_stalls if total_stalls > 0 else 1
+    base_rate = effective_stalls * 0.8
+    audience_multiplier = AUDIENCE_MULTIPLIER[audience.value]
+    curve = STAFF_HOURLY_CURVE if audience == AudienceType.STAFF else VISITOR_HOURLY_CURVE
+    weekend_multiplier = (STAFF_WEEKEND_MULTIPLIER if audience == AudienceType.STAFF 
+                          else VISITOR_WEEKEND_MULTIPLIER) if day_of_week >= 5 else 1.0
+
     facility_multiplier = 0.7 + 0.6 * deterministic_unit_random(f"facility:{facility_id}")
     noise = 0.8 + 0.4 * deterministic_unit_random(f"{facility_id}:{target_date.isoformat()}:{hour}")
 
     usage_count = round(
-        base_rate
-        * facility_multiplier
-        * HOURLY_CURVE[hour]
-        * (WEEKEND_MULTIPLIER if day_of_week >= 5 else 1.0)
-        * noise
+        base_rate * audience_multiplier * facility_multiplier
+        * curve[hour] * weekend_multiplier * noise
     )
 
     return max(0, usage_count)

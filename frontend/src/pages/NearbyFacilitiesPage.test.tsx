@@ -1,15 +1,14 @@
 /// <reference types="@types/google.maps" />
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import '@testing-library/jest-dom';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { NearbyFacilitiesPage } from './NearbyFacilitiesPage';
 import { SearchProvider } from '../context/SearchContext';
 import * as SearchContextModule from '../context/SearchContext';
-import { setupGoogleMapsMock } from '../test-utils/googleMapsMock';
-import * as loaderModule from '../lib/googleMapsLoader';
-import { getNearbyFacilities } from '../api/facilities';
+import { setupLeafletMock, resetLeafletMock } from '../test-utils/leafletMock';
+import { getNearbyWashrooms } from '../api/washrooms';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
 import {
@@ -21,8 +20,8 @@ import {
 
 vi.mock('react-leaflet', () => import('../test-utils/leafletMock'));
 
-vi.mock('../api/facilities', () => ({
-  getNearbyFacilities: vi.fn(),
+vi.mock('../api/washrooms', () => ({
+  getNearbyWashrooms: vi.fn(),
 }));
 
 const mockNavigate = vi.fn();
@@ -89,14 +88,14 @@ describe('NearbyFacilitiesPage', () => {
   });
 
   it('renders LoadingState when query is pending', () => {
-    vi.mocked(getNearbyFacilities).mockReturnValue(new Promise(() => {})); // Never resolves
+    vi.mocked(getNearbyWashrooms).mockReturnValue(new Promise(() => {})); // Never resolves
     renderWithContext();
     expect(screen.getByText('Finding washrooms near you...')).toBeInTheDocument();
   });
 
   it('renders EmptyState and expands radius on click', async () => {
     const user = userEvent.setup();
-    vi.mocked(getNearbyFacilities).mockResolvedValue([]);
+    vi.mocked(getNearbyWashrooms).mockResolvedValue([]);
 
     renderWithContext();
 
@@ -109,8 +108,8 @@ describe('NearbyFacilitiesPage', () => {
     expect(button).not.toBeDisabled();
 
     // First call
-    expect(getNearbyFacilities).toHaveBeenCalledTimes(1);
-    expect(getNearbyFacilities).toHaveBeenCalledWith({
+    expect(getNearbyWashrooms).toHaveBeenCalledTimes(1);
+    expect(getNearbyWashrooms).toHaveBeenCalledWith({
       lat: 10, lon: 20, category: 'UNISEX', radius_m: DEFAULT_RADIUS_M
     });
 
@@ -118,16 +117,16 @@ describe('NearbyFacilitiesPage', () => {
 
     // Second call
     await waitFor(() => {
-      expect(getNearbyFacilities).toHaveBeenCalledTimes(2);
+      expect(getNearbyWashrooms).toHaveBeenCalledTimes(2);
     });
-    expect(getNearbyFacilities).toHaveBeenLastCalledWith({
+    expect(getNearbyWashrooms).toHaveBeenLastCalledWith({
       lat: 10, lon: 20, category: 'UNISEX', radius_m: DEFAULT_RADIUS_M * RADIUS_EXPAND_MULTIPLIER
     });
   });
 
   it('disables Search wider area button when MAX_RADIUS_M is reached', async () => {
     const user = userEvent.setup();
-    vi.mocked(getNearbyFacilities).mockResolvedValue([]);
+    vi.mocked(getNearbyWashrooms).mockResolvedValue([]);
 
     renderWithContext();
 
@@ -140,13 +139,13 @@ describe('NearbyFacilitiesPage', () => {
     const disabledButton = await screen.findByRole('button', { name: 'Search wider area' });
     expect(disabledButton).toBeDisabled();
 
-    expect(getNearbyFacilities).toHaveBeenLastCalledWith({
+    expect(getNearbyWashrooms).toHaveBeenLastCalledWith({
       lat: 10, lon: 20, category: 'UNISEX', radius_m: MAX_RADIUS_M
     });
   });
 
   it('renders 503 ErrorState exactly', async () => {
-    vi.mocked(getNearbyFacilities).mockRejectedValue({ response: { status: 503 } });
+    vi.mocked(getNearbyWashrooms).mockRejectedValue({ response: { status: 503 } });
     renderWithContext();
 
     await waitFor(() => {
@@ -155,7 +154,7 @@ describe('NearbyFacilitiesPage', () => {
   });
 
   it('renders generic ErrorState for non-503 errors', async () => {
-    vi.mocked(getNearbyFacilities).mockRejectedValue(new Error('Network error'));
+    vi.mocked(getNearbyWashrooms).mockRejectedValue(new Error('Network error'));
     renderWithContext();
 
     await waitFor(() => {
@@ -164,11 +163,11 @@ describe('NearbyFacilitiesPage', () => {
     expect(screen.queryByText(SERVICE_UNAVAILABLE_MESSAGE)).not.toBeInTheDocument();
   });
 
-  it('renders MapView and FacilityList with real data, selectedAudience has no effect on api call', async () => {
+  it('renders MapView and FacilityList with real data, selectedAudience is passed correctly to the api call', async () => {
     const mockData = [
       { id: 100, name: 'Real API Facility', category: 'UNISEX', status: 'OPEN', rating: 5, distance_m: 50, latitude: 10.1, longitude: 20.1 } as any
     ];
-    vi.mocked(getNearbyFacilities).mockResolvedValue(mockData);
+    vi.mocked(getNearbyWashrooms).mockResolvedValue(mockData);
 
     renderWithContext({ ...defaultState, selectedAudience: 'VISITOR' });
 
@@ -176,9 +175,9 @@ describe('NearbyFacilitiesPage', () => {
       expect(screen.queryByText('Finding washrooms near you...')).not.toBeInTheDocument();
     });
 
-    // selectedAudience should NOT be passed to API
-    expect(getNearbyFacilities).toHaveBeenCalledWith({
-      lat: 10, lon: 20, category: 'UNISEX', radius_m: DEFAULT_RADIUS_M
+    // selectedAudience SHOULD be passed to API wrapper (the wrapper drops it if undefined, but component passes it)
+    expect(getNearbyWashrooms).toHaveBeenCalledWith({
+      lat: 10, lon: 20, category: 'UNISEX', radius_m: DEFAULT_RADIUS_M, audience: 'VISITOR'
     });
 
     // Check List
@@ -186,5 +185,24 @@ describe('NearbyFacilitiesPage', () => {
 
     // Check Map
     expect(screen.queryByText('Map unavailable — showing list only')).not.toBeInTheDocument();
+  });
+  
+  it('does NOT redirect when selectedAudience is null, fetches normally', async () => {
+    const mockData = [
+      { id: 101, name: 'Real API Facility 2', category: 'UNISEX', status: 'OPEN', rating: 4, distance_m: 50, latitude: 10.1, longitude: 20.1 } as any
+    ];
+    vi.mocked(getNearbyWashrooms).mockResolvedValue(mockData);
+
+    renderWithContext({ ...defaultState, selectedAudience: null });
+
+    await waitFor(() => {
+      expect(screen.queryByText('Finding washrooms near you...')).not.toBeInTheDocument();
+    });
+    
+    expect(mockNavigate).not.toHaveBeenCalledWith('/', { replace: true });
+    
+    expect(getNearbyWashrooms).toHaveBeenCalledWith({
+      lat: 10, lon: 20, category: 'UNISEX', radius_m: DEFAULT_RADIUS_M
+    });
   });
 });
