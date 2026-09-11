@@ -124,7 +124,7 @@ export function FacilityDetailsPage() {
       )}
 
       {/* Background Map */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 z-0">
         <MapView 
           className="w-full h-full"
           markers={mapMarkers} 

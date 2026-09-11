@@ -13,8 +13,8 @@ class FacilityRead(BaseModel):
     status: FacilityStatus
     status_updated_at: datetime
     rating: float | None
-    capacity: int | None
-    accessibility: dict | None
+    fixtures: dict
+    total_stalls: int | None
     data_source: DataSource
     latitude: float
     longitude: float
@@ -29,8 +29,8 @@ class FacilityRead(BaseModel):
             status=item.facility.status,
             status_updated_at=item.facility.status_updated_at,
             rating=item.facility.rating,
-            capacity=item.facility.capacity,
-            accessibility=item.facility.accessibility,
+            fixtures=item.facility.fixtures,
+            total_stalls=item.facility.total_stalls,
             data_source=item.facility.data_source,
             latitude=item.facility.latitude,
             longitude=item.facility.longitude,

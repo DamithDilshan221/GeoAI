@@ -145,7 +145,7 @@ export function NearbyFacilitiesPage() {
           </div>
         </div>
 
-      <div className={`relative w-full h-full ${currentView === 'map' ? '' : 'hidden'}`}>
+      <div className={`relative w-full h-full z-0 ${currentView === 'map' ? '' : 'hidden'}`}>
 
           <MapView 
             className="w-full h-full"

@@ -1,6 +1,5 @@
-/// <reference types="@types/google.maps" />
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -68,7 +67,7 @@ const sampleFacility = {
   id: 1,
   name: 'Main Washroom',
   category: 'MALE',
-  status: 'OPEN',
+  status: 'OPEN' as const,
   rating: 4.5,
   latitude: 7.2545,
   longitude: 80.5965,
@@ -92,7 +91,7 @@ const sampleResponse: RecommendationResponse = {
 describe('RecommendationResultPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    Object.defineProperty(global.navigator, 'geolocation', {
+    Object.defineProperty(globalThis.navigator, 'geolocation', {
       value: {
         getCurrentPosition: vi.fn((success) =>
           success({ coords: { latitude: 6.9, longitude: 79.8, accuracy: 10 } }),
@@ -197,7 +196,7 @@ describe('RecommendationResultPage', () => {
   });
 
   it('shows geolocation error when permission denied on Start Navigation', async () => {
-    Object.defineProperty(global.navigator, 'geolocation', {
+    Object.defineProperty(globalThis.navigator, 'geolocation', {
       value: {
         getCurrentPosition: vi.fn((_, error) => error({ code: 1 })),
       },

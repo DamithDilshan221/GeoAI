@@ -1,272 +1,642 @@
 [
   {
-    "name": "WUS Canteen Washroom",
-    "location_name": "WUS Canteen",
+    "name": "GYM - Men's",
+    "location_name": "GYM",
     "audience": "VISITOR",
-    "latitude": 7.2541,
-    "longitude": 80.5972,
-    "fixtures": {
-      "attached": 1,
-      "normal": 2,
-      "shower": 4,
-      "sink": 6,
-      "mirror": 2
-    },
-    "status": "OPEN",
-    "rating": 4.5,
-    "category_code": "unisex",
-    "data_source": "SYNTHETIC"
-  },
-  {
-    "name": "GB Canteen Washroom (Female)",
-    "location_name": "GB Canteen",
-    "audience": "VISITOR",
-    "latitude": 7.2583,
-    "longitude": 80.5974,
-    "fixtures": {
-      "attached": 1,
-      "normal": 2,
-      "shower": 4,
-      "sink": 6,
-      "mirror": 2
-    },
-    "status": "OPEN",
-    "rating": 4.7,
-    "category_code": "female",
-    "data_source": "SYNTHETIC"
-  },
-  {
-    "name": "MA Canteen Washroom (Male)",
-    "location_name": "MA Canteen",
-    "audience": "VISITOR",
-    "latitude": 7.253,
-    "longitude": 80.5961,
-    "fixtures": {
-      "attached": 1,
-      "normal": 2,
-      "shower": 4,
-      "sink": 6,
-      "mirror": 2
-    },
-    "status": "OPEN",
-    "rating": 4.3,
-    "category_code": "male",
-    "data_source": "SYNTHETIC"
-  },
-  {
-    "name": "Gymnasium Female Washroom",
-    "location_name": "University Gym",
-    "audience": "VISITOR",
-    "latitude": 7.2515,
-    "longitude": 80.5948,
-    "fixtures": {
-      "attached": 1,
-      "normal": 2,
-      "shower": 4,
-      "sink": 6,
-      "mirror": 2
-    },
-    "status": "OPEN",
-    "rating": 4.4,
-    "category_code": "female",
-    "data_source": "SYNTHETIC"
-  },
-  {
-    "name": "Gymnasium Male Washroom",
-    "location_name": "University Gym",
-    "audience": "VISITOR",
-    "latitude": 7.2516,
-    "longitude": 80.5949,
-    "fixtures": {
-      "attached": 1,
-      "normal": 2,
-      "shower": 4,
-      "sink": 6,
-      "mirror": 2
-    },
-    "status": "OPEN",
-    "rating": 4.9,
-    "category_code": "male",
-    "data_source": "SYNTHETIC"
-  },
-  {
-    "name": "ICT Center Staff Washroom (Male)",
-    "location_name": "ICT Center",
-    "audience": "STAFF",
-    "latitude": 7.2552,
-    "longitude": 80.598,
-    "fixtures": {
-      "attached": 1,
-      "normal": 1,
-      "shower": 0,
-      "sink": 2,
-      "mirror": 1
-    },
-    "status": "OPEN",
-    "rating": 4.4,
-    "category_code": "male",
-    "data_source": "SYNTHETIC"
-  },
-  {
-    "name": "Faculty of Arts Main Complex (Accessible)",
-    "location_name": "Arts Faculty",
-    "audience": "VISITOR",
-    "latitude": 7.256,
-    "longitude": 80.5968,
-    "fixtures": {
-      "attached": 1,
-      "normal": 1,
-      "shower": 0,
-      "sink": 2,
-      "mirror": 1
-    },
-    "status": "OPEN",
-    "rating": 4.5,
-    "category_code": "accessible",
-    "data_source": "SYNTHETIC"
-  },
-  {
-    "name": "Faculty of Science Library Washroom",
-    "location_name": "Science Library",
-    "audience": "VISITOR",
-    "latitude": 7.2545,
-    "longitude": 80.5985,
-    "fixtures": {
-      "attached": 0,
-      "normal": 3,
-      "shower": 0,
-      "sink": 4,
-      "mirror": 2
-    },
-    "status": "OPEN",
-    "rating": 3.9,
-    "category_code": "female",
-    "data_source": "SYNTHETIC"
-  },
-  {
-    "name": "Senate Building Ground Floor Washroom",
-    "location_name": "Senate Building",
-    "audience": "STAFF",
-    "latitude": 7.2571,
-    "longitude": 80.597,
-    "fixtures": {
-      "attached": 1,
-      "normal": 2,
-      "shower": 0,
-      "sink": 3,
-      "mirror": 2
-    },
-    "status": "CLOSED",
-    "rating": 4.3,
-    "category_code": "male",
-    "data_source": "SYNTHETIC"
-  },
-  {
-    "name": "Engineering Canteen Washroom",
-    "location_name": "Engineering Faculty",
-    "audience": "VISITOR",
-    "latitude": 7.251,
-    "longitude": 80.593,
-    "fixtures": {
-      "attached": 0,
-      "normal": 4,
-      "shower": 0,
-      "sink": 5,
-      "mirror": 3
-    },
-    "status": "OPEN",
-    "rating": 4.6,
-    "category_code": "unisex",
-    "data_source": "SYNTHETIC"
-  },
-  {
-    "name": "Health Center Visitor Washroom",
-    "location_name": "Health Center",
-    "audience": "VISITOR",
-    "latitude": 7.2528,
-    "longitude": 80.5955,
-    "fixtures": {
-      "attached": 1,
-      "normal": 1,
-      "shower": 1,
-      "sink": 2,
-      "mirror": 1
-    },
-    "status": "OPEN",
-    "rating": 4.8,
-    "category_code": "accessible",
-    "data_source": "SYNTHETIC"
-  },
-  {
-    "name": "Management Faculty Canteen Washroom",
-    "location_name": "Management Faculty",
-    "audience": "VISITOR",
-    "latitude": 7.2588,
-    "longitude": 80.5981,
-    "fixtures": {
-      "attached": 1,
-      "normal": 2,
-      "shower": 0,
-      "sink": 4,
-      "mirror": 2
-    },
-    "status": "OPEN",
-    "rating": 4.1,
-    "category_code": "female",
-    "data_source": "SYNTHETIC"
-  },
-  {
-    "name": "Agriculture Faculty Main Washroom",
-    "location_name": "Agri Faculty",
-    "audience": "STAFF",
-    "latitude": 7.2595,
-    "longitude": 80.599,
-    "fixtures": {
-      "attached": 0,
-      "normal": 3,
-      "shower": 0,
-      "sink": 3,
-      "mirror": 2
-    },
-    "status": "OPEN",
-    "rating": 4.6,
-    "category_code": "male",
-    "data_source": "SYNTHETIC"
-  },
-  {
-    "name": "Sarachchandra Open Air Theatre Washroom",
-    "location_name": "Open Air Theatre",
-    "audience": "VISITOR",
-    "latitude": 7.2565,
+    "latitude": 7.255833,
     "longitude": 80.595,
     "fixtures": {
-      "attached": 0,
-      "normal": 4,
-      "shower": 0,
-      "sink": 4,
-      "mirror": 2
+      "normal": 2,
+      "attached": 1
     },
     "status": "OPEN",
-    "rating": 3.8,
-    "category_code": "unisex",
-    "data_source": "SYNTHETIC"
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
   },
   {
-    "name": "University Track & Field Washroom",
-    "location_name": "Grounds",
+    "name": "GYM - Women's",
+    "location_name": "GYM",
     "audience": "VISITOR",
-    "latitude": 7.2505,
-    "longitude": 80.594,
+    "latitude": 7.255833,
+    "longitude": 80.595,
     "fixtures": {
-      "attached": 1,
       "normal": 2,
-      "shower": 2,
-      "sink": 3,
-      "mirror": 1
+      "attached": 1
     },
     "status": "OPEN",
-    "rating": 4.5,
+    "rating": 4.0,
     "category_code": "female",
-    "data_source": "SYNTHETIC"
+    "data_source": "REAL"
+  },
+  {
+    "name": "ICT - Men's",
+    "location_name": "ICT",
+    "audience": "VISITOR",
+    "latitude": 7.256389,
+    "longitude": 80.595556,
+    "fixtures": {
+      "normal": 2,
+      "attached": 4
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "ICT - Women's",
+    "location_name": "ICT",
+    "audience": "VISITOR",
+    "latitude": 7.256389,
+    "longitude": 80.595556,
+    "fixtures": {
+      "normal": 2,
+      "attached": 4
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "WUS Canteen - Men's",
+    "location_name": "WUS Canteen",
+    "audience": "VISITOR",
+    "latitude": 7.256111,
+    "longitude": 80.595556,
+    "fixtures": {
+      "normal": 7
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "WUS Canteen - Women's",
+    "location_name": "WUS Canteen",
+    "audience": "VISITOR",
+    "latitude": 7.256111,
+    "longitude": 80.595556,
+    "fixtures": {
+      "normal": 7
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "VT - Men's",
+    "location_name": "VT",
+    "audience": "VISITOR",
+    "latitude": 7.255,
+    "longitude": 80.595833,
+    "fixtures": {
+      "normal": 2,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "VT - Women's",
+    "location_name": "VT",
+    "audience": "VISITOR",
+    "latitude": 7.255,
+    "longitude": 80.595833,
+    "fixtures": {
+      "normal": 2,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "MA - Men's",
+    "location_name": "MA",
+    "audience": "VISITOR",
+    "latitude": 7.254722,
+    "longitude": 80.596944,
+    "fixtures": {
+      "normal": 12
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "MA - Women's",
+    "location_name": "MA",
+    "audience": "VISITOR",
+    "latitude": 7.254722,
+    "longitude": 80.596944,
+    "fixtures": {
+      "normal": 12
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "MA-STAFF - Men's",
+    "location_name": "MA-STAFF",
+    "audience": "STAFF",
+    "latitude": 7.254722,
+    "longitude": 80.596944,
+    "fixtures": {
+      "normal": 4
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "MA-STAFF - Women's",
+    "location_name": "MA-STAFF",
+    "audience": "STAFF",
+    "latitude": 7.254722,
+    "longitude": 80.596944,
+    "fixtures": {
+      "normal": 4
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "NAT 1st floor - Men's",
+    "location_name": "NAT 1st floor",
+    "audience": "VISITOR",
+    "latitude": 7.254444,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 4,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "NAT 1st floor - Women's",
+    "location_name": "NAT 1st floor",
+    "audience": "VISITOR",
+    "latitude": 7.254444,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 4,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "2nd floor- staff - Men's",
+    "location_name": "2nd floor- staff",
+    "audience": "STAFF",
+    "latitude": 7.254444,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 5
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "2nd floor- staff - Women's",
+    "location_name": "2nd floor- staff",
+    "audience": "STAFF",
+    "latitude": 7.254444,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 5
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "3rd floor- staff - Men's",
+    "location_name": "3rd floor- staff",
+    "audience": "STAFF",
+    "latitude": 7.254444,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 5
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "3rd floor- staff - Women's",
+    "location_name": "3rd floor- staff",
+    "audience": "STAFF",
+    "latitude": 7.254444,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 5
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "KB 1st floor - Men's",
+    "location_name": "KB 1st floor",
+    "audience": "VISITOR",
+    "latitude": 7.255,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 5,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "KB 1st floor - Women's",
+    "location_name": "KB 1st floor",
+    "audience": "VISITOR",
+    "latitude": 7.255,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 5,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "2nd floor - Men's",
+    "location_name": "2nd floor",
+    "audience": "VISITOR",
+    "latitude": 7.255,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 2,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "2nd floor - Women's",
+    "location_name": "2nd floor",
+    "audience": "VISITOR",
+    "latitude": 7.255,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 2,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "3rd floor- staff - Men's",
+    "location_name": "3rd floor- staff",
+    "audience": "STAFF",
+    "latitude": 7.255,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 2,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "3rd floor- staff - Women's",
+    "location_name": "3rd floor- staff",
+    "audience": "STAFF",
+    "latitude": 7.255,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 2,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "4th floor- staff - Men's",
+    "location_name": "4th floor- staff",
+    "audience": "STAFF",
+    "latitude": 7.255,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 2,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "4th floor- staff - Women's",
+    "location_name": "4th floor- staff",
+    "audience": "STAFF",
+    "latitude": 7.255,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 2,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "5th floor - staff - Men's",
+    "location_name": "5th floor - staff",
+    "audience": "STAFF",
+    "latitude": 7.255,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 2,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "5th floor - staff - Women's",
+    "location_name": "5th floor - staff",
+    "audience": "STAFF",
+    "latitude": 7.255,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 2,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "6th floor - Men's",
+    "location_name": "6th floor",
+    "audience": "VISITOR",
+    "latitude": 7.255,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 2,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "6th floor - Women's",
+    "location_name": "6th floor",
+    "audience": "VISITOR",
+    "latitude": 7.255,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 2,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "7th floor - Men's",
+    "location_name": "7th floor",
+    "audience": "VISITOR",
+    "latitude": 7.255,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 2,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "7th floor - Women's",
+    "location_name": "7th floor",
+    "audience": "VISITOR",
+    "latitude": 7.255,
+    "longitude": 80.599167,
+    "fixtures": {
+      "normal": 2,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "Postgraduate 1st floor - Men's",
+    "location_name": "Postgraduate 1st floor",
+    "audience": "VISITOR",
+    "latitude": 7.255833,
+    "longitude": 80.599722,
+    "fixtures": {
+      "normal": 3,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "Postgraduate 1st floor - Women's",
+    "location_name": "Postgraduate 1st floor",
+    "audience": "VISITOR",
+    "latitude": 7.255833,
+    "longitude": 80.599722,
+    "fixtures": {
+      "normal": 3,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "2nd floor- staff - Men's",
+    "location_name": "2nd floor- staff",
+    "audience": "STAFF",
+    "latitude": 7.255833,
+    "longitude": 80.599722,
+    "fixtures": {
+      "normal": 3,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "2nd floor- staff - Women's",
+    "location_name": "2nd floor- staff",
+    "audience": "STAFF",
+    "latitude": 7.255833,
+    "longitude": 80.599722,
+    "fixtures": {
+      "normal": 3,
+      "attached": 1
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "Near the Gemba - Men's",
+    "location_name": "Near the Gemba",
+    "audience": "VISITOR",
+    "latitude": 7.255556,
+    "longitude": 80.599722,
+    "fixtures": {
+      "attached": 2
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "Near the Gemba - Women's",
+    "location_name": "Near the Gemba",
+    "audience": "VISITOR",
+    "latitude": 7.255556,
+    "longitude": 80.599722,
+    "fixtures": {
+      "attached": 2
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "Near library - Men's",
+    "location_name": "Near library",
+    "audience": "VISITOR",
+    "latitude": 7.253056,
+    "longitude": 80.5925,
+    "fixtures": {
+      "attached": 3
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "Near library - Women's",
+    "location_name": "Near library",
+    "audience": "VISITOR",
+    "latitude": 7.253056,
+    "longitude": 80.5925,
+    "fixtures": {
+      "attached": 3
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "Akbar cooridor - female",
+    "location_name": "Akbar cooridor - female",
+    "audience": "VISITOR",
+    "latitude": 7.2525,
+    "longitude": 80.592222,
+    "fixtures": {
+      "normal": 3,
+      "attached": 7
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
+  },
+  {
+    "name": "Applied machanics -Gents",
+    "location_name": "Applied machanics -Gents",
+    "audience": "VISITOR",
+    "latitude": 7.253333,
+    "longitude": 80.591389,
+    "fixtures": {},
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "Drawing office -Gents",
+    "location_name": "Drawing office -Gents",
+    "audience": "VISITOR",
+    "latitude": 7.253611,
+    "longitude": 80.591667,
+    "fixtures": {},
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "male",
+    "data_source": "REAL"
+  },
+  {
+    "name": "Computer engineering - famale",
+    "location_name": "Computer engineering - famale",
+    "audience": "VISITOR",
+    "latitude": 7.254444,
+    "longitude": 80.591667,
+    "fixtures": {
+      "normal": 2,
+      "attached": 4
+    },
+    "status": "OPEN",
+    "rating": 4.0,
+    "category_code": "female",
+    "data_source": "REAL"
   }
 ]

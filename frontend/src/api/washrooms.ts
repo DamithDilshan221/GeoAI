@@ -2,12 +2,12 @@ import apiClient from './client';
 import type { Washroom, FacilityListResponse, NearbyWashroom } from '../types/facility';
 
 export async function getWashroomById(id: number): Promise<Washroom> {
-  const { data } = await apiClient.get<Washroom>(`/api/v1/washrooms/${id}`);
+  const { data } = await apiClient.get<Washroom>(`/api/v1/facilities/${id}`);
   return data;
 }
 
 export async function getWashrooms(params?: Record<string, unknown>): Promise<FacilityListResponse> {
-  const { data } = await apiClient.get<FacilityListResponse>('/api/v1/washrooms', { params });
+  const { data } = await apiClient.get<FacilityListResponse>('/api/v1/facilities', { params });
   return data;
 }
 

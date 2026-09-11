@@ -29,7 +29,7 @@ describe('CategorySelectionPage', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
     mockGetCurrentPosition = vi.fn();
-    Object.defineProperty(global.navigator, 'geolocation', {
+    Object.defineProperty(window.navigator, 'geolocation', {
       value: { getCurrentPosition: mockGetCurrentPosition },
       writable: true,
     });
