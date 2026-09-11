@@ -16,6 +16,7 @@ def test_derive_crowd_level():
     assert derive_crowd_level(7.5, 10.0) == "HIGH"
     assert derive_crowd_level(9.0, 10.0) == "HIGH"
 
+
 def test_bucket_confidence():
     assert bucket_confidence(8) == "high"
     assert bucket_confidence(10) == "high"

@@ -115,15 +115,11 @@ class TestTravelTimeScore:
 class TestFreshnessScore:
     def test_recent(self) -> None:
         updated = NOW - timedelta(hours=1)
-        assert freshness_score(updated, NOW, 24.0) == pytest.approx(
-            95.83, abs=0.05
-        )
+        assert freshness_score(updated, NOW, 24.0) == pytest.approx(95.83, abs=0.05)
 
     def test_stale(self) -> None:
         updated = NOW - timedelta(hours=20)
-        assert freshness_score(updated, NOW, 24.0) == pytest.approx(
-            16.67, abs=0.05
-        )
+        assert freshness_score(updated, NOW, 24.0) == pytest.approx(16.67, abs=0.05)
 
 
 class TestCrowdScore:
@@ -283,9 +279,7 @@ class TestSuitabilityPenaltyDelta:
 
 class TestBuildExplanation:
     def test_network_no_estimated(self) -> None:
-        fac = _make_facility(
-            status_updated_at=NOW - timedelta(hours=1), rating=4.5
-        )
+        fac = _make_facility(status_updated_at=NOW - timedelta(hours=1), rating=4.5)
         cand = _make_candidate(fac, travel_source="network")
         scored = score_candidate(
             cand,
@@ -303,9 +297,7 @@ class TestBuildExplanation:
         assert "estimated" not in explanation.lower()
 
     def test_straight_line_includes_estimated(self) -> None:
-        fac = _make_facility(
-            status_updated_at=NOW - timedelta(hours=1), rating=4.5
-        )
+        fac = _make_facility(status_updated_at=NOW - timedelta(hours=1), rating=4.5)
         cand = _make_candidate(fac, travel_source="straight_line_estimate")
         scored = score_candidate(
             cand,

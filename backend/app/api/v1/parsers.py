@@ -1,5 +1,7 @@
 from fastapi import HTTPException
+
 from app.models.enums import AudienceType
+
 
 def parse_audience(audience: str | None) -> AudienceType | None:
     if not audience:

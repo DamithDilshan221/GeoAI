@@ -29,9 +29,7 @@ class HeuristicUsageProvider(UsagePredictionProvider):
         3. Tier 3: get_global_bucket_average(...). If result exists:
            predicted_usage = mean, confidence = "low". Otherwise
            Tier 4: predicted_usage = 0, confidence = "low".
-        4. Resolve effective_capacity: context.capacity if set, else
-           facility_repo.get_category_median_capacity(context.category_id),
-           else a hard-coded default (10).
+        4. Resolve effective_capacity: resolve_effective_capacity(context.total_stalls)
         5. crowd_level = derive_crowd_level(predicted_usage, effective_capacity)
         6. Return PredictionResult(predicted_usage=round(predicted_usage, 1),
            crowd_level=crowd_level, source="heuristic", confidence=confidence)
@@ -76,11 +74,7 @@ class HeuristicUsageProvider(UsagePredictionProvider):
             # Deliberate safe default for an otherwise-impossible-in-normal-operation state.
 
         # Resolve effective_capacity via shared function (Phase 11 extraction)
-        median_cap = self._facility_repo.get_category_median_capacity(context.category_id)
-        effective_capacity = resolve_effective_capacity(
-            capacity=context.capacity,
-            category_median=median_cap,
-        )
+        effective_capacity = resolve_effective_capacity(context.total_stalls)
 
         crowd_level = derive_crowd_level(predicted_usage, effective_capacity)
 

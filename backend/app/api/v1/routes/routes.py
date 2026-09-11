@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.v1.dependencies import get_pedestrian_routing_service
 from app.domain.gis.exceptions import CoordinateValidationError
+
 # from app.domain.gis.pedestrian_routing_service import PedestrianRoutingService
 from app.schemas.route import RouteResultRead
 

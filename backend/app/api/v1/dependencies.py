@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db_session
 from app.domain.gis.nearby_search_service import NearbySearchService
+
 # from app.domain.gis.pedestrian_routing_service import PedestrianRoutingService
 from app.repositories.category_repository import CategoryRepository
 from app.repositories.facility_repository import FacilityRepository

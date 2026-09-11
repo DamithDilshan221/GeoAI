@@ -2,9 +2,9 @@
 
 from app.domain.entities import NearbyFacility
 from app.domain.gis.coordinate_validation import validate_coordinates
+from app.models.enums import AudienceType
 from app.repositories.category_repository import CategoryRepository
 from app.repositories.gis_repository import GISRepository
-from app.models.enums import AudienceType
 
 
 class NearbySearchService:

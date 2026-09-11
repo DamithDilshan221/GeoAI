@@ -142,7 +142,7 @@ def test_get_nearby_facilities_invalid_limit_and_radius(client: TestClient):
 
 def test_get_nearby_facilities_audience_filter(client: TestClient, db_session: Session):
     _seed_gis_data(db_session)
-    
+
     # Filter by visitor
     response = client.get(
         "/api/v1/washrooms/nearby?lat=10.0&lon=20.0&category=restroom&audience=visitor&radius_m=1000"
@@ -151,7 +151,7 @@ def test_get_nearby_facilities_audience_filter(client: TestClient, db_session: S
     data = response.json()
     assert len(data) == 1
     assert data[0]["name"] == "Close Restroom"
-    
+
     # Filter by staff
     response = client.get(
         "/api/v1/washrooms/nearby?lat=10.0&lon=20.0&category=restroom&audience=staff&radius_m=1000"
@@ -160,7 +160,7 @@ def test_get_nearby_facilities_audience_filter(client: TestClient, db_session: S
     data = response.json()
     assert len(data) == 1
     assert data[0]["name"] == "Staff Restroom"
-    
+
     # Invalid audience
     response = client.get(
         "/api/v1/washrooms/nearby?lat=10.0&lon=20.0&category=restroom&audience=stuff&radius_m=1000"

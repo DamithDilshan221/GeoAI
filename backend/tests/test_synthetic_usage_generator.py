@@ -10,10 +10,18 @@ from app.models.enums import AudienceType
 def test_determinism():
     """Same input always produces identical output."""
     res1 = generate_synthetic_usage_count(
-        facility_id=1, total_stalls=10, audience=AudienceType.VISITOR, target_date=date(2026, 9, 10), hour=14
+        facility_id=1,
+        total_stalls=10,
+        audience=AudienceType.VISITOR,
+        target_date=date(2026, 9, 10),
+        hour=14,
     )
     res2 = generate_synthetic_usage_count(
-        facility_id=1, total_stalls=10, audience=AudienceType.VISITOR, target_date=date(2026, 9, 10), hour=14
+        facility_id=1,
+        total_stalls=10,
+        audience=AudienceType.VISITOR,
+        target_date=date(2026, 9, 10),
+        hour=14,
     )
     assert res1 == res2
 
@@ -21,10 +29,18 @@ def test_determinism():
 def test_different_facilities_differ():
     """Two different facility_ids with same inputs produce different results."""
     res1 = generate_synthetic_usage_count(
-        facility_id=1, total_stalls=10, audience=AudienceType.VISITOR, target_date=date(2026, 9, 10), hour=14
+        facility_id=1,
+        total_stalls=10,
+        audience=AudienceType.VISITOR,
+        target_date=date(2026, 9, 10),
+        hour=14,
     )
     res2 = generate_synthetic_usage_count(
-        facility_id=2, total_stalls=10, audience=AudienceType.VISITOR, target_date=date(2026, 9, 10), hour=14
+        facility_id=2,
+        total_stalls=10,
+        audience=AudienceType.VISITOR,
+        target_date=date(2026, 9, 10),
+        hour=14,
     )
     assert res1 != res2
 
@@ -35,8 +51,12 @@ def test_hourly_curve_shape():
     h3_sum = 0
     dates = date_range_for_history(30, today=date(2026, 9, 10))
     for d in dates:
-        h9_sum += generate_synthetic_usage_count(facility_id=1, total_stalls=10, audience=AudienceType.VISITOR, target_date=d, hour=9)
-        h3_sum += generate_synthetic_usage_count(facility_id=1, total_stalls=10, audience=AudienceType.VISITOR, target_date=d, hour=3)
+        h9_sum += generate_synthetic_usage_count(
+            facility_id=1, total_stalls=10, audience=AudienceType.VISITOR, target_date=d, hour=9
+        )
+        h3_sum += generate_synthetic_usage_count(
+            facility_id=1, total_stalls=10, audience=AudienceType.VISITOR, target_date=d, hour=3
+        )
 
     assert h9_sum > h3_sum
 
@@ -53,7 +73,7 @@ def test_staff_vs_visitor_mean_usage():
         visitor_sum += generate_synthetic_usage_count(
             facility_id=1, total_stalls=10, audience=AudienceType.VISITOR, target_date=d, hour=10
         )
-    
+
     assert staff_sum < visitor_sum
     assert staff_sum > 0  # Ensure it's not always 0 at hour 10
 
@@ -85,16 +105,32 @@ def test_weekend_multiplier_differentiation():
     # Sum across multiple facilities to average out the facility/noise RNG
     for f_id in range(1, 20):
         staff_sat_sum += generate_synthetic_usage_count(
-            facility_id=f_id, total_stalls=10, audience=AudienceType.STAFF, target_date=sat_date, hour=12
+            facility_id=f_id,
+            total_stalls=10,
+            audience=AudienceType.STAFF,
+            target_date=sat_date,
+            hour=12,
         )
         staff_wed_sum += generate_synthetic_usage_count(
-            facility_id=f_id, total_stalls=10, audience=AudienceType.STAFF, target_date=wed_date, hour=12
+            facility_id=f_id,
+            total_stalls=10,
+            audience=AudienceType.STAFF,
+            target_date=wed_date,
+            hour=12,
         )
         visitor_sat_sum += generate_synthetic_usage_count(
-            facility_id=f_id, total_stalls=10, audience=AudienceType.VISITOR, target_date=sat_date, hour=12
+            facility_id=f_id,
+            total_stalls=10,
+            audience=AudienceType.VISITOR,
+            target_date=sat_date,
+            hour=12,
         )
         visitor_wed_sum += generate_synthetic_usage_count(
-            facility_id=f_id, total_stalls=10, audience=AudienceType.VISITOR, target_date=wed_date, hour=12
+            facility_id=f_id,
+            total_stalls=10,
+            audience=AudienceType.VISITOR,
+            target_date=wed_date,
+            hour=12,
         )
 
     assert staff_sat_sum < staff_wed_sum

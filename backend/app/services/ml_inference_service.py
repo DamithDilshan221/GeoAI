@@ -46,7 +46,8 @@ class MLInferenceService:
         context = PredictionContext(
             facility_id=facility.id,
             category_id=facility.category_id,
-            capacity=facility.capacity,
+            total_stalls=facility.total_stalls,
+            audience=facility.audience,
             day_of_week=day_of_week,
             hour=hour,
             recent_usage=recent_usage,

@@ -2,12 +2,15 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Literal
 
+from app.models.enums import AudienceType
+
 
 @dataclass(frozen=True)
 class PredictionContext:
     facility_id: int
     category_id: int
-    capacity: int | None
+    total_stalls: int
+    audience: AudienceType
     day_of_week: int  # 0-6, Monday=0
     hour: int  # 0-23
     recent_usage: float | None = None  # accepted, unused by heuristic

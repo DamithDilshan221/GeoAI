@@ -15,7 +15,7 @@ from app.domain.usage_data.synthetic_generator import (
     date_range_for_history,
     generate_synthetic_usage_count,
 )
-from app.models.enums import DataSource, AudienceType
+from app.models.enums import AudienceType, DataSource
 from app.repositories.facility_repository import FacilityRepository
 from app.repositories.usage_record_repository import UsageRecordRepository
 
@@ -78,7 +78,11 @@ def main() -> None:
                 day_of_week = d.weekday()
                 for hour in range(24):
                     usage_count = generate_synthetic_usage_count(
-                        facility_id=f_id, total_stalls=total_stalls, audience=audience, target_date=d, hour=hour
+                        facility_id=f_id,
+                        total_stalls=total_stalls,
+                        audience=audience,
+                        target_date=d,
+                        hour=hour,
                     )
 
                     usage_repo.upsert_hourly_record(
@@ -110,11 +114,13 @@ def main() -> None:
         hour_3_avg = (
             hour_3_total / (facility_count * args.days) if facility_count * args.days > 0 else 0
         )
-        
+
         # Calculate for weekdays only
         weekday_days = sum(1 for d in dates if d.weekday() < 5)
         visitor_9_avg = (
-            visitor_9_total / (visitor_count * weekday_days) if visitor_count * weekday_days > 0 else 0
+            visitor_9_total / (visitor_count * weekday_days)
+            if visitor_count * weekday_days > 0
+            else 0
         )
         staff_9_avg = (
             staff_9_total / (staff_count * weekday_days) if staff_count * weekday_days > 0 else 0

@@ -1,18 +1,10 @@
-def resolve_effective_capacity(
-    capacity: int | None,
-    category_median: float | None,
-    default: float = 10.0,
-) -> float:
-    """Shared capacity fallback: facility → category median → hard default.
-
-    Used by HeuristicUsageProvider (Phase 10) and the recommendation
-    crowd sub-score (Phase 11).  Must NOT be duplicated elsewhere.
-    """
-    if capacity is not None:
-        return float(capacity)
-    if category_median is not None:
-        return category_median
-    return default
+def resolve_effective_capacity(total_stalls: int, default: float = 10.0) -> float:
+    """Shared capacity fallback: total_stalls (if > 0) -> hard default.
+    Used by HeuristicUsageProvider (Phase 10). NOTE: RecommendationService's
+    crowd sub-score (Phase 11) currently calls the OLD two-argument shape of
+    this function and will fail until that phase's own correction updates its
+    call site to match — this is expected and is that phase's job, not this one's."""
+    return float(total_stalls) if total_stalls > 0 else default
 
 
 def derive_crowd_level(predicted_usage: float, effective_capacity: float) -> str:

@@ -64,9 +64,6 @@ def test_boundary_rating_five_raises_nothing() -> None:
     validate_facility_input(**_valid_kwargs(rating=5.0))
 
 
-
-
-
 # ── Latitude validation ───────────────────────────────────────────────────────
 
 
@@ -116,9 +113,6 @@ def test_rating_negative_raises() -> None:
     with pytest.raises(FacilityValidationError) as exc_info:
         validate_facility_input(**_valid_kwargs(rating=-0.1))
     assert "-0.1" in str(exc_info.value)
-
-
-
 
 
 # ── Name validation ───────────────────────────────────────────────────────────

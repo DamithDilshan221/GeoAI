@@ -3,10 +3,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.v1.dependencies import get_nearby_search_service
+from app.api.v1.parsers import parse_audience
 from app.domain.gis.exceptions import CoordinateValidationError
 from app.domain.gis.nearby_search_service import NearbySearchService
 from app.schemas.nearby_washroom import NearbyWashroomRead
-from app.api.v1.parsers import parse_audience
 
 router = APIRouter(tags=["Facilities"])
 

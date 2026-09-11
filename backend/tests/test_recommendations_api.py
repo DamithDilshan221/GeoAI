@@ -43,9 +43,7 @@ def _seed_api_data(db_session: Session) -> dict:
 def test_recommendations_api_success(client: TestClient, db_session: Session) -> None:
     _seed_api_data(db_session)
 
-    resp = client.get(
-        "/api/v1/recommendations?lat=10.0&lon=20.0&category=api_test&radius_m=2000"
-    )
+    resp = client.get("/api/v1/recommendations?lat=10.0&lon=20.0&category=api_test&radius_m=2000")
     assert resp.status_code == 200
 
     body = resp.json()

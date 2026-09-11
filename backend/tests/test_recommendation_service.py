@@ -143,12 +143,10 @@ def test_wheelchair_preference_affects_suitability(db_session: Session) -> None:
     # Far Facility (f2) has wheelchair_friendly=False, so its suitability
     # sub-score should be lower with wheelchair preference
     f2_no_pref = next(
-        s for s in result_no_pref.ranked_facilities
-        if s.candidate.facility.id == data["f2"].id
+        s for s in result_no_pref.ranked_facilities if s.candidate.facility.id == data["f2"].id
     )
     f2_wheelchair = next(
-        s for s in result_wheelchair.ranked_facilities
-        if s.candidate.facility.id == data["f2"].id
+        s for s in result_wheelchair.ranked_facilities if s.candidate.facility.id == data["f2"].id
     )
 
     assert f2_no_pref.sub_scores["suitability"] == 100.0
