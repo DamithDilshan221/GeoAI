@@ -3,7 +3,7 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from app.models.enums import DataSource, FacilityStatus
+from app.models.enums import AudienceType, DataSource, FacilityStatus
 from app.repositories.category_repository import CategoryRepository
 from app.repositories.facility_repository import FacilityRepository
 
@@ -16,24 +16,24 @@ def _seed_api_data(db_session: Session) -> dict:
 
     f1 = fac_repo.create(
         name="API Close",
+        location_name="Block C",
         category_id=cat.id,
         latitude=10.001,
         longitude=20.0,
+        audience=AudienceType.VISITOR,
         status=FacilityStatus.OPEN,
-        capacity=15,
         rating=4.0,
-        accessibility={"wheelchair_friendly": True},
         data_source=DataSource.SYNTHETIC,
     )
     f2 = fac_repo.create(
         name="API Far",
+        location_name="Block D",
         category_id=cat.id,
         latitude=10.004,
         longitude=20.0,
+        audience=AudienceType.VISITOR,
         status=FacilityStatus.OPEN,
-        capacity=15,
         rating=3.5,
-        accessibility={"wheelchair_friendly": False},
         data_source=DataSource.SYNTHETIC,
     )
 
@@ -64,6 +64,9 @@ def test_recommendations_api_success(client: TestClient, db_session: Session) ->
     assert "crowd_level" in top
     assert "travel_source" in top
     assert "prediction_source" in top
+    # Phase 11: lat/lon must be present for frontend navigation wiring
+    assert "latitude" in top
+    assert "longitude" in top
 
 
 def test_recommendations_api_empty(client: TestClient, db_session: Session) -> None:
@@ -79,17 +82,32 @@ def test_recommendations_api_empty(client: TestClient, db_session: Session) -> N
     assert body["explanation"] is None
 
 
-def test_recommendations_api_wheelchair(client: TestClient, db_session: Session) -> None:
-    _seed_api_data(db_session)
+def test_recommendations_api_staff_preferred(client: TestClient, db_session: Session) -> None:
+    """staff_preferred narrows results to STAFF audience only."""
+    cat_repo = CategoryRepository(db_session)
+    fac_repo = FacilityRepository(db_session)
+
+    cat = cat_repo.create(code="staff_test", label="Staff Test")
+    fac_repo.create(
+        name="Staff WC",
+        location_name="Staff Block",
+        category_id=cat.id,
+        latitude=10.001,
+        longitude=20.0,
+        audience=AudienceType.STAFF,
+        status=FacilityStatus.OPEN,
+        data_source=DataSource.SYNTHETIC,
+    )
 
     resp = client.get(
-        "/api/v1/recommendations?lat=10.0&lon=20.0&category=api_test&radius_m=2000"
-        "&secondary_preference=wheelchair_accessible"
+        "/api/v1/recommendations?lat=10.0&lon=20.0&category=staff_test&radius_m=2000"
+        "&secondary_preference=staff_preferred"
     )
     assert resp.status_code == 200
 
     body = resp.json()
-    assert len(body["ranked_facilities"]) == 2
+    assert len(body["ranked_facilities"]) == 1
+    assert body["ranked_facilities"][0]["name"] == "Staff WC"
 
 
 def test_recommendations_api_missing_params(client: TestClient) -> None:

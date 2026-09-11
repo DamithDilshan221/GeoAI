@@ -116,7 +116,13 @@ def test_empty_result(db_session: Session) -> None:
 
 
 def test_staff_preferred_affects_suitability(db_session: Session) -> None:
-    """staff_preferred preference boosts STAFF facility's suitability score."""
+    """staff_preferred narrows candidates to STAFF audience and gives full suitability.
+
+    Under no preference: both VISITOR (f1) and STAFF (f2) are candidates.
+    Under staff_preferred: only the STAFF facility (f2) is returned because
+    find_nearby() filters by audience.  Within that single result, suitability
+    score should be 100 (audience matches).
+    """
     data = _seed_recommendation_data(db_session)
     svc = _build_service(db_session)
 
@@ -140,17 +146,19 @@ def test_staff_preferred_affects_suitability(db_session: Session) -> None:
         now=now,
     )
 
-    # Both return results
+    # No preference → both facilities returned
     assert len(result_no_pref.ranked_facilities) == 2
-    assert len(result_staff.ranked_facilities) == 2
 
-    # f1 is VISITOR — should have suitability penalty under staff_preferred
+    # staff_preferred → only the STAFF facility (f2) is returned
+    assert len(result_staff.ranked_facilities) == 1
+    assert result_staff.ranked_facilities[0].candidate.facility.id == data["f2"].id
+
+    # Under no preference, f1 (VISITOR) gets full suitability (no preference active)
     f1_no_pref = next(
         s for s in result_no_pref.ranked_facilities if s.candidate.facility.id == data["f1"].id
     )
-    f1_staff = next(
-        s for s in result_staff.ranked_facilities if s.candidate.facility.id == data["f1"].id
-    )
-
     assert f1_no_pref.sub_scores["suitability"] == 100.0
-    assert f1_staff.sub_scores["suitability"] == 20.0
+
+    # Under staff_preferred, f2 (STAFF) gets full suitability (audience matches)
+    f2_staff = result_staff.ranked_facilities[0]
+    assert f2_staff.sub_scores["suitability"] == 100.0
