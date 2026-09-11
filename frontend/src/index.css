@@ -82,3 +82,8 @@
 .user-dot{ width:16px; height:16px; border-radius:50%; background:#2C7BE5; border:3px solid #fff; box-shadow:0 0 0 4px rgba(44,123,229,0.25); }
 .leaflet-tooltip.you-label{ background:var(--navy-950); color:#fff; border:none; border-radius:999px; padding:2px 9px; font-family:"Poppins",sans-serif; font-size:10.5px; font-weight:700; box-shadow:0 3px 8px rgba(0,0,0,0.25); }
 .leaflet-tooltip.you-label::before{ display:none; }
+
+/* Fix Tailwind Preflight breaking Leaflet tile images */
+.leaflet-container img {
+  max-width: none !important;
+}

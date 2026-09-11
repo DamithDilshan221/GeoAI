@@ -22,6 +22,15 @@ export function NearbyFacilitiesPage() {
   const locationObj = useLocation();
   const queryParams = new URLSearchParams(locationObj.search);
   const currentView = queryParams.get('view') || 'list';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [mapInstance, setMapInstance] = useState<any>(null);
+
+  useEffect(() => {
+    if (currentView === 'map' && mapInstance) {
+      // Force Leaflet to recalculate tiles after the display:none is removed
+      setTimeout(() => mapInstance.invalidateSize(), 50);
+    }
+  }, [currentView, mapInstance]);
 
   const { selectedCategory, selectedAudience, location } = state;
 
@@ -85,8 +94,8 @@ export function NearbyFacilitiesPage() {
 
   return (
     <>
-      {currentView === 'list' && (
-        <div className="flex flex-col h-full">
+      <div className={`flex flex-col h-full ${currentView === 'list' ? '' : 'hidden'}`}>
+
           <div className="px-[18px] pt-4 shrink-0">
             <div className="flex items-center gap-2.5 px-[18px] py-[14px] rounded-full bg-pill-bg border border-pill-border cursor-text">
               <svg className="shrink-0 text-teal" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -94,6 +103,8 @@ export function NearbyFacilitiesPage() {
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
               <input 
+                id="search-facilities"
+                name="search-facilities"
                 type="text" 
                 placeholder="Search building or location..." 
                 className="border-none bg-transparent outline-none text-inherit font-sans text-[14.5px] w-full placeholder:text-muted"
@@ -133,15 +144,15 @@ export function NearbyFacilitiesPage() {
             )}
           </div>
         </div>
-      )}
 
-      {currentView === 'map' && (
-        <div className="relative w-full h-full">
+      <div className={`relative w-full h-full ${currentView === 'map' ? '' : 'hidden'}`}>
+
           <MapView 
             className="w-full h-full"
             markers={mapMarkers} 
             userLocation={userLocation} 
             onMarkerClick={(id) => navigate(`/facilities/${id}`)}
+            onMapReady={setMapInstance}
           />
           <button className="absolute right-4 bottom-5 flex items-center gap-2 bg-teal text-[#06302D] border-none rounded-full py-3 px-[18px] font-bold text-[13.5px] shadow-soft cursor-pointer z-50 font-display active:scale-97">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -153,8 +164,8 @@ export function NearbyFacilitiesPage() {
             </svg>
             <span>Near me (100m)</span>
           </button>
-        </div>
-      )}
+      </div>
+
     </>
   );
 }

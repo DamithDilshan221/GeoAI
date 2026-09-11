@@ -11,14 +11,15 @@ import { CategoryButton } from '../components/facility/CategoryButton';
 export function CategorySelectionPage() {
   const navigate = useNavigate();
   const { data: categories, isLoading, error, refetch } = useCategories();
-  const { status: geoStatus, errorMessage, request: requestLocation } = useGeolocation();
+  const { status: geoStatus, location, errorMessage, request: requestLocation } = useGeolocation();
   const { dispatch } = useSearchContext();
 
   useEffect(() => {
-    if (geoStatus === 'granted') {
+    if (geoStatus === 'granted' && location) {
+      dispatch({ type: 'SET_LOCATION', payload: { location, status: 'granted' } });
       navigate('/nearby');
     }
-  }, [geoStatus, navigate]);
+  }, [geoStatus, location, dispatch, navigate]);
 
   if (isLoading) return <LoadingState message="Loading categories..." />;
   if (error) return <ErrorState message="Failed to load categories." onRetry={refetch} />;
@@ -64,6 +65,8 @@ export function CategorySelectionPage() {
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
         <input 
+          id="find-washroom"
+          name="find-washroom"
           type="text" 
           placeholder="Find a washroom..." 
           className="border-none bg-transparent outline-none text-inherit font-sans text-[14.5px] w-full placeholder:text-muted"
