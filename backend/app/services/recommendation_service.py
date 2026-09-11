@@ -9,8 +9,6 @@ from datetime import UTC, datetime
 
 from app.core.config import get_settings
 from app.domain.gis.nearby_search_service import NearbySearchService
-
-# from app.domain.gis.pedestrian_routing_service import PedestrianRoutingService
 from app.domain.recommendation.candidate import (
     RecommendationCandidate,
     ScoredCandidate,
@@ -18,6 +16,7 @@ from app.domain.recommendation.candidate import (
 from app.domain.recommendation.explanation import build_explanation
 from app.domain.recommendation.ranking import rank_candidates, score_candidate
 from app.domain.recommendation.weights import get_recommendation_weights
+from app.domain.routing.pedestrian_routing_service import PedestrianRoutingService
 from app.repositories.facility_repository import FacilityRepository
 from app.services.ml_inference_service import MLInferenceService
 
@@ -72,8 +71,17 @@ class RecommendationService:
         weights = get_recommendation_weights()
 
         # Step 1 — candidate selection (IS the eligibility filter, decision #1)
+        # staff_preferred preference narrows the candidate pool to STAFF facilities;
+        # any other preference value (or None) searches across all audiences.
+        from app.models.enums import AudienceType  # local import to avoid circular
+
+        audience_filter: AudienceType | None = (
+            AudienceType.STAFF if secondary_preference == "staff_preferred" else None
+        )
+
         nearby = self._nearby.find_nearby(
             category_code=category_code,
+            audience=audience_filter,
             lat=lat,
             lon=lon,
             radius_m=radius_m,
@@ -93,12 +101,14 @@ class RecommendationService:
         scored_list: list[ScoredCandidate] = []
 
         for item in nearby:
-            # Full entity for capacity/rating/status_updated_at/accessibility
+            # Full entity for total_stalls/rating/status_updated_at/fixtures
             facility = self._facility_repo.get_by_id(item.id)
             if facility is None:
                 continue  # defensive — shouldn't happen
 
-            # Routing
+            # Routing — always a fresh OSRM call per §14.2.
+            # Returns None only if the facility is inactive/missing (already
+            # guarded above), so the fallback branch below is defensive.
             route = self._routing.get_route(
                 origin_lat=lat,
                 origin_lon=lon,
@@ -110,8 +120,7 @@ class RecommendationService:
                 estimated_time_s = float(route.estimated_time_s)
                 travel_source = route.source
             else:
-                # Routing returned None (facility inactive/missing) — use
-                # straight-line from the nearby result's distance
+                # Should not happen (guarded above), but keep defensive path.
                 estimated_time_s = item.distance_m / settings.PEDESTRIAN_WALKING_SPEED_MPS
                 travel_source = "straight_line_estimate"
 
@@ -121,9 +130,6 @@ class RecommendationService:
                 day_of_week=now.weekday(),
                 hour=now.hour,
             )
-
-            # Category median for crowd scoring
-            category_median = self._facility_repo.get_category_median_capacity(facility.category_id)
 
             candidate = RecommendationCandidate(
                 facility=facility,
@@ -143,7 +149,6 @@ class RecommendationService:
                 walking_speed_mps=settings.PEDESTRIAN_WALKING_SPEED_MPS,
                 staleness_horizon_hours=settings.STALENESS_HORIZON_HOURS,
                 suitability_penalty=settings.SUITABILITY_PENALTY_SCORE,
-                category_median_capacity=category_median,
             )
             scored_list.append(scored)
 

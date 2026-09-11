@@ -28,24 +28,28 @@ def score_candidate(
     walking_speed_mps: float,
     staleness_horizon_hours: float,
     suitability_penalty: float,
-    category_median_capacity: float | None,
 ) -> ScoredCandidate:
-    """Compute all six sub-scores and aggregate into a weighted final score."""
-    eff_cap = resolve_effective_capacity(
-        capacity=candidate.facility.capacity,
-        category_median=category_median_capacity,
-    )
+    """Compute all six sub-scores and aggregate into a weighted final score.
+
+    ``resolve_effective_capacity`` now takes ``total_stalls`` directly —
+    the old two-argument ``(capacity, category_median)`` signature was removed
+    in Phase 10.  If ``total_stalls`` is zero or missing the function applies
+    the hard default of 10.0 (per §15.8's resolved imputation path).
+    """
+    eff_cap = resolve_effective_capacity(candidate.facility.total_stalls)
 
     sub = {
         "distance": distance_score(candidate.distance_m, radius_m),
-        "travel_time": travel_time_score(candidate.estimated_time_s, radius_m, walking_speed_mps),
+        "travel_time": travel_time_score(
+            candidate.estimated_time_s, radius_m, walking_speed_mps
+        ),
         "freshness": freshness_score(
             candidate.facility.status_updated_at, now, staleness_horizon_hours
         ),
         "crowd": crowd_score(candidate.predicted_usage, eff_cap),
         "rating": rating_score(candidate.facility.rating),
         "suitability": suitability_score(
-            candidate.facility.accessibility,
+            candidate.facility.audience,
             secondary_preference,
             suitability_penalty,
         ),

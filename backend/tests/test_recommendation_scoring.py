@@ -25,7 +25,7 @@ from app.domain.recommendation.scoring import (
     travel_time_score,
 )
 from app.domain.recommendation.weights import RecommendationWeights
-from app.models.enums import DataSource, FacilityStatus
+from app.models.enums import AudienceType, DataSource, FacilityStatus
 
 # ── Shared fixtures ──────────────────────────────────────────────────────────
 
@@ -46,10 +46,10 @@ SUITABILITY_PENALTY = 20.0
 
 def _make_facility(
     fid: int = 1,
-    capacity: int | None = 10,
+    total_stalls: int = 10,
     rating: float | None = 4.5,
     status_updated_at: datetime | None = None,
-    accessibility: dict | None = None,
+    audience: AudienceType = AudienceType.VISITOR,
 ) -> Facility:
     return Facility(
         id=fid,
@@ -60,8 +60,10 @@ def _make_facility(
         status=FacilityStatus.OPEN,
         status_updated_at=status_updated_at or NOW,
         rating=rating,
-        capacity=capacity,
-        accessibility=accessibility,
+        audience=audience,
+        location_name=None,
+        fixtures={},
+        total_stalls=total_stalls,
         data_source=DataSource.SYNTHETIC,
         is_active=True,
         created_at=NOW,
@@ -143,21 +145,20 @@ class TestRatingScore:
 
 class TestSuitabilityScore:
     def test_no_preference(self) -> None:
-        assert suitability_score(None, None, 20.0) == 100.0
+        assert suitability_score(AudienceType.VISITOR, None, 20.0) == 100.0
 
     def test_unrecognised_preference(self) -> None:
-        assert suitability_score(None, "fast_lane", 20.0) == 100.0
+        assert suitability_score(AudienceType.VISITOR, "fast_lane", 20.0) == 100.0
 
-    def test_wheelchair_met(self) -> None:
-        access = {"wheelchair_friendly": True}
-        assert suitability_score(access, "wheelchair_accessible", 20.0) == 100.0
+    def test_staff_preferred_met_when_staff(self) -> None:
+        assert suitability_score(AudienceType.STAFF, "staff_preferred", 20.0) == 100.0
 
-    def test_wheelchair_not_met(self) -> None:
-        access = {"wheelchair_friendly": False}
-        assert suitability_score(access, "wheelchair_accessible", 20.0) == 20.0
+    def test_staff_preferred_penalty_when_visitor(self) -> None:
+        assert suitability_score(AudienceType.VISITOR, "staff_preferred", 20.0) == 20.0
 
-    def test_wheelchair_null_accessibility(self) -> None:
-        assert suitability_score(None, "wheelchair_accessible", 20.0) == 20.0
+    def test_wheelchair_is_noop(self) -> None:
+        """wheelchair_accessible is documented as a legacy no-op in v3 — always 100."""
+        assert suitability_score(AudienceType.VISITOR, "wheelchair_accessible", 20.0) == 100.0
 
 
 # ── Golden A/B ranking test ──────────────────────────────────────────────────
@@ -167,13 +168,13 @@ class TestGoldenRanking:
     def test_candidate_a_vs_b(self) -> None:
         fac_a = _make_facility(
             fid=1,
-            capacity=10,
+            total_stalls=10,
             rating=4.5,
             status_updated_at=NOW - timedelta(hours=1),
         )
         fac_b = _make_facility(
             fid=2,
-            capacity=10,
+            total_stalls=10,
             rating=3.0,
             status_updated_at=NOW - timedelta(hours=20),
         )
@@ -181,8 +182,7 @@ class TestGoldenRanking:
         cand_a = _make_candidate(fac_a, distance_m=100, estimated_time_s=100, predicted_usage=2)
         cand_b = _make_candidate(fac_b, distance_m=500, estimated_time_s=500, predicted_usage=8)
 
-        scored_a = score_candidate(
-            cand_a,
+        common = dict(
             radius_m=RADIUS_M,
             now=NOW,
             secondary_preference=None,
@@ -190,19 +190,9 @@ class TestGoldenRanking:
             walking_speed_mps=WALKING_SPEED_MPS,
             staleness_horizon_hours=STALENESS_HORIZON_HOURS,
             suitability_penalty=SUITABILITY_PENALTY,
-            category_median_capacity=None,
         )
-        scored_b = score_candidate(
-            cand_b,
-            radius_m=RADIUS_M,
-            now=NOW,
-            secondary_preference=None,
-            weights=WEIGHTS,
-            walking_speed_mps=WALKING_SPEED_MPS,
-            staleness_horizon_hours=STALENESS_HORIZON_HOURS,
-            suitability_penalty=SUITABILITY_PENALTY,
-            category_median_capacity=None,
-        )
+        scored_a = score_candidate(cand_a, **common)
+        scored_b = score_candidate(cand_b, **common)
 
         # Assert every individual sub-score for A
         assert scored_a.sub_scores["distance"] == pytest.approx(90.0, abs=0.05)
@@ -231,23 +221,23 @@ class TestGoldenRanking:
 
 
 class TestSuitabilityPenaltyDelta:
-    """Candidate C is identical to A except wheelchair_accessible is requested
-    but facility doesn't have it → exact 8.0 delta (0.10 × (100 − 20))."""
+    """Candidate C is identical to A except staff_preferred is requested
+    but facility is VISITOR → exact 8.0 delta (0.10 × (100 − 20))."""
 
     def test_exact_delta(self) -> None:
         fac_a = _make_facility(
             fid=1,
-            capacity=10,
+            total_stalls=10,
             rating=4.5,
             status_updated_at=NOW - timedelta(hours=1),
-            accessibility={"wheelchair_friendly": True},
+            audience=AudienceType.STAFF,
         )
         fac_c = _make_facility(
             fid=3,
-            capacity=10,
+            total_stalls=10,
             rating=4.5,
             status_updated_at=NOW - timedelta(hours=1),
-            accessibility={"wheelchair_friendly": False},
+            audience=AudienceType.VISITOR,
         )
 
         cand_a = _make_candidate(fac_a, distance_m=100, estimated_time_s=100, predicted_usage=2)
@@ -256,12 +246,11 @@ class TestSuitabilityPenaltyDelta:
         common_kwargs = dict(
             radius_m=RADIUS_M,
             now=NOW,
-            secondary_preference="wheelchair_accessible",
+            secondary_preference="staff_preferred",
             weights=WEIGHTS,
             walking_speed_mps=WALKING_SPEED_MPS,
             staleness_horizon_hours=STALENESS_HORIZON_HOURS,
             suitability_penalty=SUITABILITY_PENALTY,
-            category_median_capacity=None,
         )
 
         scored_a = score_candidate(cand_a, **common_kwargs)
@@ -290,7 +279,6 @@ class TestBuildExplanation:
             walking_speed_mps=WALKING_SPEED_MPS,
             staleness_horizon_hours=STALENESS_HORIZON_HOURS,
             suitability_penalty=SUITABILITY_PENALTY,
-            category_median_capacity=None,
         )
         explanation = build_explanation(scored, WEIGHTS)
         assert "Recommended because" in explanation
@@ -308,7 +296,6 @@ class TestBuildExplanation:
             walking_speed_mps=WALKING_SPEED_MPS,
             staleness_horizon_hours=STALENESS_HORIZON_HOURS,
             suitability_penalty=SUITABILITY_PENALTY,
-            category_median_capacity=None,
         )
         explanation = build_explanation(scored, WEIGHTS)
         assert "estimated" in explanation.lower()
@@ -318,11 +305,11 @@ class TestBuildExplanation:
 
 
 class TestResolveEffectiveCapacity:
-    def test_facility_capacity_used(self) -> None:
-        assert resolve_effective_capacity(20, 15.0) == 20.0
+    def test_positive_stalls_used(self) -> None:
+        assert resolve_effective_capacity(20) == 20.0
 
-    def test_category_median_fallback(self) -> None:
-        assert resolve_effective_capacity(None, 15.0) == 15.0
+    def test_zero_stalls_uses_default(self) -> None:
+        assert resolve_effective_capacity(0) == 10.0
 
-    def test_hard_default_fallback(self) -> None:
-        assert resolve_effective_capacity(None, None) == 10.0
+    def test_custom_default(self) -> None:
+        assert resolve_effective_capacity(0, default=15.0) == 15.0

@@ -26,7 +26,7 @@ export function useRecommendation(params: RecommendationParams | null) {
         category: params!.category,
         radius_m: params!.radius_m ?? 1000,
         secondary_preference:
-          params?.selectedAudience === 'STAFF' ? 'staff' : undefined,
+          params?.selectedAudience === 'STAFF' ? 'staff_preferred' : undefined,
       }),
     enabled: params !== null,
   });

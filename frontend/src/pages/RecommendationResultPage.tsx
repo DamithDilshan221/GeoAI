@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useSearchContext } from '../context/SearchContext';
 import { LoadingState } from '../components/status/LoadingState';
 import { ErrorState } from '../components/status/ErrorState';
 import { EmptyState } from '../components/status/EmptyState';
 import { useRecommendation } from '../hooks/useRecommendation';
+import { NavigationOverlay } from '../components/navigation/NavigationOverlay';
+import { GEOLOCATION_MESSAGES } from '../hooks/useGeolocation';
 
 function formatTime(seconds: number, isEstimate: boolean): string {
   const mins = Math.round(seconds / 60);
@@ -20,6 +23,10 @@ function formatDistance(meters: number): string {
 export function RecommendationResultPage() {
   const { state } = useSearchContext();
   const { selectedCategory, location, selectedAudience } = state;
+
+  const [showNavigation, setShowNavigation] = useState(false);
+  const [navOrigin, setNavOrigin] = useState<{ lat: number; lon: number } | null>(null);
+  const [navError, setNavError] = useState<string | null>(null);
 
   const params =
     selectedCategory && location
@@ -51,7 +58,6 @@ export function RecommendationResultPage() {
     );
   }
 
-  // Empty result — backend returned message, no facilities
   if (data?.message) {
     return (
       <div className="flex flex-col h-full overflow-hidden">
@@ -76,8 +82,45 @@ export function RecommendationResultPage() {
   const explanation = data?.explanation;
   const isEstimate = top?.travel_source === 'straight_line_estimate';
 
+  /**
+   * Start Navigation handler — requests a FRESH GPS fix (maximumAge:0) per §14.2.
+   * Uses the top recommendation's lat/lon as the destination.
+   */
+  const handleStartNavigation = () => {
+    if (!top) return;
+    setNavError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setNavOrigin({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+        setShowNavigation(true);
+      },
+      (err) => {
+        setNavError(
+          err.code === 1
+            ? GEOLOCATION_MESSAGES.denied
+            : GEOLOCATION_MESSAGES.unavailable,
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+    );
+  };
+
   return (
     <div className="flex flex-col h-full overflow-hidden relative">
+      {/* Navigation overlay — rendered over everything when active */}
+      {showNavigation && navOrigin && top && (
+        <NavigationOverlay
+          origin={navOrigin}
+          destination={{
+            lat: top.latitude,
+            lon: top.longitude,
+            name: top.name,
+            category: top.category,
+          }}
+          onClose={() => setShowNavigation(false)}
+        />
+      )}
+
       <div className="px-5 pt-4 pb-2 shrink-0 flex items-center justify-between">
         <h2 className="text-[22px] font-bold text-white m-0">Recommended Route</h2>
         <Link
@@ -137,7 +180,15 @@ export function RecommendationResultPage() {
                 </div>
               </div>
 
-              <button className="w-full bg-teal text-[#06302D] border-none rounded-xl py-3.5 font-bold text-[14.5px] cursor-pointer shadow-soft font-display active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+              {navError && (
+                <p className="text-[12px] text-red-400 mb-3 m-0" data-testid="rec-nav-error">{navError}</p>
+              )}
+
+              <button
+                id="start-navigation-btn"
+                onClick={handleStartNavigation}
+                className="w-full bg-teal text-[#06302D] border-none rounded-xl py-3.5 font-bold text-[14.5px] cursor-pointer shadow-soft font-display active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
+              >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polygon points="3 11 22 2 13 21 11 13 3 11"/>
                 </svg>
@@ -169,16 +220,6 @@ export function RecommendationResultPage() {
             </div>
           </div>
         )}
-
-        <div className="rounded-[16px] border border-pill-border bg-pill-bg/30 p-5 text-center flex flex-col items-center justify-center min-h-[200px]">
-          <div className="w-12 h-12 rounded-full bg-pill-bg border border-pill-border flex items-center justify-center text-muted mb-3">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/>
-              <circle cx="12" cy="10" r="3"/>
-            </svg>
-          </div>
-          <span className="text-[13.5px] text-muted-soft font-medium">Map / Navigation UI will render here in Phase 12</span>
-        </div>
       </div>
     </div>
   );

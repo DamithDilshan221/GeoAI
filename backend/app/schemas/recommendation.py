@@ -11,6 +11,8 @@ class FacilityRecommendation(BaseModel):
     category: str
     status: str
     rating: float | None
+    latitude: float
+    longitude: float
     distance_m: float
     estimated_time_s: float
     travel_source: str

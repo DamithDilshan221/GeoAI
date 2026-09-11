@@ -3,21 +3,21 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db_session
 from app.domain.gis.nearby_search_service import NearbySearchService
-
-# from app.domain.gis.pedestrian_routing_service import PedestrianRoutingService
 from app.repositories.category_repository import CategoryRepository
 from app.repositories.facility_repository import FacilityRepository
 from app.repositories.gis_repository import GISRepository
-from app.services.category_service import CategoryService
-from app.services.facility_service import FacilityService
 
 
-def get_category_service(session: Session = Depends(get_db_session)) -> CategoryService:  # noqa: B008
+def get_category_service(session: Session = Depends(get_db_session)) -> "CategoryService":  # noqa: B008, F821
+    from app.services.category_service import CategoryService
+
     repo = CategoryRepository(session)
     return CategoryService(repo)
 
 
-def get_facility_service(session: Session = Depends(get_db_session)) -> FacilityService:  # noqa: B008
+def get_facility_service(session: Session = Depends(get_db_session)) -> "FacilityService":  # noqa: B008, F821
+    from app.services.facility_service import FacilityService
+
     facility_repo = FacilityRepository(session)
     category_repo = CategoryRepository(session)
     return FacilityService(facility_repo, category_repo)
@@ -37,19 +37,22 @@ def get_nearby_search_service(
 
 def get_pedestrian_routing_service(
     session: Session = Depends(get_db_session),  # noqa: B008
-) -> PedestrianRoutingService:
-    from app.domain.gis.pedestrian_routing_service import PedestrianRoutingService
-    from app.repositories.routing_repository import RoutingRepository
+) -> "PedestrianRoutingService":  # noqa: F821
+    from app.core.config import get_settings
+    from app.domain.routing.pedestrian_routing_service import PedestrianRoutingService
 
-    routing_repo = RoutingRepository(session)
+    settings = get_settings()
     facility_repo = FacilityRepository(session)
-    return PedestrianRoutingService(routing_repo, facility_repo)
+    return PedestrianRoutingService(
+        facility_repo=facility_repo,
+        osrm_base_url=settings.OSRM_BASE_URL,
+        walking_speed_mps=settings.PEDESTRIAN_WALKING_SPEED_MPS,
+    )
 
 
 def get_ml_inference_service(
     session: Session = Depends(get_db_session),  # noqa: B008
 ) -> "MLInferenceService":  # noqa: F821
-    from app.repositories.facility_repository import FacilityRepository
     from app.repositories.usage_record_repository import UsageRecordRepository
     from app.services.ml_inference_service import MLInferenceService
 
@@ -61,7 +64,7 @@ def get_ml_inference_service(
 def get_recommendation_service(
     session: Session = Depends(get_db_session),  # noqa: B008
     nearby_search: NearbySearchService = Depends(get_nearby_search_service),  # noqa: B008
-    routing_service: PedestrianRoutingService = Depends(get_pedestrian_routing_service),  # noqa: B008
+    routing_service: "PedestrianRoutingService" = Depends(get_pedestrian_routing_service),  # noqa: B008, F821
     ml_service: "MLInferenceService" = Depends(get_ml_inference_service),  # noqa: B008, F821
 ) -> "RecommendationService":  # noqa: F821
     from app.services.recommendation_service import RecommendationService

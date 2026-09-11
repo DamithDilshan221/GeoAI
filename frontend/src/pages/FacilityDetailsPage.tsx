@@ -4,6 +4,8 @@ import { useFacility } from '../hooks/useFacility';
 import { LoadingState } from '../components/status/LoadingState';
 import { ErrorState } from '../components/status/ErrorState';
 import { MapView } from '../components/map/MapView';
+import { NavigationOverlay } from '../components/navigation/NavigationOverlay';
+import { GEOLOCATION_MESSAGES } from '../hooks/useGeolocation';
 
 export function FacilityDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +14,9 @@ export function FacilityDetailsPage() {
   
   const { data: facility, isLoading, error, refetch } = useFacility(facilityId);
   const [saved, setSaved] = useState(false);
+  const [showNavigation, setShowNavigation] = useState(false);
+  const [navOrigin, setNavOrigin] = useState<{ lat: number; lon: number } | null>(null);
+  const [navError, setNavError] = useState<string | null>(null);
 
   if (isLoading) return <LoadingState message="Loading washroom details..." />;
 
@@ -44,7 +49,6 @@ export function FacilityDetailsPage() {
 
   const theme = getCategoryTheme(facility.category);
 
-  // We can render a map in the background with just this facility
   const mapMarkers = [{
     id: facility.id,
     lat: facility.latitude,
@@ -53,14 +57,69 @@ export function FacilityDetailsPage() {
     category: facility.category
   }];
 
+  /**
+   * Navigate button handler — requests a FRESH GPS fix (maximumAge: 0 per §14.2/
+   * resolved decision #9). Never trusts SearchContext.location — this page may be
+   * reached via deep link without going through the search flow.
+   */
+  const handleNavigate = () => {
+    setNavError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setNavOrigin({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+        setShowNavigation(true);
+      },
+      (err) => {
+        setNavError(
+          err.code === 1
+            ? GEOLOCATION_MESSAGES.denied
+            : GEOLOCATION_MESSAGES.unavailable,
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+    );
+  };
+
+  /**
+   * External maps deep-link per §14.5 — convenience only, secondary to the in-app overlay.
+   */
+  const handleExternalMaps = () => {
+    if (!navOrigin) {
+      // If we don't have a fresh fix yet, just open with destination only
+      window.open(
+        `https://www.google.com/maps/dir/?api=1&destination=${facility.latitude},${facility.longitude}&travelmode=walking`,
+        '_blank',
+      );
+      return;
+    }
+    window.open(
+      `https://www.google.com/maps/dir/?api=1&origin=${navOrigin.lat},${navOrigin.lon}&destination=${facility.latitude},${facility.longitude}&travelmode=walking`,
+      '_blank',
+    );
+  };
+
   return (
     <div className="relative w-full h-full flex flex-col overflow-hidden">
+      {/* Navigation overlay — rendered over everything when active */}
+      {showNavigation && navOrigin && (
+        <NavigationOverlay
+          origin={navOrigin}
+          destination={{
+            lat: facility.latitude,
+            lon: facility.longitude,
+            name: facility.name,
+            category: facility.category,
+          }}
+          onClose={() => setShowNavigation(false)}
+        />
+      )}
+
       {/* Background Map */}
       <div className="absolute inset-0">
         <MapView 
           className="w-full h-full"
           markers={mapMarkers} 
-          userLocation={null} // We might not have it here easily without context, but that's okay
+          userLocation={null}
         />
         <button 
           onClick={() => navigate(-1)}
@@ -79,7 +138,6 @@ export function FacilityDetailsPage() {
         <div className="px-5 pt-3 pb-4 border-b border-hairline shrink-0">
           <div className="flex justify-between items-start mb-2 gap-3">
             <h2 className="m-0 text-[22px] font-bold text-ink leading-tight">{facility.name}</h2>
-            {/* If backend returned distance, we could show it here. FacilityDetails doesn't have it natively unless passed. */}
           </div>
           
           <div className="flex items-center gap-3.5 mb-4.5 text-[13.5px] text-muted-soft">
@@ -96,15 +154,25 @@ export function FacilityDetailsPage() {
               {facility.data_source || 'Verified'}
             </span>
           </div>
+
+          {/* Navigation error message */}
+          {navError && (
+            <p className="text-[12px] text-red-500 mb-3 m-0" data-testid="nav-error">{navError}</p>
+          )}
           
           <div className="flex gap-2.5">
             <button 
-              onClick={() => navigate('/recommend')}
+              id="navigate-btn"
+              onClick={handleNavigate}
               className="flex-[2] bg-teal text-[#06302D] border-none rounded-2xl py-3.5 font-bold text-[14.5px] cursor-pointer shadow-soft font-display active:scale-[0.98] transition-transform"
             >
               Navigate
             </button>
-            <button className="flex-1 bg-pill-bg text-ink border border-pill-border rounded-2xl flex items-center justify-center cursor-pointer active:scale-[0.98] transition-transform">
+            <button
+              onClick={handleExternalMaps}
+              className="flex-1 bg-pill-bg text-ink border border-pill-border rounded-2xl flex items-center justify-center cursor-pointer active:scale-[0.98] transition-transform"
+              aria-label="Open in Google Maps"
+            >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
             </button>
             <button 

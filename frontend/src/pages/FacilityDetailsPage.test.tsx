@@ -1,5 +1,6 @@
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { FacilityDetailsPage } from './FacilityDetailsPage';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import * as useFacilityModule from '../hooks/useFacility';
@@ -7,39 +8,88 @@ import React from 'react';
 
 vi.mock('../hooks/useFacility');
 
+// Mock Leaflet (MapView) to avoid jsdom issues
+vi.mock('react-leaflet', () => ({
+  MapContainer: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="map-container">{children}</div>
+  ),
+  TileLayer: () => <div data-testid="tile-layer" />,
+  Marker: ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="marker">{children}</div>
+  ),
+  Tooltip: ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="tooltip">{children}</div>
+  ),
+  ZoomControl: () => <div data-testid="zoom-control" />,
+  Polyline: () => <div data-testid="polyline" />,
+  useMap: () => ({ fitBounds: vi.fn() }),
+}));
+
+// Mock NavigationOverlay to avoid deep OSRM/geolocation chain in unit tests
+vi.mock('../components/navigation/NavigationOverlay', () => ({
+  NavigationOverlay: ({ onClose }: { onClose: () => void }) => (
+    <div data-testid="navigation-overlay">
+      <button onClick={onClose} data-testid="overlay-close">Close</button>
+    </div>
+  ),
+}));
+
+const makeFacility = (overrides = {}) => ({
+  id: 1,
+  name: 'Accessible Restroom',
+  location_name: 'Main Building',
+  category: 'UNISEX',
+  audience: 'VISITOR',
+  status: 'OPEN',
+  status_updated_at: '2023-01-01',
+  rating: 5,
+  total_stalls: 6,
+  fixtures: { attached: 2, normal: 4 },
+  data_source: 'REAL',
+  latitude: 7.2545,
+  longitude: 80.5965,
+  ...overrides,
+});
+
+const renderPage = () =>
+  render(
+    <MemoryRouter initialEntries={['/facilities/1']}>
+      <Routes>
+        <Route path="/facilities/:id" element={<FacilityDetailsPage />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+
 describe('FacilityDetailsPage', () => {
+  beforeEach(() => {
+    // Default geolocation mock
+    Object.defineProperty(global.navigator, 'geolocation', {
+      value: {
+        getCurrentPosition: vi.fn((success) =>
+          success({ coords: { latitude: 7.2545, longitude: 80.5965, accuracy: 10 } }),
+        ),
+      },
+      writable: true,
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('renders fixtures grid when fixtures exist', () => {
     vi.mocked(useFacilityModule.useFacility).mockReturnValue({
-      data: {
-        id: 1,
-        name: 'Accessible Restroom',
-        location_name: 'Main Building',
-        category: 'UNISEX',
-        audience: 'VISITOR',
-        status: 'OPEN',
-        status_updated_at: '2023-01-01',
-        rating: 5,
-        total_stalls: 6,
-        fixtures: { attached: 2, normal: 4 },
-        data_source: 'REAL',
-        latitude: 0,
-        longitude: 0,
-      },
+      data: makeFacility(),
       isLoading: false,
       error: null,
       refetch: vi.fn(),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
-    render(
-      <MemoryRouter initialEntries={['/facilities/1']}>
-        <Routes>
-          <Route path="/facilities/:id" element={<FacilityDetailsPage />} />
-        </Routes>
-      </MemoryRouter>
-    );
+    renderPage();
 
-    expect(screen.getByText('Accessible Restroom')).toBeDefined();
+    // The facility name appears in both the h2 heading and the map Tooltip — query by role
+    expect(screen.getByRole('heading', { name: 'Accessible Restroom' })).toBeDefined();
     expect(screen.getByText('attached')).toBeDefined();
     expect(screen.getByText('2')).toBeDefined();
     expect(screen.getByText('normal')).toBeDefined();
@@ -48,35 +98,14 @@ describe('FacilityDetailsPage', () => {
 
   it('renders graceful empty state when fixtures is empty', () => {
     vi.mocked(useFacilityModule.useFacility).mockReturnValue({
-      data: {
-        id: 1,
-        name: 'Empty Restroom',
-        location_name: 'Main Building',
-        category: 'UNISEX',
-        audience: 'VISITOR',
-        status: 'OPEN',
-        status_updated_at: '2023-01-01',
-        rating: 5,
-        total_stalls: 0,
-        fixtures: {},
-        data_source: 'REAL',
-        latitude: 0,
-        longitude: 0,
-      },
+      data: makeFacility({ fixtures: {}, total_stalls: 0 }),
       isLoading: false,
       error: null,
       refetch: vi.fn(),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
-    render(
-      <MemoryRouter initialEntries={['/facilities/1']}>
-        <Routes>
-          <Route path="/facilities/:id" element={<FacilityDetailsPage />} />
-        </Routes>
-      </MemoryRouter>
-    );
-
+    renderPage();
     expect(screen.getByText('No fixture details available')).toBeDefined();
   });
 
@@ -89,16 +118,50 @@ describe('FacilityDetailsPage', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
-    render(
-      <MemoryRouter initialEntries={['/facilities/999']}>
-        <Routes>
-          <Route path="/facilities/:id" element={<FacilityDetailsPage />} />
-        </Routes>
-      </MemoryRouter>
-    );
-
+    renderPage();
     expect(screen.getByText('Washroom Not Found')).toBeDefined();
-    // Does not render generic error message
     expect(screen.queryByText('Failed to load washroom details.')).toBeNull();
+  });
+
+  it('opens NavigationOverlay when Navigate button clicked and geolocation succeeds', async () => {
+    vi.mocked(useFacilityModule.useFacility).mockReturnValue({
+      data: makeFacility(),
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
+
+    renderPage();
+    const navBtn = screen.getByText('Navigate');
+    await userEvent.click(navBtn);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('navigation-overlay')).toBeInTheDocument();
+    });
+  });
+
+  it('shows geolocation error when permission denied', async () => {
+    Object.defineProperty(global.navigator, 'geolocation', {
+      value: {
+        getCurrentPosition: vi.fn((_, error) => error({ code: 1 })),
+      },
+      writable: true,
+    });
+
+    vi.mocked(useFacilityModule.useFacility).mockReturnValue({
+      data: makeFacility(),
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
+
+    renderPage();
+    await userEvent.click(screen.getByText('Navigate'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('nav-error')).toBeInTheDocument();
+    });
   });
 });

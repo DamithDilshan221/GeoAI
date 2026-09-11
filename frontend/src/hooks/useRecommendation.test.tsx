@@ -55,7 +55,7 @@ describe('useRecommendation', () => {
     });
   });
 
-  it('maps selectedAudience=STAFF to secondary_preference="staff"', async () => {
+  it('maps selectedAudience=STAFF to secondary_preference="staff_preferred"', async () => {
     const client = makeClient();
     vi.mocked(getRecommendations).mockResolvedValueOnce({
       recommended_facility: null,
@@ -72,7 +72,7 @@ describe('useRecommendation', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(getRecommendations).toHaveBeenCalledWith(
-      expect.objectContaining({ secondary_preference: 'staff' }),
+      expect.objectContaining({ secondary_preference: 'staff_preferred' }),
     );
   });
 

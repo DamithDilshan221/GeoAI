@@ -43,8 +43,10 @@ class Settings(BaseSettings):
     DEFAULT_SEARCH_RADIUS_M: int = 1000
     MAX_SEARCH_RADIUS_M: int = 10000
 
-    # ── Pedestrian Routing ───────────────────────────────────
+    # ── Pedestrian Routing ───────────────────────────────────────────────
     PEDESTRIAN_WALKING_SPEED_MPS: float = 1.2
+    # Public OSRM demo endpoint (MVP); replace with self-hosted URL in production (§14.3).
+    OSRM_BASE_URL: str = "https://router.project-osrm.org"
 
     # ── Recommendation engine ────────────────────────────────
     RECOMMENDATION_CONFIG_PATH: str = "config/recommendation_weights.yaml"

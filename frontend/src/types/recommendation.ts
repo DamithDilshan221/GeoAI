@@ -6,6 +6,8 @@ export interface FacilityRecommendation {
   category: string;
   status: Washroom['status'];
   rating: number | null;
+  latitude: number;
+  longitude: number;
   distance_m: number;
   estimated_time_s: number;
   travel_source: 'network' | 'straight_line_estimate';

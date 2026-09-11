@@ -40,10 +40,7 @@ def get_recommendations(
 
         # Derive the BUCKETED crowd_level for display (distinct from
         # the continuous ratio used internally for scoring).
-        eff_cap = resolve_effective_capacity(
-            capacity=fac.capacity,
-            category_median=None,  # display-only; exact median not critical
-        )
+        eff_cap = resolve_effective_capacity(fac.total_stalls)
         crowd_label = derive_crowd_level(cand.predicted_usage, eff_cap)
 
         ranked_items.append(
@@ -55,6 +52,8 @@ def get_recommendations(
                 ),
                 status=fac.status.value if hasattr(fac.status, "value") else str(fac.status),
                 rating=fac.rating,
+                latitude=fac.latitude,
+                longitude=fac.longitude,
                 distance_m=round(cand.distance_m, 1),
                 estimated_time_s=cand.estimated_time_s,
                 travel_source=cand.travel_source,

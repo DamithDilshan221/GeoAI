@@ -1,8 +1,9 @@
 /// <reference types="@types/google.maps" />
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import '@testing-library/jest-dom';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RecommendationResultPage } from './RecommendationResultPage';
@@ -17,6 +18,15 @@ vi.mock('react-router-dom', async (importOriginal) => {
 
 vi.mock('../hooks/useRecommendation', () => ({
   useRecommendation: vi.fn(),
+}));
+
+// Mock NavigationOverlay to avoid deep OSRM chain in unit tests
+vi.mock('../components/navigation/NavigationOverlay', () => ({
+  NavigationOverlay: ({ onClose }: { onClose: () => void }) => (
+    <div data-testid="navigation-overlay">
+      <button onClick={onClose} data-testid="overlay-close">Close</button>
+    </div>
+  ),
 }));
 
 const mockState = (overrides = {}) => ({
@@ -59,6 +69,8 @@ const sampleFacility = {
   category: 'MALE',
   status: 'OPEN',
   rating: 4.5,
+  latitude: 7.2545,
+  longitude: 80.5965,
   distance_m: 120,
   estimated_time_s: 100,
   travel_source: 'network' as const,
@@ -78,6 +90,18 @@ const sampleResponse: RecommendationResponse = {
 
 describe('RecommendationResultPage', () => {
   beforeEach(() => {
+    vi.clearAllMocks();
+    Object.defineProperty(global.navigator, 'geolocation', {
+      value: {
+        getCurrentPosition: vi.fn((success) =>
+          success({ coords: { latitude: 6.9, longitude: 79.8, accuracy: 10 } }),
+        ),
+      },
+      writable: true,
+    });
+  });
+
+  afterEach(() => {
     vi.clearAllMocks();
   });
 
@@ -153,6 +177,43 @@ describe('RecommendationResultPage', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/estimated/i)).toBeInTheDocument();
+    });
+  });
+
+  it('opens NavigationOverlay when Start Navigation is clicked and geolocation succeeds', async () => {
+    mockUseRecommendation({ data: sampleResponse });
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Main Washroom')).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByText('Start Navigation'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('navigation-overlay')).toBeInTheDocument();
+    });
+  });
+
+  it('shows geolocation error when permission denied on Start Navigation', async () => {
+    Object.defineProperty(global.navigator, 'geolocation', {
+      value: {
+        getCurrentPosition: vi.fn((_, error) => error({ code: 1 })),
+      },
+      writable: true,
+    });
+
+    mockUseRecommendation({ data: sampleResponse });
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Main Washroom')).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByText('Start Navigation'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('rec-nav-error')).toBeInTheDocument();
     });
   });
 });

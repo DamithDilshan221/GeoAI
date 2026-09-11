@@ -60,3 +60,14 @@ export const ZoomControl = vi.fn(({ position }) => (
 ));
 
 export const useMap = vi.fn(() => mockInstances.maps[mockInstances.maps.length - 1] || { fitBounds: vi.fn() });
+
+export const Polyline = vi.fn(({ positions, pathOptions, children }) => (
+  <div
+    data-testid="polyline"
+    data-positions={JSON.stringify(positions)}
+    data-color={pathOptions?.color}
+  >
+    {children}
+  </div>
+));
+
