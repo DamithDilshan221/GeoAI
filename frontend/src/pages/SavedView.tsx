@@ -1,34 +1,11 @@
+import { useSearchContext } from '../context/SearchContext';
 import { FacilityListItem } from '../components/facility/FacilityListItem';
-import type { NearbyWashroom } from '../types/facility';
+import { EmptyState } from '../components/status/EmptyState';
+import type { Washroom } from '../types/facility';
 
 export function SavedView() {
-  // Mock saved facilities
-  const savedFacilities: NearbyWashroom[] = [
-    {
-      id: 1,
-      name: 'Main Library Ground Floor',
-      category: 'UNISEX',
-      status: 'OPEN',
-      distance_m: 120,
-      latitude: 6.9022,
-      longitude: 79.8606,
-      rating: 4.5,
-      audience: 'VISITOR',
-      fixtures: {},
-    },
-    {
-      id: 2,
-      name: 'Science Faculty Block A',
-      category: 'FEMALE',
-      status: 'OPEN',
-      distance_m: 450,
-      latitude: 6.9055,
-      longitude: 79.8622,
-      rating: null,
-      audience: 'VISITOR',
-      fixtures: {},
-    }
-  ];
+  const { state } = useSearchContext();
+  const savedList = Object.values(state.savedFacilities || {});
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -37,9 +14,29 @@ export function SavedView() {
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-3 pb-8 -webkit-overflow-scrolling-touch">
-        {savedFacilities.map(f => (
-          <FacilityListItem key={f.id} facility={f} />
-        ))}
+        {savedList.length === 0 ? (
+          <div className="h-full flex items-center justify-center">
+            <EmptyState message="No saved washrooms yet. Tap the bookmark icon on any washroom to save it for quick access." />
+          </div>
+        ) : (
+          savedList.map((f) => (
+            <FacilityListItem
+              key={f.id}
+              facility={{
+                id: f.id,
+                name: f.name,
+                category: f.category,
+                status: (f.status as Washroom['status']) || 'OPEN',
+                distance_m: f.distance_m ?? 0,
+                latitude: f.latitude ?? 0,
+                longitude: f.longitude ?? 0,
+                rating: f.rating,
+                audience: (f.audience as 'VISITOR' | 'STAFF') || 'VISITOR',
+                fixtures: {},
+              }}
+            />
+          ))
+        )}
       </div>
     </div>
   );

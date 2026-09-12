@@ -17,23 +17,31 @@ export function resetLeafletMock() {
 
 import React from 'react';
 
+let currentMapInstance: unknown = null;
+
 export const MapContainer = vi.fn(({ children, center, zoom, className, ...props }) => {
   // Use useMemo so the mock instance is stable across renders
-  const mapInstance = React.useMemo(() => ({
-    fitBounds: vi.fn(),
-    invalidateSize: vi.fn(),
-  }), []);
+  const mapInstance = React.useMemo(() => {
+    const inst = {
+      fitBounds: vi.fn(),
+      invalidateSize: vi.fn(),
+    };
+    mockInstances.maps.push(inst);
+    return inst;
+  }, []);
 
+  currentMapInstance = mapInstance;
+
+  const propRef = props.ref;
   React.useEffect(() => {
-    mockInstances.maps.push(mapInstance);
-    if (props.ref) {
-      if (typeof props.ref === 'function') {
-        props.ref(mapInstance);
+    if (propRef) {
+      if (typeof propRef === 'function') {
+        propRef(mapInstance);
       } else {
-        props.ref.current = mapInstance;
+        propRef.current = mapInstance;
       }
     }
-  }, [mapInstance, props.ref]);
+  }, [mapInstance, propRef]);
 
   return (
     <div data-testid="map-container" className={className} data-center={JSON.stringify(center)} data-zoom={zoom}>
@@ -65,7 +73,7 @@ export const ZoomControl = vi.fn(({ position }) => (
   <div data-testid="zoom-control" data-position={position} />
 ));
 
-export const useMap = vi.fn(() => mockInstances.maps[mockInstances.maps.length - 1] || { fitBounds: vi.fn() });
+export const useMap = vi.fn(() => currentMapInstance || mockInstances.maps[mockInstances.maps.length - 1] || { fitBounds: vi.fn() });
 
 export const Polyline = vi.fn(({ positions, pathOptions, children }) => (
   <div

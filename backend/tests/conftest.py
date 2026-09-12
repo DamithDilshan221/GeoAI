@@ -10,6 +10,7 @@ and truncates all application tables on teardown.
 
 import os
 from collections.abc import Generator
+from pathlib import Path
 
 import pytest
 from alembic.config import Config as AlembicConfig
@@ -39,7 +40,10 @@ def db_engine() -> Generator[Engine, None, None]:
     # Set ALEMBIC_DB_URL so env.py routes the migration to the test DB
     os.environ["ALEMBIC_DB_URL"] = test_url
 
-    alembic_cfg = AlembicConfig("alembic.ini")
+    backend_dir = Path(__file__).resolve().parent.parent
+    ini_path = backend_dir / "alembic.ini"
+    alembic_cfg = AlembicConfig(str(ini_path))
+    alembic_cfg.set_main_option("script_location", str(backend_dir / "alembic"))
     command.upgrade(alembic_cfg, "head")
 
     yield engine

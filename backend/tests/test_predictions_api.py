@@ -28,7 +28,7 @@ def test_predict_usage_success(client, db_session):
     db_session.flush()
 
     f = seed_facility(db_session, "F_API", c.id, total_stalls=20, audience=AudienceType.VISITOR)
-    db_session.commit()  # tests using client need data committed, since client uses its own session scope if not overridden or if using TestClient it shares it but just to be safe
+    db_session.commit()  # commit data so client session can see it
 
     response = client.post(
         "/api/v1/predictions/usage", json={"facility_id": f.id, "day_of_week": 2, "hour": 9}

@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { NearbyWashroom } from '../../types/facility';
+import { useSearchContext } from '../../context/SearchContext';
 
 interface FacilityListItemProps {
   facility: NearbyWashroom;
@@ -8,7 +8,8 @@ interface FacilityListItemProps {
 
 export function FacilityListItem({ facility }: FacilityListItemProps) {
   const navigate = useNavigate();
-  const [saved, setSaved] = useState(false);
+  const { state, dispatch } = useSearchContext();
+  const saved = Boolean(state.savedFacilities?.[facility.id]);
 
   const getCategoryTheme = (cat: string) => {
     const c = cat.toLowerCase();
@@ -30,7 +31,20 @@ export function FacilityListItem({ facility }: FacilityListItemProps) {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setSaved(!saved);
+          dispatch({
+            type: 'TOGGLE_SAVED',
+            payload: {
+              id: facility.id,
+              name: facility.name,
+              category: facility.category,
+              status: facility.status,
+              distance_m: facility.distance_m,
+              rating: facility.rating,
+              latitude: facility.latitude,
+              longitude: facility.longitude,
+              audience: facility.audience,
+            },
+          });
         }}
         aria-label="Save"
       >

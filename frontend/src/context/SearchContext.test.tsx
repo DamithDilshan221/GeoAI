@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { SearchProvider, useSearchContext } from './SearchContext';
 import React, { useEffect } from 'react';
@@ -36,5 +36,44 @@ describe('SearchContext', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(() => render(<TestComponent />)).toThrow('useSearchContext must be used within a SearchProvider');
     spy.mockRestore();
+  });
+
+  it('toggles saved facilities in state', () => {
+    function ToggleHelper() {
+      const { state, dispatch } = useSearchContext();
+      return (
+        <div>
+          <span data-testid="count">{Object.keys(state.savedFacilities || {}).length}</span>
+          <button
+            onClick={() =>
+              dispatch({
+                type: 'TOGGLE_SAVED',
+                payload: {
+                  id: 1,
+                  name: 'Test Fac',
+                  category: 'MALE',
+                  status: 'OPEN',
+                  rating: 4.5,
+                },
+              })
+            }
+          >
+            Toggle
+          </button>
+        </div>
+      );
+    }
+
+    render(
+      <SearchProvider>
+        <ToggleHelper />
+      </SearchProvider>
+    );
+
+    expect(screen.getByTestId('count').textContent).toBe('0');
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+    expect(screen.getByTestId('count').textContent).toBe('1');
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+    expect(screen.getByTestId('count').textContent).toBe('0');
   });
 });

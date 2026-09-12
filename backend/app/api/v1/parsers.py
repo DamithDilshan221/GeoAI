@@ -9,4 +9,4 @@ def parse_audience(audience: str | None) -> AudienceType | None:
     try:
         return AudienceType(audience.upper())
     except ValueError:
-        raise HTTPException(status_code=422, detail="Invalid audience type")
+        raise HTTPException(status_code=422, detail="Invalid audience type") from None

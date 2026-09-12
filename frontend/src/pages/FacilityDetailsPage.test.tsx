@@ -52,12 +52,16 @@ const makeFacility = (overrides = {}) => ({
   ...overrides,
 });
 
+import { SearchProvider } from '../context/SearchContext';
+
 const renderPage = () =>
   render(
     <MemoryRouter initialEntries={['/facilities/1']}>
-      <Routes>
-        <Route path="/facilities/:id" element={<FacilityDetailsPage />} />
-      </Routes>
+      <SearchProvider>
+        <Routes>
+          <Route path="/facilities/:id" element={<FacilityDetailsPage />} />
+        </Routes>
+      </SearchProvider>
     </MemoryRouter>,
   );
 

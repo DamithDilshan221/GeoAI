@@ -21,13 +21,17 @@ def test_facility_id(db_session):
     # Phase 2 migrations should have created the categories and facilities tables.
     db_session.execute(
         text(
-            "INSERT INTO categories (id, code, label) VALUES (999, 'test_cat', 'Test') ON CONFLICT DO NOTHING"
+            "INSERT INTO categories (id, code, label) "
+            "VALUES (999, 'test_cat', 'Test') ON CONFLICT DO NOTHING"
         )
     )
     db_session.execute(
         text(
-            "INSERT INTO facilities (id, name, category_id, latitude, longitude, geom, status, data_source) "
-            "VALUES (9999, 'Test Fac', 999, 0.0, 0.0, ST_SetSRID(ST_MakePoint(0, 0), 4326), 'OPEN', 'PUBLIC') "
+            "INSERT INTO facilities "
+            "(id, name, location_name, category_id, latitude, longitude, "
+            "geom, status, data_source) "
+            "VALUES (9999, 'Test Fac', 'Building Test', 999, 0.0, 0.0, "
+            "ST_SetSRID(ST_MakePoint(0, 0), 4326), 'OPEN', 'PUBLIC') "
             "ON CONFLICT DO NOTHING"
         )
     )
@@ -98,7 +102,8 @@ def test_upsert_does_not_reset_selection_count(repo, db_session, test_facility_i
     # Seed a row with selection_count=5
     db_session.execute(
         text(
-            "INSERT INTO usage_records (facility_id, date, hour, day_of_week, usage_count, selection_count, data_source) "
+            "INSERT INTO usage_records "
+            "(facility_id, date, hour, day_of_week, usage_count, selection_count, data_source) "
             "VALUES (:fid, '2026-09-03', 14, 3, 10, 5, 'SYNTHETIC')"
         ),
         {"fid": test_facility_id},

@@ -141,7 +141,7 @@ export function RecommendationResultPage() {
         </p>
 
         {top && (
-          <div className="relative rounded-[20px] bg-paper text-ink p-5 shadow-[0_8px_32px_rgba(63,203,190,0.2)] border border-teal/40 overflow-hidden mb-6">
+          <div className="relative rounded-[20px] bg-navy-900/90 backdrop-blur-md text-white p-5 shadow-[0_8px_32px_rgba(63,203,190,0.2)] border border-teal/40 overflow-hidden mb-6">
             <div className="absolute top-0 right-0 w-32 h-32 bg-teal/10 blur-2xl rounded-full translate-x-10 -translate-y-10" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-indigo/10 blur-xl rounded-full -translate-x-5 translate-y-5" />
 
@@ -157,7 +157,7 @@ export function RecommendationResultPage() {
 
               <h3 className="text-xl font-bold text-white m-0 mb-1 leading-tight">{top.name}</h3>
               {top.rating != null && (
-                <p className="text-[12px] text-muted m-0 mb-2">
+                <p className="text-[12px] text-amber m-0 mb-2 font-medium">
                   ★ {top.rating.toFixed(1)} · {top.status}
                 </p>
               )}
@@ -167,19 +167,19 @@ export function RecommendationResultPage() {
 
               <div className="flex gap-4 mb-6">
                 <div className="flex flex-col">
-                  <span className="text-[11px] text-muted-soft uppercase font-bold tracking-wide mb-0.5">Est. Time</span>
+                  <span className="text-[11px] text-muted uppercase font-bold tracking-wide mb-0.5">Est. Time</span>
                   <span className="text-lg font-bold text-white">
                     {formatTime(top.estimated_time_s, isEstimate)}
                   </span>
                 </div>
                 <div className="w-px bg-pill-border" />
                 <div className="flex flex-col">
-                  <span className="text-[11px] text-muted-soft uppercase font-bold tracking-wide mb-0.5">Distance</span>
+                  <span className="text-[11px] text-muted uppercase font-bold tracking-wide mb-0.5">Distance</span>
                   <span className="text-lg font-bold text-white">{formatDistance(top.distance_m)}</span>
                 </div>
                 <div className="w-px bg-pill-border" />
                 <div className="flex flex-col">
-                  <span className="text-[11px] text-muted-soft uppercase font-bold tracking-wide mb-0.5">Crowd</span>
+                  <span className="text-[11px] text-muted uppercase font-bold tracking-wide mb-0.5">Crowd</span>
                   <span className="text-lg font-bold text-white">{top.crowd_level}</span>
                 </div>
               </div>

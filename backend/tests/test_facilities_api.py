@@ -14,6 +14,7 @@ def _seed_data(db_session: Session) -> tuple[int, list[int]]:
     fac_repo = FacilityRepository(db_session)
     f1 = fac_repo.create(
         name="Facility 1",
+        location_name="Building 1",
         category_id=c1.id,
         status=FacilityStatus.OPEN,
         latitude=10.0,
@@ -22,6 +23,7 @@ def _seed_data(db_session: Session) -> tuple[int, list[int]]:
     )
     f2 = fac_repo.create(
         name="Facility 2",
+        location_name="Building 2",
         category_id=c1.id,
         status=FacilityStatus.CLOSED,
         latitude=11.0,
@@ -30,6 +32,7 @@ def _seed_data(db_session: Session) -> tuple[int, list[int]]:
     )
     f3 = fac_repo.create(
         name="Facility 3",
+        location_name="Building 3",
         category_id=c1.id,
         status=FacilityStatus.OPEN,
         latitude=12.0,

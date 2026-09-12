@@ -36,9 +36,6 @@ class Settings(BaseSettings):
         """Split the comma-separated CORS_ORIGINS string into a list."""
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
 
-    # ── Google Maps ──────────────────────────────────────────
-    GOOGLE_MAPS_API_KEY: str = ""
-
     # ── Search defaults ──────────────────────────────────────
     DEFAULT_SEARCH_RADIUS_M: int = 1000
     MAX_SEARCH_RADIUS_M: int = 10000

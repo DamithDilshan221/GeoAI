@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { SearchProvider } from './context/SearchContext';
 import { AppShell } from './components/layout/AppShell';
@@ -9,6 +10,10 @@ import { SavedView } from './pages/SavedView';
 import { SettingsView } from './pages/SettingsView';
 
 export default function App() {
+  useEffect(() => {
+    document.body.classList.add('day');
+  }, []);
+
   return (
     <SearchProvider>
       <AppShell>

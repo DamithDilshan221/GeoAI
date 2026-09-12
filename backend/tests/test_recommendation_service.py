@@ -1,6 +1,5 @@
 """Integration tests for RecommendationService against geoai_test."""
 
-import uuid
 from datetime import UTC, datetime
 from unittest.mock import patch
 

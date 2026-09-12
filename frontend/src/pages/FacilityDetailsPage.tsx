@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useFacility } from '../hooks/useFacility';
+import { useSearchContext } from '../context/SearchContext';
 import { LoadingState } from '../components/status/LoadingState';
 import { ErrorState } from '../components/status/ErrorState';
 import { MapView } from '../components/map/MapView';
@@ -12,9 +13,10 @@ export function FacilityDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const facilityId = parseInt(id || '', 10);
   const navigate = useNavigate();
+  const { state: searchState, dispatch } = useSearchContext();
   
   const { data: facility, isLoading, error, refetch } = useFacility(facilityId);
-  const [saved, setSaved] = useState(false);
+  const saved = Boolean(searchState.savedFacilities?.[facilityId]);
   const [showNavigation, setShowNavigation] = useState(false);
   const [navOrigin, setNavOrigin] = useState<{ lat: number; lon: number } | null>(null);
   const [navError, setNavError] = useState<string | null>(null);
@@ -183,8 +185,23 @@ export function FacilityDetailsPage() {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
             </button>
             <button 
-              onClick={() => setSaved(!saved)}
+              onClick={() => {
+                dispatch({
+                  type: 'TOGGLE_SAVED',
+                  payload: {
+                    id: facility.id,
+                    name: facility.name,
+                    category: facility.category,
+                    status: facility.status,
+                    rating: facility.rating,
+                    latitude: facility.latitude,
+                    longitude: facility.longitude,
+                    audience: facility.audience,
+                  },
+                });
+              }}
               className="flex-1 bg-pill-bg text-ink border border-pill-border rounded-2xl flex items-center justify-center cursor-pointer active:scale-[0.98] transition-transform"
+              aria-label="Save"
             >
               {saved ? (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--amber-dark)" stroke="none"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>

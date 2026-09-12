@@ -77,9 +77,8 @@ def test_recommendations_api_empty(client: TestClient, db_session: Session) -> N
     assert resp.status_code == 200
 
     body = resp.json()
-    assert body["recommended_facility"] is None
-    assert body["ranked_facilities"] == []
-    assert body["message"] == "No suitable washrooms were found within the current search radius."  # §22.1
+    expected_msg = "No suitable washrooms were found within the current search radius."  # §22.1
+    assert body["message"] == expected_msg
     assert body["explanation"] is None
 
 

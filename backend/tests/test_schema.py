@@ -4,10 +4,12 @@ Each test function verifies a specific constraint, index, or behavior
 described in spec §18 against the real ``geoai_test`` database.
 """
 
+import subprocess
 import sys
 import uuid
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 import sqlalchemy as sa
@@ -40,6 +42,7 @@ def _make_facility(
     session: Session,
     category: Category,
     *,
+    location_name: str = "Test Location",
     latitude: Decimal = Decimal("6.927079"),
     longitude: Decimal = Decimal("79.861244"),
     rating: Decimal | None = None,
@@ -48,6 +51,7 @@ def _make_facility(
     """Insert and flush a Facility, returning the persisted object."""
     fac = Facility(
         name="Test Facility",
+        location_name=location_name,
         category_id=category.id,
         latitude=latitude,
         longitude=longitude,
@@ -164,8 +168,9 @@ def test_invalid_status_enum_rejected(db_session: Session) -> None:
         db_session.execute(
             text(
                 "INSERT INTO facilities "
-                "(name, category_id, geom, latitude, longitude, status, data_source) "
-                "VALUES (:name, :cat_id, ST_GeogFromText('POINT(79.86 6.93)'), "
+                "(name, location_name, category_id, geom, latitude, longitude, "
+                "status, data_source) "
+                "VALUES (:name, 'Test Loc', :cat_id, ST_GeogFromText('POINT(79.86 6.93)'), "
                 "6.93, 79.86, :status, 'SYNTHETIC')"
             ),
             {"name": "Bad", "cat_id": cat.id, "status": "INVALID_STATUS"},
@@ -241,6 +246,8 @@ def test_duplicate_usage_bucket_rejected(db_session: Session) -> None:
 
 def test_only_one_active_ml_model_version(db_session: Session) -> None:
     """Two ml_model_versions rows with is_active=True must violate the index."""
+    db_session.execute(text("UPDATE ml_model_versions SET is_active = false"))
+    db_session.flush()
     v1 = MLModelVersion(version="test-model-v1", is_active=True)
     db_session.add(v1)
     db_session.flush()
@@ -285,14 +292,13 @@ def test_delete_facility_sets_recommendation_log_facility_id_null(
     assert row.facility_id is None
 
 
-import subprocess
-from pathlib import Path
-
-
 def test_alembic_migrations_apply_cleanly() -> None:
     backend_dir = Path(__file__).parent.parent
     result = subprocess.run(
-        ["alembic", "upgrade", "head"], cwd=backend_dir, capture_output=True, text=True
+        [sys.executable, "-m", "alembic", "upgrade", "head"],
+        cwd=backend_dir,
+        capture_output=True,
+        text=True,
     )
     assert result.returncode == 0, f"Alembic upgrade failed: {result.stderr}"
 
@@ -300,7 +306,8 @@ def test_alembic_migrations_apply_cleanly() -> None:
 def test_idx_facilities_audience_exists(db_session: Session) -> None:
     result = db_session.execute(
         text(
-            "SELECT indexname FROM pg_indexes WHERE tablename = 'facilities' AND indexname = 'idx_facilities_audience'"
+            "SELECT indexname FROM pg_indexes "
+            "WHERE tablename = 'facilities' AND indexname = 'idx_facilities_audience'"
         )
     ).fetchone()
     assert result is not None, "idx_facilities_audience does not exist"
@@ -310,8 +317,11 @@ def test_total_stalls_generated_column_computation(db_session: Session) -> None:
     cat = _make_category(db_session, code="WASH1")
     db_session.execute(
         text(
-            "INSERT INTO facilities (name, category_id, geom, latitude, longitude, fixtures, data_source) "
-            "VALUES ('Washroom A', :cat_id, ST_GeogFromText('POINT(79.86 6.93)'), 6.93, 79.86, '{\"attached\": 2, \"normal\": 4}'::jsonb, 'SYNTHETIC')"
+            "INSERT INTO facilities "
+            "(name, location_name, category_id, geom, latitude, longitude, fixtures, data_source) "
+            "VALUES ('Washroom A', 'Building A', :cat_id, "
+            "ST_GeogFromText('POINT(79.86 6.93)'), 6.93, 79.86, "
+            "'{\"attached\": 2, \"normal\": 4}'::jsonb, 'SYNTHETIC')"
         ),
         {"cat_id": cat.id},
     )
@@ -330,8 +340,10 @@ def test_total_stalls_generated_column_default(db_session: Session) -> None:
     cat = _make_category(db_session, code="WASH2")
     db_session.execute(
         text(
-            "INSERT INTO facilities (name, category_id, geom, latitude, longitude, data_source) "
-            "VALUES ('Washroom B', :cat_id, ST_GeogFromText('POINT(79.86 6.93)'), 6.93, 79.86, 'SYNTHETIC')"
+            "INSERT INTO facilities "
+            "(name, location_name, category_id, geom, latitude, longitude, data_source) "
+            "VALUES ('Washroom B', 'Building B', :cat_id, "
+            "ST_GeogFromText('POINT(79.86 6.93)'), 6.93, 79.86, 'SYNTHETIC')"
         ),
         {"cat_id": cat.id},
     )
@@ -352,30 +364,29 @@ def test_total_stalls_direct_insert_fails(db_session: Session) -> None:
     with pytest.raises(sa.exc.ProgrammingError):
         db_session.execute(
             text(
-                "INSERT INTO facilities (name, category_id, geom, latitude, longitude, total_stalls, data_source) "
-                "VALUES ('Washroom C', :cat_id, ST_GeogFromText('POINT(79.86 6.93)'), 6.93, 79.86, 10, 'SYNTHETIC')"
+                "INSERT INTO facilities "
+                "(name, location_name, category_id, geom, latitude, longitude, total_stalls, "
+                "data_source) "
+                "VALUES ('Washroom C', 'Building C', :cat_id, "
+                "ST_GeogFromText('POINT(79.86 6.93)'), 6.93, 79.86, 10, 'SYNTHETIC')"
             ),
             {"cat_id": cat.id},
         )
 
 
-def test_location_name_accepts_null(db_session: Session) -> None:
+def test_location_name_rejects_null(db_session: Session) -> None:
     cat = _make_category(db_session, code="WASH4")
-    db_session.execute(
-        text(
-            "INSERT INTO facilities (name, category_id, geom, latitude, longitude, location_name, data_source) "
-            "VALUES ('Washroom D', :cat_id, ST_GeogFromText('POINT(79.86 6.93)'), 6.93, 79.86, NULL, 'SYNTHETIC')"
-        ),
-        {"cat_id": cat.id},
-    )
-    fac_id = db_session.execute(
-        text("SELECT id FROM facilities WHERE name = 'Washroom D'")
-    ).scalar()
-    row = db_session.execute(
-        text("SELECT location_name FROM facilities WHERE id = :fid"), {"fid": fac_id}
-    ).fetchone()
-    assert row is not None
-    assert row.location_name is None
+    db_session.begin_nested()
+    with pytest.raises(IntegrityError):
+        db_session.execute(
+            text(
+                "INSERT INTO facilities "
+                "(name, category_id, geom, latitude, longitude, location_name, data_source) "
+                "VALUES ('Washroom D', :cat_id, ST_GeogFromText('POINT(79.86 6.93)'), "
+                "6.93, 79.86, NULL, 'SYNTHETIC')"
+            ),
+            {"cat_id": cat.id},
+        )
 
 
 def test_campus_paths_no_longer_exists(db_session: Session) -> None:

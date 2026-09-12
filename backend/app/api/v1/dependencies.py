@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
@@ -6,6 +8,13 @@ from app.domain.gis.nearby_search_service import NearbySearchService
 from app.repositories.category_repository import CategoryRepository
 from app.repositories.facility_repository import FacilityRepository
 from app.repositories.gis_repository import GISRepository
+
+if TYPE_CHECKING:
+    from app.domain.routing.pedestrian_routing_service import PedestrianRoutingService
+    from app.services.category_service import CategoryService
+    from app.services.facility_service import FacilityService
+    from app.services.ml_inference_service import MLInferenceService
+    from app.services.recommendation_service import RecommendationService
 
 
 def get_category_service(session: Session = Depends(get_db_session)) -> "CategoryService":  # noqa: B008, F821

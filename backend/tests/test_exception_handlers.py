@@ -9,14 +9,14 @@ important test here: it proves the new catch-all does not shadow FastAPI's own
 handling of deliberately-raised HTTPExceptions anywhere in the codebase.
 """
 
-import pytest
 from fastapi.testclient import TestClient
 
 
 def test_operational_error_returns_503_envelope(client: TestClient, monkeypatch) -> None:
     """A real SQLAlchemy OperationalError reaches the 503 handler."""
-    from app.repositories.category_repository import CategoryRepository
     from sqlalchemy.exc import OperationalError
+
+    from app.repositories.category_repository import CategoryRepository
 
     def _raise(self):
         raise OperationalError("SELECT 1", {}, Exception("connection refused"))

@@ -1,6 +1,5 @@
-/// <reference types="@types/google.maps" />
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -33,16 +32,23 @@ vi.mock('react-router-dom', async (importOriginal) => {
   };
 });
 
-const defaultState = {
+interface MockSearchState {
+  selectedCategory: string | null;
+  selectedAudience: 'VISITOR' | 'STAFF' | null;
+  location: { lat: number; lon: number; accuracy: number } | null;
+  locationStatus: 'idle' | 'requesting' | 'granted' | 'denied' | 'unavailable';
+}
+
+const defaultState: MockSearchState = {
   selectedCategory: 'UNISEX',
   selectedAudience: null,
   location: { lat: 10, lon: 20, accuracy: 10 },
-  locationStatus: 'granted' as const,
+  locationStatus: 'granted',
 };
 
 let queryClient: QueryClient;
 
-const renderWithContext = (state = defaultState) => {
+const renderWithContext = (state: MockSearchState = defaultState) => {
   queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -181,7 +187,7 @@ describe('NearbyFacilitiesPage', () => {
     });
 
     // Check List
-    expect(screen.getByText('Real API Facility')).toBeInTheDocument();
+    expect(screen.getAllByText('Real API Facility')[0]).toBeInTheDocument();
 
     // Check Map
     expect(screen.queryByText('Map unavailable — showing list only')).not.toBeInTheDocument();
