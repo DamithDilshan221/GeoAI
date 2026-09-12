@@ -26,7 +26,7 @@ class MLModelVersion(Base):
     )
 
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True, autoincrement=True)
-    version: Mapped[str] = mapped_column(sa.String(32), unique=True, nullable=False)
+    version: Mapped[str] = mapped_column(sa.String(64), unique=True, nullable=False)
     algorithm: Mapped[str | None] = mapped_column(sa.String(64), nullable=True)
     trained_at: Mapped[datetime | None] = mapped_column(sa.DateTime(timezone=True), nullable=True)
     feature_list: Mapped[dict | None] = mapped_column(sa.JSON, nullable=True)

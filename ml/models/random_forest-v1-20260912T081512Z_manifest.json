@@ -1,0 +1,27 @@
+{
+  "version": "random_forest-v1-20260912T081512Z",
+  "algorithm": "random_forest",
+  "trained_at": "2026-09-12T08:15:12.220197+00:00",
+  "feature_list": [
+    "hour",
+    "day_of_week",
+    "is_weekend",
+    "category_code",
+    "audience_code",
+    "total_stalls",
+    "capacity_is_imputed",
+    "facility_bucket_hist_mean",
+    "facility_overall_hist_mean",
+    "bucket_history_sample_count"
+  ],
+  "artifact_path": "C:\\Users\\User\\Documents\\GitHub\\GeoAI\\ml\\models\\random_forest-v1-20260912T081512Z.joblib",
+  "evaluation_metrics": {
+    "mae": 0.11113249905614313,
+    "r2": 0.9399810844305038,
+    "beats_heuristic": false,
+    "heuristic_mae": 0.10584595959595959,
+    "heuristic_r2": 0.9384840518145428,
+    "test_dates": 18,
+    "test_rows": 4320
+  }
+}
