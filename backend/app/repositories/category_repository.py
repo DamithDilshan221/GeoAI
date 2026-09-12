@@ -71,6 +71,26 @@ class CategoryRepository:
         row = self._session.query(CategoryORM).filter(CategoryORM.code == code).one_or_none()
         return _to_entity(row) if row is not None else None
 
+    def get_by_id(self, category_id: int) -> CategoryEntity | None:
+        """Return the category with the given primary key, or ``None`` if absent.
+
+        This is the reverse direction of ``get_by_code()``.  Used by
+        ``MLInferenceService`` to resolve the ``category_code`` string needed by
+        ``TrainedModelUsageProvider`` from the facility's integer ``category_id``.
+
+        Args:
+            category_id: The primary key of the category row.
+
+        Returns:
+            A ``Category`` entity, or ``None``.
+        """
+        row = (
+            self._session.query(CategoryORM)
+            .filter(CategoryORM.id == category_id)
+            .one_or_none()
+        )
+        return _to_entity(row) if row is not None else None
+
     # ── Writers ──────────────────────────────────────────────────────────────
 
     def create(self, *, code: str, label: str) -> CategoryEntity:

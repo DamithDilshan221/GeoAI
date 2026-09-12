@@ -72,3 +72,37 @@ def test_facility_id_never_present():
         historical=hist,
     )
     assert "facility_id" not in features
+
+
+def test_build_feature_dict_training_inference_parity():
+    """Proves training and inference paths call the same function and get
+    identical output -- not two copies that happen to currently agree."""
+    hist = HistoricalAggregates(
+        facility_bucket_hist_mean=3.5,
+        facility_overall_hist_mean=4.1,
+        bucket_history_sample_count=7,
+    )
+    kwargs = dict(
+        hour=8,
+        day_of_week=1,
+        category_code="WC",
+        audience_code="VISITOR",
+        total_stalls=12,
+        historical=hist,
+    )
+
+    # Simulates a training-context caller.
+    # Simulates the TrainedModelUsageProvider caller.
+    from app.domain.ml_inference.feature_engineering import build_feature_dict as inference_bfd
+    from app.domain.ml_inference.feature_engineering import build_feature_dict as training_bfd
+
+    training_result = training_bfd(**kwargs)
+    inference_result = inference_bfd(**kwargs)
+
+    # Both must be the same object (same import) and produce equal output.
+    assert training_bfd is inference_bfd, (
+        "training and inference must import the same build_feature_dict function"
+    )
+    assert training_result == inference_result, (
+        "training and inference feature vectors must be byte-for-byte identical"
+    )

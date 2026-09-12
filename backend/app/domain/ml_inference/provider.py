@@ -13,6 +13,10 @@ class PredictionContext:
     audience: AudienceType
     day_of_week: int  # 0-6, Monday=0
     hour: int  # 0-23
+    # category_code is used by TrainedModelUsageProvider (Phase 17).
+    # Default "" keeps all pre-Phase-17 construction callsites valid;
+    # HeuristicUsageProvider ignores it, exactly as it ignores recent_usage.
+    category_code: str = ""
     recent_usage: float | None = None  # accepted, unused by heuristic
 
 

@@ -9,6 +9,7 @@ are modified.
 from __future__ import annotations
 
 from datetime import datetime
+from typing import NamedTuple
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -29,6 +30,19 @@ class VersionNotFoundError(Exception):
     Promoting an unregistered version is always a caller bug — the script
     must call ``create_version`` first.
     """
+
+
+class ActiveModelRow(NamedTuple):
+    """Immutable snapshot of the active ``ml_model_versions`` row.
+
+    Returned by ``get_active_row()`` so that ``provider_factory.py`` can access
+    ``version``, ``algorithm``, and ``artifact_path`` without leaking a raw
+    SQLAlchemy row beyond the repository layer.
+    """
+
+    version: str
+    algorithm: str | None
+    artifact_path: str | None
 
 
 class MLModelVersionRepository:
@@ -53,6 +67,28 @@ class MLModelVersionRepository:
             text("SELECT version FROM ml_model_versions WHERE is_active = true LIMIT 1")
         ).one_or_none()
         return row.version if row else None
+
+    def get_active_row(self) -> ActiveModelRow | None:
+        """Return the full active row as an ``ActiveModelRow``, or ``None``.
+
+        Unlike ``get_active_version()``, this returns the ``algorithm`` and
+        ``artifact_path`` columns needed by ``provider_factory.py`` to decide
+        which provider to construct and where to load the model from.
+        Returns ``None`` if no row is currently active.
+        """
+        row = self._session.execute(
+            text(
+                "SELECT version, algorithm, artifact_path "
+                "FROM ml_model_versions WHERE is_active = true LIMIT 1"
+            )
+        ).one_or_none()
+        if row is None:
+            return None
+        return ActiveModelRow(
+            version=row.version,
+            algorithm=row.algorithm,
+            artifact_path=row.artifact_path,
+        )
 
     # ── Phase 16 writes ───────────────────────────────────────────────────
 

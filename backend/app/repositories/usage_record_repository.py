@@ -134,3 +134,27 @@ class UsageRecordRepository:
         if not row or row[1] == 0:
             return None
         return (float(row[0]), int(row[1]))
+
+    def get_facility_overall_average(
+        self,
+        facility_id: int,
+    ) -> tuple[float, int] | None:
+        """Return (mean_usage_count, sample_count) across ALL buckets for the
+        given facility, or ``None`` if zero rows match.
+
+        SELECT AVG(usage_count), COUNT(*) FROM usage_records WHERE facility_id=:fid
+
+        No day_of_week/hour filter -- this is deliberately the coarsest
+        per-facility signal, distinct from the bucket-specific query.  At live
+        inference time there is no "future" relative to the current request, so
+        no windowing guard is needed here (unlike Phase 15's training-time
+        ``date < as_of_date`` logic, which was training-only).
+        """
+        row = self._session.execute(
+            sa.select(sa.func.avg(UsageRecordORM.usage_count), sa.func.count()).where(
+                UsageRecordORM.facility_id == facility_id,
+            )
+        ).one_or_none()
+        if not row or row[1] == 0:
+            return None
+        return (float(row[0]), int(row[1]))
