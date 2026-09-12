@@ -17,7 +17,14 @@ export function CategorySelectionPage() {
   useEffect(() => {
     if (geoStatus === 'granted' && location) {
       dispatch({ type: 'SET_LOCATION', payload: { location, status: 'granted' } });
-      navigate('/nearby');
+      
+      const pendingRoute = sessionStorage.getItem('pending_route');
+      if (pendingRoute) {
+        sessionStorage.removeItem('pending_route');
+        navigate(pendingRoute);
+      } else {
+        navigate('/nearby');
+      }
     }
   }, [geoStatus, location, dispatch, navigate]);
 
@@ -98,6 +105,29 @@ export function CategorySelectionPage() {
           <div className="flex-1 min-w-0">
             <h2 className="m-0 mb-2 text-[18.5px] font-bold">Nearby</h2>
             <p className="text-[12px] text-muted-soft font-medium m-0 mt-0.5">Washrooms closest to you right now</p>
+          </div>
+        </div>
+
+        <div
+          onClick={() => {
+            // Pick the first category as default if none selected, then request location to proceed to /recommend
+            if (categories && categories.length > 0) {
+              dispatch({ type: 'SET_CATEGORY', payload: categories[0].code });
+            }
+            // Temporarily set a flag so that when location is granted, we go to /recommend instead of /nearby
+            sessionStorage.setItem('pending_route', '/recommend');
+            requestLocation();
+          }}
+          className="flex items-center gap-4 bg-paper text-ink rounded-lg p-[18px] mb-3.5 shadow-card cursor-pointer transition-transform active:scale-[0.985]"
+        >
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 bg-[rgba(168,85,247,0.16)] text-purple-600">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="m-0 mb-2 text-[18.5px] font-bold">Smart Recommend</h2>
+            <p className="text-[12px] text-muted-soft font-medium m-0 mt-0.5">Best washroom based on distance and crowd levels</p>
           </div>
         </div>
       </div>

@@ -80,6 +80,15 @@ export function NearbyFacilitiesPage() {
 
   const renderChips = () => (
     <div className="flex gap-2 overflow-x-auto mt-3.5 pb-0.5 no-scrollbar">
+      <div
+        onClick={() => navigate('/recommend')}
+        className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[12.5px] font-semibold cursor-pointer select-none transition-all active:scale-[0.96] bg-[rgba(168,85,247,0.12)] text-purple-600 border border-[rgba(168,85,247,0.3)] shadow-[0_2px_8px_rgba(168,85,247,0.15)]"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83" />
+        </svg>
+        <span>Smart Recommend</span>
+      </div>
       {categories?.map((cat) => (
         <div 
           key={cat.id}
