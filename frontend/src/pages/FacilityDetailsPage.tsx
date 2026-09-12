@@ -51,8 +51,6 @@ export function FacilityDetailsPage() {
     const c = cat.toLowerCase();
     if (c.includes('men') && !c.includes('women')) return { color: 'var(--men)', label: "Men's" };
     if (c.includes('women') || c.includes('female')) return { color: 'var(--women)', label: "Women's" };
-    if (c.includes('unisex') || c.includes('neutral')) return { color: 'var(--amber-dark)', label: 'Gender-Neutral' };
-    if (c.includes('access') || c.includes('wheelchair')) return { color: 'var(--indigo)', label: 'Accessible' };
     return { color: 'var(--teal)', label: cat };
   };
 

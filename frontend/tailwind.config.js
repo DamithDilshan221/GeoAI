@@ -36,8 +36,6 @@ export default {
         cat: {
           men: 'var(--men)',
           women: 'var(--women)',
-          unisex: 'var(--unisex)',
-          accessible: 'var(--accessible)',
         },
         pill: {
           bg: 'var(--pill-bg)',

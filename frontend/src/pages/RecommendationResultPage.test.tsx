@@ -31,7 +31,6 @@ vi.mock('../components/navigation/NavigationOverlay', () => ({
 
 const mockState = (overrides = {}) => ({
   selectedCategory: 'MALE',
-  accessibleOnly: false,
   location: { lat: 6.9, lon: 79.8, accuracy: 10 },
   locationStatus: 'granted' as const,
   ...overrides,

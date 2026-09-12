@@ -11,10 +11,6 @@ interface RecommendationParams {
 
 /**
  * Wraps the recommendations API call.
- *
- * This is the single canonical place where the SearchContext's
- * `accessibleOnly` boolean is mapped to the backend's
- * `secondary_preference: "wheelchair_accessible"` string.
  */
 export function useRecommendation(params: RecommendationParams | null) {
   return useQuery({

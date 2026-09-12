@@ -6,13 +6,5 @@
   {
     "code": "female",
     "label": "Women's"
-  },
-  {
-    "code": "unisex",
-    "label": "Gender-Neutral"
-  },
-  {
-    "code": "accessible",
-    "label": "Accessible"
   }
 ]

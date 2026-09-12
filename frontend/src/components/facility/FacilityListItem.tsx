@@ -14,8 +14,6 @@ export function FacilityListItem({ facility }: FacilityListItemProps) {
     const c = cat.toLowerCase();
     if (c.includes('men') && !c.includes('women')) return { color: 'var(--men)', label: "Men's" };
     if (c.includes('women') || c.includes('female')) return { color: 'var(--women)', label: "Women's" };
-    if (c.includes('unisex') || c.includes('neutral')) return { color: 'var(--amber-dark)', label: 'Gender-Neutral' };
-    if (c.includes('access') || c.includes('wheelchair')) return { color: 'var(--indigo)', label: 'Accessible' };
     return { color: 'var(--teal)', label: cat };
   };
 
@@ -55,7 +53,7 @@ export function FacilityListItem({ facility }: FacilityListItemProps) {
         <p className="m-0 text-[12.5px] text-muted-soft truncate">{facility.category}</p>
       </div>
       <div className="shrink-0 text-right flex flex-col justify-center items-end gap-[5px]">
-        <span className="font-bold text-[14px] text-ink">{facility.distance_m} m</span>
+        <span className="font-bold text-[14px] text-ink">{Number(facility.distance_m.toFixed(2))} m</span>
         <span className="text-[10.5px] font-bold py-[3px] px-[9px] rounded-full text-white" style={{ background: theme.color }}>
           {theme.label}
         </span>

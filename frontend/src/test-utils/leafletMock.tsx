@@ -15,19 +15,25 @@ export function resetLeafletMock() {
   mockInstances.markers = [];
 }
 
+import React from 'react';
+
 export const MapContainer = vi.fn(({ children, center, zoom, className, ...props }) => {
-  const mapInstance = {
+  // Use useMemo so the mock instance is stable across renders
+  const mapInstance = React.useMemo(() => ({
     fitBounds: vi.fn(),
-  };
-  mockInstances.maps.push(mapInstance);
-  
-  if (props.ref) {
-    if (typeof props.ref === 'function') {
-      props.ref(mapInstance);
-    } else {
-      props.ref.current = mapInstance;
+    invalidateSize: vi.fn(),
+  }), []);
+
+  React.useEffect(() => {
+    mockInstances.maps.push(mapInstance);
+    if (props.ref) {
+      if (typeof props.ref === 'function') {
+        props.ref(mapInstance);
+      } else {
+        props.ref.current = mapInstance;
+      }
     }
-  }
+  }, [mapInstance, props.ref]);
 
   return (
     <div data-testid="map-container" className={className} data-center={JSON.stringify(center)} data-zoom={zoom}>

@@ -82,12 +82,14 @@ export function NearbyFacilitiesPage() {
     <div className="flex gap-2 overflow-x-auto mt-3.5 pb-0.5 no-scrollbar">
       <div
         onClick={() => navigate('/recommend')}
-        className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[12.5px] font-semibold cursor-pointer select-none transition-all active:scale-[0.96] bg-[rgba(168,85,247,0.12)] text-purple-600 border border-[rgba(168,85,247,0.3)] shadow-[0_2px_8px_rgba(168,85,247,0.15)]"
+        className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[12.5px] font-semibold cursor-pointer select-none transition-all active:scale-[0.96] bg-[rgba(168,85,247,0.12)] text-[#4F46E5] border border-[rgba(168,85,247,0.3)] shadow-[0_2px_8px_rgba(168,85,247,0.15)]"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83" />
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M10 2L11.8 7.8L17.5 9.5L11.8 11.2L10 17L8.2 11.2L2.5 9.5L8.2 7.8L10 2Z" />
+          <path d="M19.5 13.5L20.3 16.2L23 17L20.3 17.8L19.5 20.5L18.7 17.8L16 17L18.7 16.2L19.5 13.5Z" />
+          <path d="M18.5 2.5L19 4L20.5 4.5L19 5L18.5 6.5L18 5L16.5 4.5L18 4L18.5 2.5Z" />
         </svg>
-        <span>Smart Recommend</span>
+        <span>AI Recommendation</span>
       </div>
       {categories?.map((cat) => (
         <div 

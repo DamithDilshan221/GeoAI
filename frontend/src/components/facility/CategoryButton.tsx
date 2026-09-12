@@ -25,24 +25,6 @@ const getCategoryStyles = (code: string) => {
       )
     };
   }
-  if (c.includes('unisex') || c.includes('neutral')) {
-    return {
-      colorClass: 'text-amber-dark',
-      bgClass: 'bg-[rgba(231,174,78,0.16)]',
-      icon: (
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 8v8M15 8v8M9 12h6"/></svg>
-      )
-    };
-  }
-  if (c.includes('access') || c.includes('wheelchair')) {
-    return {
-      colorClass: 'text-indigo',
-      bgClass: 'bg-[rgba(110,127,209,0.14)]',
-      icon: (
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="4.2" r="1.7"/><path d="M11 8.5v4.5l-3.5 5.5"/><path d="M11 10h5l-1.2 3"/><circle cx="15" cy="17.5" r="3.3"/></svg>
-      )
-    };
-  }
   
   return {
     colorClass: 'text-teal-dark',
