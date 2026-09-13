@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { BottomNav } from './BottomNav';
 import { RestNavLogo } from '../common/RestNavLogo';
+import { ThemeToggleButton } from '../common/ThemeToggleButton';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -43,12 +44,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <header className="flex-shrink-0 px-5 pt-6 pb-3 text-ink relative z-10">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0">
             {headerInfo.showBack && (
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="w-9 h-9 rounded-xl glass-pill flex items-center justify-center text-ink hover:text-purple-400 active:scale-95 transition-all cursor-pointer mr-0.5 border border-white/10"
+                className="w-9 h-9 rounded-xl glass-pill flex items-center justify-center text-ink hover:text-purple-400 active:scale-95 transition-all cursor-pointer mr-0.5 border border-white/10 shrink-0"
                 title="Go Back"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -58,18 +59,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             )}
 
             <RestNavLogo size="md" />
-            <div>
-              <h1 className="text-[21.5px] font-black tracking-tight m-0 text-ink leading-tight">
+            <div className="min-w-0">
+              <h1 className="text-[21.5px] font-black tracking-tight m-0 text-ink leading-tight truncate">
                 {headerInfo.title}
               </h1>
-              <p className="text-[13px] font-bold text-muted-soft m-0 tracking-wide mt-0.5">
+              <p className="text-[13px] font-bold text-muted-soft m-0 tracking-wide mt-0.5 truncate">
                 {headerInfo.subtitle}
               </p>
             </div>
           </div>
-          <div className="live-badge px-3.5 py-1.5 rounded-full flex items-center gap-1.5 text-[13px] font-extrabold shadow-sm shrink-0">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]"></span>
-            <span>Live</span>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <ThemeToggleButton />
+            <div className="live-badge px-3.5 py-1.5 rounded-full flex items-center gap-1.5 text-[13px] font-extrabold shadow-sm shrink-0">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]"></span>
+              <span>Live</span>
+            </div>
           </div>
         </div>
       </header>

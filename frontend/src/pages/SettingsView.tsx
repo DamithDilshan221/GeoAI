@@ -58,20 +58,36 @@ export function SettingsView() {
     setThemeMode(mode);
     localStorage.setItem('theme_mode', mode);
 
+    let isDay = false;
     if (mode === 'light') {
+      isDay = true;
       document.body.classList.add('day');
     } else if (mode === 'dark') {
+      isDay = false;
       document.body.classList.remove('day');
     } else {
       // System mode
       const isSystemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (isSystemDark) {
-        document.body.classList.remove('day');
-      } else {
+      isDay = !isSystemDark;
+      if (isDay) {
         document.body.classList.add('day');
+      } else {
+        document.body.classList.remove('day');
       }
     }
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { mode, isDay } }));
   };
+
+  useEffect(() => {
+    const handleSync = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail?.mode) {
+        setThemeMode(customEvent.detail.mode);
+      }
+    };
+    window.addEventListener('themechange', handleSync);
+    return () => window.removeEventListener('themechange', handleSync);
+  }, []);
 
   useEffect(() => {
     if (themeMode === 'system') {
