@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useSearchContext } from '../context/SearchContext';
-import { LoadingState } from '../components/status/LoadingState';
+import { AiThinkingLoader } from '../components/status/AiThinkingLoader';
 import { ErrorState } from '../components/status/ErrorState';
 import { EmptyState } from '../components/status/EmptyState';
 import { useRecommendation } from '../hooks/useRecommendation';
@@ -47,7 +47,7 @@ export function RecommendationResultPage() {
   }
 
   if (isLoading) {
-    return <LoadingState message="Generating optimal recommendation..." />;
+    return <AiThinkingLoader message="Thinking..." />;
   }
 
   if (isError) {

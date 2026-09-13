@@ -1,6 +1,6 @@
-# GeoAI — Intelligent Facility Finder & Smart Navigation Recommendation System
+# RestNav (GeoAI) — Campus Washroom & Facility Navigation System
 
-GeoAI is a location-aware web application that helps users discover nearby facilities (hospitals, schools, banks, parks, etc.) and provides smart, personalized navigation recommendations powered by machine learning. The system combines spatial search with usage-pattern analysis to surface the most relevant facilities — not just the closest ones.
+RestNav is a location-aware web application that helps university campus users discover nearby facilities and provides smart, personalized navigation recommendations powered by machine learning. The system combines spatial search with usage-pattern analysis to surface the most relevant facilities — not just the closest ones.
 
 ## Tech Stack
 

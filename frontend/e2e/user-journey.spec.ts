@@ -12,7 +12,7 @@ import { test, expect } from '@playwright/test';
  * 6. AI Recommendation flow (ranking, crowd metrics, and routing)
  */
 
-test.describe('Campus Washroom Finder — E2E User Journey', () => {
+test.describe('RestNav — E2E User Journey', () => {
   test.beforeEach(async ({ context }) => {
     // Set campus reference coordinate (Faculty of Engineering, University of Peradeniya)
     await context.grantPermissions(['geolocation']);

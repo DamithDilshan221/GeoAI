@@ -14,7 +14,7 @@ describe('AppShell', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText('Campus Washroom Finder')).toBeDefined();
+    expect(screen.getByText('RestNav')).toBeDefined();
     expect(screen.getByTestId('test-content')).toBeDefined();
   });
 });

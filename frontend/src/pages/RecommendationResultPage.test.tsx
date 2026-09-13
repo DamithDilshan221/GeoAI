@@ -113,7 +113,7 @@ describe('RecommendationResultPage', () => {
   it('shows loading state', () => {
     mockUseRecommendation({ isLoading: true });
     renderPage();
-    expect(screen.getByText(/generating optimal recommendation/i)).toBeInTheDocument();
+    expect(screen.getByText(/thinking/i)).toBeInTheDocument();
   });
 
   it('shows error state', () => {

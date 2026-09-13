@@ -1,15 +1,38 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { BottomNav } from './BottomNav';
+import { RestNavLogo } from '../common/RestNavLogo';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
+
   const isSettings = location.pathname === '/settings';
   const isSaved = location.pathname === '/saved';
 
-  const title = isSettings ? 'Settings' : isSaved ? 'Saved Washrooms' : 'Campus Washroom Finder';
-  const subtitle = isSettings ? 'Customise your experience' : isSaved ? 'Your bookmarked facilities' : 'Peradeniya University';
+  const getHeaderInfo = () => {
+    if (isSettings) {
+      return {
+        title: 'Settings',
+        subtitle: 'Customise your experience',
+        showBack: true,
+      };
+    }
+    if (isSaved) {
+      return {
+        title: 'Saved Facilities',
+        subtitle: 'Quick access bookmarks',
+        showBack: true,
+      };
+    }
+    return {
+      title: 'RestNav',
+      subtitle: 'Peradeniya University',
+      showBack: false,
+    };
+  };
+
+  const headerInfo = getHeaderInfo();
 
   return (
     <div className="flex h-[100dvh] flex-col relative overflow-hidden app-shell-bg text-ink max-w-[440px] mx-auto shadow-[0_0_80px_rgba(0,0,0,0.6)] border-x border-hairline">
@@ -20,34 +43,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <header className="flex-shrink-0 px-5 pt-6 pb-3 text-ink relative z-10">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 min-w-0">
-            {isSettings && (
+          <div className="flex items-center gap-2.5">
+            {headerInfo.showBack && (
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="w-9 h-9 rounded-xl glass-pill flex items-center justify-center text-ink hover:text-purple-400 active:scale-95 transition-all cursor-pointer shrink-0 border border-white/15"
-                title="Back"
+                className="w-9 h-9 rounded-xl glass-pill flex items-center justify-center text-ink hover:text-purple-400 active:scale-95 transition-all cursor-pointer mr-0.5 border border-white/10"
+                title="Go Back"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
               </button>
             )}
 
-            <div className="relative flex shrink-0 items-center justify-center w-[48px] h-[48px] rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 shadow-[0_0_22px_rgba(99,102,241,0.55)] border border-indigo-400/50 text-white">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2C7.58 2 4 5.58 4 10c0 5.25 8 12 8 12s8-6.75 8-12c0-4.42-3.58-8-8-8z" fill="#818CF8" fillOpacity="0.4" stroke="white" strokeWidth="1.8" />
-                <circle cx="9.2" cy="7.2" r="1.3" fill="white" />
-                <path d="M9.2 9.2c-1.1 0-1.9.8-1.9 1.9v3h1.1v2.5h1.6v-2.5h1.1v-3c0-1.1-.8-1.9-1.9-1.9z" fill="white" />
-                <circle cx="14.5" cy="7" r="1.2" fill="white" />
-                <path d="M14.5 8.9c-.5 0-.9.3-1 .8l-.9 2.6h1l.2 3h1.5l.2-3h1l-.9-2.6c-.1-.5-.5-.8-1.1-.8z" fill="white" />
-              </svg>
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-[21.5px] font-black tracking-tight m-0 text-ink leading-tight truncate">
-                {title}
+            <RestNavLogo size="md" />
+            <div>
+              <h1 className="text-[21.5px] font-black tracking-tight m-0 text-ink leading-tight">
+                {headerInfo.title}
               </h1>
-              <p className="text-[13px] font-bold text-muted-soft m-0 tracking-wide mt-0.5 truncate">{subtitle}</p>
+              <p className="text-[13px] font-bold text-muted-soft m-0 tracking-wide mt-0.5">
+                {headerInfo.subtitle}
+              </p>
             </div>
           </div>
           <div className="live-badge px-3.5 py-1.5 rounded-full flex items-center gap-1.5 text-[13px] font-extrabold shadow-sm shrink-0">
