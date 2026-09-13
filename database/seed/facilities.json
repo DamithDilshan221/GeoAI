@@ -7,7 +7,10 @@
     "longitude": 80.595166,
     "fixtures": {
       "normal": 2,
-      "attached": 1
+      "attached": 1,
+      "sink": 6,
+      "mirror": 2,
+      "shower": 4
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -22,7 +25,10 @@
     "longitude": 80.595113,
     "fixtures": {
       "normal": 2,
-      "attached": 1
+      "attached": 1,
+      "sink": 6,
+      "mirror": 2,
+      "shower": 4
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -37,7 +43,8 @@
     "longitude": 80.595771,
     "fixtures": {
       "normal": 2,
-      "attached": 4
+      "attached": 4,
+      "sink": 4
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -52,7 +59,8 @@
     "longitude": 80.595761,
     "fixtures": {
       "normal": 2,
-      "attached": 4
+      "attached": 4,
+      "sink": 4
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -66,7 +74,10 @@
     "latitude": 7.256256,
     "longitude": 80.596183,
     "fixtures": {
-      "normal": 7
+      "normal": 3,
+      "commode": 6,
+      "sink": 4,
+      "mirror": 2
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -80,7 +91,10 @@
     "latitude": 7.256239,
     "longitude": 80.596197,
     "fixtures": {
-      "normal": 7
+      "normal": 2,
+      "attached": 5,
+      "sink": 4,
+      "mirror": 2
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -94,8 +108,8 @@
     "latitude": 7.255,
     "longitude": 80.595833,
     "fixtures": {
-      "normal": 2,
-      "attached": 1
+      "normal": 3,
+      "sink": 3
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -110,7 +124,8 @@
     "longitude": 80.595833,
     "fixtures": {
       "normal": 2,
-      "attached": 1
+      "attached": 6,
+      "sink": 5
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -124,7 +139,9 @@
     "latitude": 7.255063,
     "longitude": 80.597935,
     "fixtures": {
-      "normal": 12
+      "normal": 4,
+      "commode": 4,
+      "sink": 6
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -138,7 +155,10 @@
     "latitude": 7.255044,
     "longitude": 80.597754,
     "fixtures": {
-      "normal": 12
+      "normal": 2,
+      "attached": 7,
+      "sink": 6,
+      "mirror": 2
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -166,7 +186,9 @@
     "latitude": 7.254722,
     "longitude": 80.596944,
     "fixtures": {
-      "normal": 4
+      "normal": 7,
+      "sink": 4,
+      "mirror": 1
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -180,8 +202,9 @@
     "latitude": 7.254825,
     "longitude": 80.599122,
     "fixtures": {
-      "normal": 4,
-      "attached": 1
+      "normal": 3,
+      "commode": 2,
+      "sink": 5
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -196,7 +219,9 @@
     "longitude": 80.599387,
     "fixtures": {
       "normal": 4,
-      "attached": 1
+      "attached": 1,
+      "sink": 4,
+      "mirror": 1
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -266,8 +291,10 @@
     "latitude": 7.255184,
     "longitude": 80.599493,
     "fixtures": {
-      "normal": 5,
-      "attached": 1
+      "normal": 3,
+      "attached": 1,
+      "commode": 2,
+      "sink": 5
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -282,7 +309,9 @@
     "longitude": 80.599415,
     "fixtures": {
       "normal": 5,
-      "attached": 1
+      "attached": 1,
+      "sink": 5,
+      "mirror": 5
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -550,7 +579,8 @@
     "latitude": 7.254745,
     "longitude": 80.598149,
     "fixtures": {
-      "attached": 2
+      "attached": 2,
+      "sink": 2
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -564,7 +594,9 @@
     "latitude": 7.25323,
     "longitude": 80.592642,
     "fixtures": {
-      "attached": 3
+      "attached": 3,
+      "commode": 3,
+      "sink": 3
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -578,7 +610,9 @@
     "latitude": 7.253171,
     "longitude": 80.59261,
     "fixtures": {
-      "attached": 3
+      "attached": 3,
+      "commode": 3,
+      "sink": 3
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -593,7 +627,9 @@
     "longitude": 80.591776,
     "fixtures": {
       "normal": 3,
-      "attached": 7
+      "attached": 7,
+      "sink": 5,
+      "mirror": 6
     },
     "status": "OPEN",
     "rating": 4.0,
@@ -606,7 +642,10 @@
     "audience": "VISITOR",
     "latitude": 7.253941,
     "longitude": 80.591583,
-    "fixtures": {},
+    "fixtures": {
+      "commode": 3,
+      "sink": 3
+    },
     "status": "OPEN",
     "rating": 4.0,
     "category_code": "male",
@@ -618,7 +657,11 @@
     "audience": "VISITOR",
     "latitude": 7.254636,
     "longitude": 80.591703,
-    "fixtures": {},
+    "fixtures": {
+      "normal": 9,
+      "commode": 4,
+      "sink": 5
+    },
     "status": "OPEN",
     "rating": 4.0,
     "category_code": "male",
@@ -632,7 +675,9 @@
     "longitude": 80.591703,
     "fixtures": {
       "normal": 2,
-      "attached": 4
+      "attached": 4,
+      "sink": 5,
+      "mirror": 2
     },
     "status": "OPEN",
     "rating": 4.0,

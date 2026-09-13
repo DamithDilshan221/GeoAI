@@ -13,7 +13,6 @@ export function CategorySelectionPage() {
   const { data: categories, isLoading, error, refetch } = useCategories();
   const { status: geoStatus, location, errorMessage, request: requestLocation } = useGeolocation();
   const { state: searchState, dispatch } = useSearchContext();
-  const audience = searchState.selectedAudience || 'VISITOR';
 
   useEffect(() => {
     if (geoStatus === 'granted' && location) {
@@ -45,17 +44,9 @@ export function CategorySelectionPage() {
     );
   }
 
-  const handleAudienceToggle = (targetAudience: 'VISITOR' | 'STAFF') => {
-    dispatch({ type: 'SET_AUDIENCE', payload: targetAudience });
-    if (categories && categories.length > 0 && !searchState.selectedCategory) {
-      dispatch({ type: 'SET_CATEGORY', payload: categories[0].code });
-    }
-    requestLocation();
-  };
-
   const handleCategoryClick = (code: string) => {
     dispatch({ type: 'SET_CATEGORY', payload: code });
-    dispatch({ type: 'SET_AUDIENCE', payload: audience });
+    dispatch({ type: 'SET_AUDIENCE', payload: 'VISITOR' });
     requestLocation();
   };
 
@@ -127,42 +118,6 @@ export function CategorySelectionPage() {
         </div>
       </div>
 
-      {/* Visitor / Staff Segmented Toggle */}
-      <div className="p-1 rounded-2xl flex gap-1.5 shadow-card segmented-toggle-panel">
-        <button
-          type="button"
-          onClick={() => handleAudienceToggle('VISITOR')}
-          className={`flex-1 py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 font-extrabold text-[13.5px] cursor-pointer transition-all active:scale-95 ${
-            audience === 'VISITOR'
-              ? 'bg-gradient-to-r from-indigo-500 via-purple-600 to-fuchsia-600 text-white shadow-[0_0_20px_rgba(139,92,246,0.5)] border border-white/25'
-              : 'text-muted-soft hover:text-ink'
-          }`}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-          <span>Visitor</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => handleAudienceToggle('STAFF')}
-          className={`flex-1 py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 font-extrabold text-[13.5px] cursor-pointer transition-all active:scale-95 ${
-            audience === 'STAFF'
-              ? 'bg-gradient-to-r from-indigo-500 via-purple-600 to-fuchsia-600 text-white shadow-[0_0_20px_rgba(139,92,246,0.5)] border border-white/25'
-              : 'text-muted-soft hover:text-ink'
-          }`}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="16" rx="2" />
-            <line x1="8" y1="2" x2="8" y2="6" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <circle cx="12" cy="11" r="2.5" />
-            <path d="M8 17a4 4 0 0 1 8 0" />
-          </svg>
-          <span>Staff</span>
-        </button>
-      </div>
 
       {/* Category List */}
       <div className="flex flex-col">
@@ -202,7 +157,7 @@ export function CategorySelectionPage() {
             if (categories && categories.length > 0) {
               dispatch({ type: 'SET_CATEGORY', payload: categories[0].code });
             }
-            dispatch({ type: 'SET_AUDIENCE', payload: audience });
+            dispatch({ type: 'SET_AUDIENCE', payload: 'VISITOR' });
             sessionStorage.setItem('pending_route', '/recommend');
             requestLocation();
           }}

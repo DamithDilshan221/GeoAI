@@ -80,8 +80,8 @@ describe('CategorySelectionPage', () => {
 
     expect(mockGetCurrentPosition).not.toHaveBeenCalled();
 
-    // Click Visitor chip
-    fireEvent.click(screen.getByText('Visitor'));
+    // Click Category card
+    fireEvent.click(screen.getByText("Men's"));
 
     expect(mockGetCurrentPosition).toHaveBeenCalled();
   });
