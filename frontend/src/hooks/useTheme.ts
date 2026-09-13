@@ -18,7 +18,7 @@ export function useTheme() {
     setThemeModeState(mode);
     localStorage.setItem('theme_mode', mode);
 
-    let dayActive = false;
+    let dayActive: boolean;
     if (mode === 'light') {
       dayActive = true;
       document.body.classList.add('day');
@@ -46,9 +46,6 @@ export function useTheme() {
   }, [applyTheme]);
 
   useEffect(() => {
-    // Initial sync
-    setIsDay(document.body.classList.contains('day'));
-
     const handleThemeChange = (e: Event) => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail) {

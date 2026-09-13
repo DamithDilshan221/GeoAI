@@ -38,7 +38,6 @@ from training.data_extraction import data_source_composition, extract_usage_data
 from training.dataset_builder import build_training_frame
 from training.heuristic_baseline import predict_heuristic
 from training.models import get_candidates
-from app.domain.ml_inference.feature_engineering import FEATURE_NAMES
 
 MODELS_DIR = Path(__file__).resolve().parents[1] / "models"
 TEST_DATE_FRACTION = 0.20
@@ -129,7 +128,7 @@ def main() -> None:
             "heuristic_mae": heuristic_mae,
             "heuristic_r2": heuristic_r2,
             "test_dates": int(test_df["date"].nunique()),
-            "test_rows": int(len(test_df)),
+            "test_rows": len(test_df),
         },
     }
 

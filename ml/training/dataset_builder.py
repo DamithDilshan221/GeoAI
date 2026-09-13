@@ -4,7 +4,6 @@ exactly (parity enforced by ml/training/tests/)."""
 from __future__ import annotations
 
 import pandas as pd
-
 from app.domain.ml_inference.feature_engineering import FEATURE_NAMES
 
 

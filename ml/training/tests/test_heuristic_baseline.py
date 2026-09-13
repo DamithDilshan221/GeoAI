@@ -1,5 +1,7 @@
 import pandas as pd
+
 from training.heuristic_baseline import predict_heuristic
+
 
 def test_predict_heuristic_tier1_medium():
     # a 3-row train set with usage_count 4, 6, 8 for the same facility/day_of_week/hour bucket

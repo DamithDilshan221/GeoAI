@@ -12,7 +12,7 @@ export function CategorySelectionPage() {
   const navigate = useNavigate();
   const { data: categories, isLoading, error, refetch } = useCategories();
   const { status: geoStatus, location, errorMessage, request: requestLocation } = useGeolocation();
-  const { state: searchState, dispatch } = useSearchContext();
+  const { dispatch } = useSearchContext();
 
   useEffect(() => {
     if (geoStatus === 'granted' && location) {

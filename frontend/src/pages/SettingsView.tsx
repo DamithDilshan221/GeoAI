@@ -58,7 +58,7 @@ export function SettingsView() {
     setThemeMode(mode);
     localStorage.setItem('theme_mode', mode);
 
-    let isDay = false;
+    let isDay: boolean;
     if (mode === 'light') {
       isDay = true;
       document.body.classList.add('day');

@@ -1,5 +1,7 @@
 import pandas as pd
+
 from training.dataset_builder import build_training_frame
+
 
 def test_leakage_prevention_expanding_window():
     # 3-row single-facility DataFrame where the third (latest) date has an extreme usage_count=9999
