@@ -7,7 +7,7 @@ export interface Washroom {
   status: 'OPEN' | 'CLOSED' | 'TEMPORARILY_UNAVAILABLE';
   status_updated_at: string;
   rating: number | null;
-  fixtures: { attached?: number; normal?: number; shower?: number; sink?: number; mirror?: number };
+  fixtures: { attached?: number; normal?: number; shower?: number; sink?: number; mirror?: number; commode?: number };
   total_stalls: number;
   data_source: 'REAL' | 'PUBLIC' | 'SYNTHETIC';
   latitude: number;

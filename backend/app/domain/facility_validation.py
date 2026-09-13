@@ -18,7 +18,7 @@ real category — that requires a DB query and is the repository's responsibilit
 
 from __future__ import annotations
 
-VALID_FIXTURE_KEYS = {"attached", "normal", "shower", "sink", "mirror"}
+VALID_FIXTURE_KEYS = {"attached", "normal", "shower", "sink", "mirror", "commode"}
 
 
 def validate_fixtures(fixtures: dict) -> list[str]:
