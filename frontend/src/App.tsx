@@ -11,7 +11,12 @@ import { SettingsView } from './pages/SettingsView';
 
 export default function App() {
   useEffect(() => {
-    document.body.classList.add('day');
+    const savedMode = localStorage.getItem('theme_mode');
+    if (savedMode === 'light') {
+      document.body.classList.add('day');
+    } else {
+      document.body.classList.remove('day');
+    }
   }, []);
 
   return (

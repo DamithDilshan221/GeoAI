@@ -61,26 +61,25 @@ export function NavigationOverlay({ origin, destination, onClose }: NavigationOv
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col bg-surface"
+      className="fixed inset-0 z-50 flex flex-col bg-navy-950 text-white"
       data-testid="navigation-overlay"
     >
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 pt-safe-top py-3 bg-paper/95 backdrop-blur-md border-b border-hairline shrink-0">
+      <div className="flex items-center justify-between px-5 pt-safe-top py-3.5 glass-panel rounded-none border-t-0 border-x-0 border-b border-white/15 shrink-0 backdrop-blur-2xl">
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] text-muted-soft uppercase tracking-wider m-0">Navigating to</p>
-          <h2 className="text-[16px] font-bold text-ink m-0 truncate">{destination.name}</h2>
+          <p className="text-[10px] text-sky-400 uppercase tracking-widest font-extrabold m-0">Live Walking Route</p>
+          <h2 className="text-[17px] font-extrabold text-white m-0 truncate tracking-tight">{destination.name}</h2>
         </div>
         <button
           onClick={onClose}
-          className="ml-3 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 font-bold text-[13px] cursor-pointer active:scale-95 transition-transform"
+          className="ml-3 px-4 py-2 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 font-bold text-[13px] cursor-pointer active:scale-95 transition-transform glass-pill"
           data-testid="nav-stop-btn"
         >
           Stop
         </button>
       </div>
 
-      {/* OSRM-fallback notice — §14.4: shown whenever the route source is a
-          straight-line estimate rather than a real OSRM walking route. */}
+      {/* OSRM-fallback notice — §14.4 */}
       <RouteFallbackNotice visible={route?.source === 'straight_line_estimate'} />
 
       {/* Turn banner */}
@@ -91,11 +90,11 @@ export function NavigationOverlay({ origin, destination, onClose }: NavigationOv
         destinationName={destination.name}
       />
 
-      {/* Map — takes remaining vertical space */}
+      {/* Map */}
       <div className="flex-1 relative overflow-hidden">
         {loading ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-surface">
-            <p className="text-muted-soft text-[14px]">Getting route…</p>
+          <div className="absolute inset-0 flex items-center justify-center bg-navy-950/90 backdrop-blur-md">
+            <p className="text-sky-300 text-[14px] font-bold">Calculating fastest walking path…</p>
           </div>
         ) : (
           <NavigationMap
@@ -107,15 +106,15 @@ export function NavigationOverlay({ origin, destination, onClose }: NavigationOv
       </div>
 
       {/* Bottom sheet */}
-      <div className="shrink-0 bg-paper border-t border-hairline px-5 py-4 pb-safe-bottom flex items-center justify-between gap-4">
+      <div className="shrink-0 glass-panel border-b-0 border-x-0 border-t border-white/20 px-5 py-4 pb-safe-bottom flex items-center justify-between gap-4 backdrop-blur-2xl">
         <div>
-          <p className="text-[11px] text-muted-soft uppercase tracking-wider m-0 mb-0.5">
-            Remaining
+          <p className="text-[10px] text-muted-soft uppercase tracking-widest font-extrabold m-0 mb-0.5">
+            Remaining Distance & Time
           </p>
-          <p className="text-[18px] font-bold text-ink m-0">
+          <p className="text-[20px] font-extrabold text-white m-0 tracking-tight">
             {remainingSecondsToMinutes(remainingM)}
           </p>
-          <p className="text-[12px] text-muted-soft m-0">
+          <p className="text-[12px] text-sky-300 font-semibold m-0">
             {remainingM >= 1000
               ? `${(remainingM / 1000).toFixed(1)} km`
               : `${Math.round(remainingM)} m`}
@@ -124,7 +123,7 @@ export function NavigationOverlay({ origin, destination, onClose }: NavigationOv
 
         <button
           onClick={onClose}
-          className="px-6 py-3 rounded-2xl bg-red-500 text-white font-bold text-[14px] border-none cursor-pointer active:scale-95 transition-transform shadow-soft"
+          className="px-6 py-3 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-[14px] border border-white/25 cursor-pointer active:scale-95 transition-transform shadow-[0_0_18px_rgba(244,63,94,0.45)]"
           data-testid="nav-end-btn"
         >
           End

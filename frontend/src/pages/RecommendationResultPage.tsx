@@ -66,7 +66,7 @@ export function RecommendationResultPage() {
     return (
       <div className="flex flex-col h-full overflow-hidden">
         <div className="px-5 pt-4 pb-2 shrink-0 flex items-center justify-between">
-          <h2 className="text-[22px] font-bold text-white m-0">Recommended Route</h2>
+          <h2 className="text-[22px] font-bold text-ink m-0">Recommended Route</h2>
           <Link
             to="/nearby"
             className="text-[14px] text-teal hover:text-teal/80 font-bold no-underline active:scale-95 transition-transform"
@@ -126,78 +126,80 @@ export function RecommendationResultPage() {
       )}
 
       <div className="px-5 pt-4 pb-2 shrink-0 flex items-center justify-between">
-        <h2 className="text-[22px] font-bold text-white m-0">Recommended Route</h2>
+        <div>
+          <h2 className="text-[22px] font-extrabold text-ink m-0 tracking-tight">AI Recommendation</h2>
+          <p className="text-[12px] text-muted-soft m-0 font-medium">Smart route matched to your preferences</p>
+        </div>
         <Link
           to="/nearby"
-          className="text-[14px] text-teal hover:text-teal/80 font-bold no-underline active:scale-95 transition-transform"
+          className="text-[13px] glass-pill px-3 py-1.5 rounded-full text-sky-500 dark:text-sky-400 hover:text-ink font-bold no-underline active:scale-95 transition-transform"
         >
           Cancel
         </Link>
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-3 pb-8 -webkit-overflow-scrolling-touch">
-        <p className="text-[13.5px] text-muted-soft mt-0 mb-6 max-w-[280px]">
-          Based on your location, filters, and current washroom statuses.
-        </p>
-
         {top && (
-          <div className="relative rounded-[20px] bg-navy-900/90 backdrop-blur-md text-white p-5 shadow-[0_8px_32px_rgba(63,203,190,0.2)] border border-teal/40 overflow-hidden mb-6">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-teal/10 blur-2xl rounded-full translate-x-10 -translate-y-10" />
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-indigo/10 blur-xl rounded-full -translate-x-5 translate-y-5" />
+          <div className="relative rounded-3xl p-[1.5px] bg-gradient-to-br from-indigo-500/80 via-purple-500/50 to-pink-500/80 shadow-[0_0_40px_rgba(139,92,246,0.35)] overflow-hidden mb-6">
+            <div className="glass-panel rounded-[22px] p-5 text-ink relative overflow-hidden backdrop-blur-3xl">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/15 blur-3xl rounded-full translate-x-12 -translate-y-12 pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-fuchsia-500/15 blur-3xl rounded-full -translate-x-8 translate-y-8 pointer-events-none" />
 
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-full bg-teal/20 flex items-center justify-center text-teal">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between gap-2 mb-3.5">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full glass-pill text-indigo-600 dark:text-purple-300 border border-purple-400/30">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                    <span className="text-[11px] font-extrabold uppercase tracking-wider">Top Match</span>
+                  </div>
+
+                  {top.rating != null && (
+                    <span className="text-[12px] font-bold text-amber-500 dark:text-amber-400 glass-pill px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                      ★ {top.rating.toFixed(1)}
+                    </span>
+                  )}
+                </div>
+
+                <h3 className="text-[21px] font-extrabold text-ink m-0 mb-1.5 leading-tight tracking-tight">{top.name}</h3>
+                
+                {explanation && (
+                  <p className="text-[13px] text-muted m-0 mb-5 leading-relaxed font-normal">{explanation}</p>
+                )}
+
+                {/* Glass Stats Matrix */}
+                <div className="grid grid-cols-3 gap-2 mb-6">
+                  <div className="glass-pill rounded-2xl p-2.5 text-center">
+                    <span className="block text-[10px] text-muted uppercase font-bold tracking-wider mb-0.5">Est. Time</span>
+                    <span className="text-[15px] font-extrabold text-ink">
+                      {formatTime(top.estimated_time_s, isEstimate)}
+                    </span>
+                  </div>
+                  <div className="glass-pill rounded-2xl p-2.5 text-center">
+                    <span className="block text-[10px] text-muted uppercase font-bold tracking-wider mb-0.5">Distance</span>
+                    <span className="text-[15px] font-extrabold text-ink">{formatDistance(top.distance_m)}</span>
+                  </div>
+                  <div className="glass-pill rounded-2xl p-2.5 text-center">
+                    <span className="block text-[10px] text-muted uppercase font-bold tracking-wider mb-0.5">Crowd</span>
+                    <span className="text-[15px] font-extrabold text-ink">{top.crowd_level}</span>
+                  </div>
+                </div>
+
+                {navError && (
+                  <p className="text-[12px] text-red-500 mb-3 m-0" data-testid="rec-nav-error">{navError}</p>
+                )}
+
+                <button
+                  id="start-navigation-btn"
+                  onClick={handleStartNavigation}
+                  className="w-full glass-button-glow text-white rounded-2xl py-3.5 font-extrabold text-[15px] cursor-pointer shadow-glow-primary active:scale-[0.98] transition-transform flex items-center justify-center gap-2 tracking-wide"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="3 11 22 2 13 21 11 13 3 11"/>
                   </svg>
-                </div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-teal">Top Match</span>
+                  Start Navigation
+                </button>
               </div>
-
-              <h3 className="text-xl font-bold text-white m-0 mb-1 leading-tight">{top.name}</h3>
-              {top.rating != null && (
-                <p className="text-[12px] text-amber m-0 mb-2 font-medium">
-                  ★ {top.rating.toFixed(1)} · {top.status}
-                </p>
-              )}
-              {explanation && (
-                <p className="text-[13.5px] text-muted m-0 mb-5 leading-relaxed">{explanation}</p>
-              )}
-
-              <div className="flex gap-4 mb-6">
-                <div className="flex flex-col">
-                  <span className="text-[11px] text-muted uppercase font-bold tracking-wide mb-0.5">Est. Time</span>
-                  <span className="text-lg font-bold text-white">
-                    {formatTime(top.estimated_time_s, isEstimate)}
-                  </span>
-                </div>
-                <div className="w-px bg-pill-border" />
-                <div className="flex flex-col">
-                  <span className="text-[11px] text-muted uppercase font-bold tracking-wide mb-0.5">Distance</span>
-                  <span className="text-lg font-bold text-white">{formatDistance(top.distance_m)}</span>
-                </div>
-                <div className="w-px bg-pill-border" />
-                <div className="flex flex-col">
-                  <span className="text-[11px] text-muted uppercase font-bold tracking-wide mb-0.5">Crowd</span>
-                  <span className="text-lg font-bold text-white">{top.crowd_level}</span>
-                </div>
-              </div>
-
-              {navError && (
-                <p className="text-[12px] text-red-400 mb-3 m-0" data-testid="rec-nav-error">{navError}</p>
-              )}
-
-              <button
-                id="start-navigation-btn"
-                onClick={handleStartNavigation}
-                className="w-full bg-teal text-[#06302D] border-none rounded-xl py-3.5 font-bold text-[14.5px] cursor-pointer shadow-soft font-display active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="3 11 22 2 13 21 11 13 3 11"/>
-                </svg>
-                Start Navigation
-              </button>
             </div>
           </div>
         )}
@@ -205,20 +207,22 @@ export function RecommendationResultPage() {
         {/* Alternative picks */}
         {ranked.length > 1 && (
           <div className="mb-4">
-            <p className="text-[11px] text-muted-soft uppercase font-bold tracking-wider mb-3">Alternatives</p>
-            <div className="flex flex-col gap-2">
+            <p className="text-[11px] text-muted-soft uppercase font-bold tracking-wider mb-3 px-1">Alternative Options</p>
+            <div className="flex flex-col gap-2.5">
               {ranked.slice(1).map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-[14px] border border-pill-border bg-pill-bg/30 p-4 flex items-center justify-between"
+                  className="rounded-2xl glass-panel p-3.5 flex items-center justify-between hover:scale-[1.01] transition-transform"
                 >
                   <div>
-                    <p className="text-[14px] font-semibold text-white m-0 mb-0.5">{item.name}</p>
+                    <p className="text-[14.5px] font-bold text-ink m-0 mb-0.5">{item.name}</p>
                     <p className="text-[12px] text-muted m-0">
                       {formatDistance(item.distance_m)} · {formatTime(item.estimated_time_s, item.travel_source === 'straight_line_estimate')}
                     </p>
                   </div>
-                  <span className="text-[11px] font-bold text-muted-soft">#{item.rank_position}</span>
+                  <span className="text-[11px] font-extrabold text-indigo-600 dark:text-purple-300 glass-pill px-2.5 py-1 rounded-full">
+                    #{item.rank_position}
+                  </span>
                 </div>
               ))}
             </div>

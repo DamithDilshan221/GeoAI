@@ -82,101 +82,105 @@ export function NearbyFacilitiesPage() {
     <div className="flex gap-2 overflow-x-auto mt-3.5 pb-0.5 no-scrollbar">
       <div
         onClick={() => navigate('/recommend')}
-        className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[12.5px] font-semibold cursor-pointer select-none transition-all active:scale-[0.96] bg-[rgba(168,85,247,0.12)] text-[#4F46E5] border border-[rgba(168,85,247,0.3)] shadow-[0_2px_8px_rgba(168,85,247,0.15)]"
+        className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[12px] font-bold cursor-pointer select-none transition-all active:scale-[0.96] glass-button-glow text-white shadow-[0_0_16px_rgba(139,92,246,0.45)]"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
           <path d="M10 2L11.8 7.8L17.5 9.5L11.8 11.2L10 17L8.2 11.2L2.5 9.5L8.2 7.8L10 2Z" />
           <path d="M19.5 13.5L20.3 16.2L23 17L20.3 17.8L19.5 20.5L18.7 17.8L16 17L18.7 16.2L19.5 13.5Z" />
           <path d="M18.5 2.5L19 4L20.5 4.5L19 5L18.5 6.5L18 5L16.5 4.5L18 4L18.5 2.5Z" />
         </svg>
-        <span>AI Recommendation</span>
+        <span>AI Recommender</span>
       </div>
-      {categories?.map((cat) => (
-        <div 
-          key={cat.id}
-          onClick={() => handleCategoryClick(cat.code)}
-          className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[12.5px] font-semibold cursor-pointer select-none transition-all active:scale-[0.96] ${selectedCategory === cat.code ? 'bg-teal text-[#06302D] border-teal border' : 'bg-pill-bg text-inherit border border-pill-border'}`}
-        >
-          <span>{cat.label}</span>
-        </div>
-      ))}
+      {categories?.map((cat) => {
+        const isSelected = selectedCategory === cat.code;
+        return (
+          <div 
+            key={cat.id}
+            onClick={() => handleCategoryClick(cat.code)}
+            className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[12px] font-bold cursor-pointer select-none transition-all active:scale-[0.96] ${
+              isSelected 
+                ? 'bg-gradient-to-r from-sky-400 to-indigo-500 text-white shadow-[0_0_16px_rgba(56,189,248,0.45)] border border-white/40' 
+                : 'glass-pill text-muted hover:text-ink'
+            }`}
+          >
+            <span>{cat.label}</span>
+          </div>
+        );
+      })}
     </div>
   );
 
   return (
     <>
       <div className={`flex flex-col h-full ${currentView === 'list' ? '' : 'hidden'}`}>
-
-          <div className="px-[18px] pt-4 shrink-0">
-            <div className="flex items-center gap-2.5 px-[18px] py-[14px] rounded-full bg-pill-bg border border-pill-border cursor-text">
-              <svg className="shrink-0 text-teal" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <circle cx="11" cy="11" r="7" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              <input 
-                id="search-facilities"
-                name="search-facilities"
-                type="text" 
-                placeholder="Search building or location..." 
-                className="border-none bg-transparent outline-none text-inherit font-sans text-[14.5px] w-full placeholder:text-muted"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            {renderChips()}
-          </div>
-          
-          <div className="flex-1 px-[18px] py-[18px] pb-6 overflow-y-auto -webkit-overflow-scrolling-touch">
-            {data && data.length === 0 ? (
-              <div className="flex flex-col items-center text-center py-16 px-7 text-muted">
-                <div className="w-16 h-16 rounded-full bg-pill-bg border border-pill-border flex items-center justify-center text-teal mb-4.5">
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="9" />
-                    <polygon points="14.5,9.5 10,10 9.5,14.5 14,14" />
-                  </svg>
-                </div>
-                <h3 className="m-0 mb-1.5 text-white text-base">No washrooms match this search.</h3>
-                <p className="m-0 mb-5 text-[13.5px] max-w-[250px]">Try widening your search — clear filters to see every washroom on campus.</p>
-                <button
-                  disabled={radiusM >= MAX_RADIUS_M}
-                  onClick={() => setRadiusM(prev => Math.min(prev * RADIUS_EXPAND_MULTIPLIER, MAX_RADIUS_M))}
-                  className="bg-teal text-[#06302D] border-none rounded-xl px-[22px] py-3 font-bold text-[13.5px] cursor-pointer font-display disabled:opacity-50"
-                >
-                  Search wider area
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="text-[12.5px] text-muted m-[2px_2px_14px] font-semibold">
-                  {data?.length || 0} {data?.length === 1 ? 'washroom' : 'washrooms'} found
-                </div>
-                <FacilityList facilities={(data || []).filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()) || f.category.toLowerCase().includes(searchTerm.toLowerCase()))} />
-              </>
-            )}
-          </div>
-        </div>
-
-      <div className={`relative w-full h-full z-0 ${currentView === 'map' ? '' : 'hidden'}`}>
-
-          <MapView 
-            className="w-full h-full"
-            markers={mapMarkers} 
-            userLocation={userLocation} 
-            onMarkerClick={(id) => navigate(`/facilities/${id}`)}
-            onMapReady={setMapInstance}
-          />
-          <button className="absolute right-4 bottom-5 flex items-center gap-2 bg-teal text-[#06302D] border-none rounded-full py-3 px-[18px] font-bold text-[13.5px] shadow-soft cursor-pointer z-50 font-display active:scale-97">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <circle cx="12" cy="12" r="3" />
-              <line x1="12" y1="2" x2="12" y2="5" />
-              <line x1="12" y1="19" x2="12" y2="22" />
-              <line x1="2" y1="12" x2="5" y2="12" />
-              <line x1="19" y1="12" x2="22" y2="12" />
+        <div className="px-[18px] pt-3 shrink-0">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl glass-pill shadow-glass-specular">
+            <svg className="shrink-0 text-sky-400" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <circle cx="11" cy="11" r="7" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-            <span>Near me (100m)</span>
-          </button>
+            <input 
+              id="search-facilities"
+              name="search-facilities"
+              type="text" 
+              placeholder="Search building or facility name..." 
+              className="border-none bg-transparent outline-none text-ink font-sans text-[14px] w-full placeholder:text-muted font-medium"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          {renderChips()}
+        </div>
+        
+        <div className="flex-1 px-[18px] py-[16px] pb-8 overflow-y-auto -webkit-overflow-scrolling-touch">
+          {data && data.length === 0 ? (
+            <div className="flex flex-col items-center text-center py-16 px-7 text-muted glass-panel rounded-3xl mt-4">
+              <div className="w-16 h-16 rounded-2xl glass-pill flex items-center justify-center text-sky-400 mb-4 shadow-inner">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="9" r="9" />
+                  <polygon points="14.5,9.5 10,10 9.5,14.5 14,14" />
+                </svg>
+              </div>
+              <h3 className="m-0 mb-1.5 text-ink text-base font-extrabold">No washrooms match this search.</h3>
+              <p className="m-0 mb-5 text-[13px] text-muted max-w-[260px]">Try widening your search — clear filters to see every washroom on campus.</p>
+              <button
+                disabled={radiusM >= MAX_RADIUS_M}
+                onClick={() => setRadiusM(prev => Math.min(prev * RADIUS_EXPAND_MULTIPLIER, MAX_RADIUS_M))}
+                className="glass-button-glow text-white rounded-xl px-6 py-3 font-bold text-[13.5px] cursor-pointer disabled:opacity-50 active:scale-95 transition-transform"
+              >
+                Search wider area
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="text-[12px] text-muted-soft mb-3 font-bold tracking-wide uppercase px-1">
+                {data?.length || 0} {data?.length === 1 ? 'washroom' : 'washrooms'} available
+              </div>
+              <FacilityList facilities={(data || []).filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()) || f.category.toLowerCase().includes(searchTerm.toLowerCase()))} />
+            </>
+          )}
+        </div>
       </div>
 
+      <div className={`relative w-full h-full z-0 ${currentView === 'map' ? '' : 'hidden'}`}>
+        <MapView 
+          className="w-full h-full"
+          markers={mapMarkers} 
+          userLocation={userLocation} 
+          onMarkerClick={(id) => navigate(`/facilities/${id}`)}
+          onMapReady={setMapInstance}
+        />
+        <button className="absolute right-4 bottom-5 flex items-center gap-2 glass-button-glow text-white rounded-full py-3 px-5 font-bold text-[13px] shadow-lg cursor-pointer z-50 active:scale-95 transition-transform">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+            <circle cx="12" cy="12" r="3" />
+            <line x1="12" y1="2" x2="12" y2="5" />
+            <line x1="12" y1="19" x2="12" y2="22" />
+            <line x1="2" y1="12" x2="5" y2="12" />
+            <line x1="19" y1="12" x2="22" y2="12" />
+          </svg>
+          <span>Near me (100m)</span>
+        </button>
+      </div>
     </>
   );
 }

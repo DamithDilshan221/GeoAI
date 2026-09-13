@@ -34,7 +34,7 @@ describe('App', () => {
     renderApp();
     expect(screen.getByText(/Nearby/i)).toBeDefined();
     expect(screen.getByText(/Washrooms closest to you right now/i)).toBeDefined();
-    expect(document.body.classList.contains('day')).toBe(true);
+    expect(document.body.classList.contains('day')).toBe(false);
   });
 });
 

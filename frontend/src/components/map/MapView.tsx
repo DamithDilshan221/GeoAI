@@ -3,7 +3,8 @@ import { MapContainer, TileLayer, Marker, Tooltip, ZoomControl, useMap } from 'r
 import L from 'leaflet';
 import type { Map as LeafletMap } from 'leaflet';
 import { buildFacilityDivIcon, buildUserLocationDivIcon } from './mapMarkerFactory';
-import { OSM_TILE_URL, OSM_ATTRIBUTION } from '../../constants/map';
+import { useMapTheme } from '../../hooks/useMapTheme';
+import { MapThemeSwitcher } from './MapThemeSwitcher';
 
 export interface MapMarkerData {
   id: number;
@@ -19,6 +20,7 @@ export interface MapViewProps {
   onMarkerClick?: (facilityId: number) => void;
   onMapReady?: (map: LeafletMap) => void;
   className?: string;
+  showThemeSwitcher?: boolean;
 }
 
 function FitBounds({ markers, userLocation }: Pick<MapViewProps, 'markers' | 'userLocation'>) {
@@ -32,9 +34,25 @@ function FitBounds({ markers, userLocation }: Pick<MapViewProps, 'markers' | 'us
   return null;
 }
 
-export function MapView({ markers, userLocation, onMarkerClick, onMapReady, className = '' }: MapViewProps) {
+export function MapView({
+  markers,
+  userLocation,
+  onMarkerClick,
+  onMapReady,
+  className = '',
+  showThemeSwitcher = true,
+}: MapViewProps) {
+  const { themeId, activeTheme, setTheme, availableThemes } = useMapTheme();
+
   return (
     <div className={`relative ${className || 'h-64 w-full'}`}>
+      {showThemeSwitcher && (
+        <MapThemeSwitcher
+          currentThemeId={themeId}
+          availableThemes={availableThemes}
+          onSelectTheme={setTheme}
+        />
+      )}
       <MapContainer
         center={[0, 0]}
         zoom={2}
@@ -43,7 +61,13 @@ export function MapView({ markers, userLocation, onMarkerClick, onMapReady, clas
         ref={onMapReady}
       >
         <ZoomControl position="bottomleft" />
-        <TileLayer url={OSM_TILE_URL} attribution={OSM_ATTRIBUTION} />
+        <TileLayer
+          key={activeTheme.id}
+          url={activeTheme.url}
+          attribution={activeTheme.attribution}
+          subdomains={activeTheme.subdomains || 'abc'}
+          maxZoom={activeTheme.maxZoom || 19}
+        />
         <FitBounds markers={markers} userLocation={userLocation} />
         {userLocation && (
           <Marker position={[userLocation.lat, userLocation.lon]} icon={buildUserLocationDivIcon()}>

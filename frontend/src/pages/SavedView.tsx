@@ -10,7 +10,8 @@ export function SavedView() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <div className="px-5 pt-4 pb-2 shrink-0">
-        <h2 className="text-[22px] font-bold text-white m-0">Saved</h2>
+        <h2 className="text-[22px] font-extrabold text-ink m-0 tracking-tight">Saved Facilities</h2>
+        <p className="text-[12px] text-muted-soft m-0 font-medium">Quick access bookmarks</p>
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-3 pb-8 -webkit-overflow-scrolling-touch">

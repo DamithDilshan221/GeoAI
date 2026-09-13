@@ -16,7 +16,8 @@ import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Tooltip, ZoomControl, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { buildFacilityDivIcon, buildUserLocationDivIcon } from './mapMarkerFactory';
-import { OSM_TILE_URL, OSM_ATTRIBUTION } from '../../constants/map';
+import { useMapTheme } from '../../hooks/useMapTheme';
+import { MapThemeSwitcher } from './MapThemeSwitcher';
 
 export interface NavigationMapProps {
   path: [number, number][];
@@ -27,6 +28,7 @@ export interface NavigationMapProps {
     name: string;
     category?: string;
   };
+  showThemeSwitcher?: boolean;
 }
 
 function FitRoute({ path }: { path: [number, number][] }) {
@@ -38,12 +40,25 @@ function FitRoute({ path }: { path: [number, number][] }) {
   return null;
 }
 
-export function NavigationMap({ path, userPosition, destination }: NavigationMapProps) {
+export function NavigationMap({
+  path,
+  userPosition,
+  destination,
+  showThemeSwitcher = true,
+}: NavigationMapProps) {
+  const { themeId, activeTheme, setTheme, availableThemes } = useMapTheme();
   // Default center to destination while route loads
   const center: [number, number] = [destination.lat, destination.lon];
 
   return (
     <div className="w-full h-full relative" data-testid="navigation-map-wrapper">
+      {showThemeSwitcher && (
+        <MapThemeSwitcher
+          currentThemeId={themeId}
+          availableThemes={availableThemes}
+          onSelectTheme={setTheme}
+        />
+      )}
       <MapContainer
         center={center}
         zoom={16}
@@ -51,7 +66,13 @@ export function NavigationMap({ path, userPosition, destination }: NavigationMap
         className="h-full w-full"
       >
         <ZoomControl position="bottomleft" />
-        <TileLayer url={OSM_TILE_URL} attribution={OSM_ATTRIBUTION} />
+        <TileLayer
+          key={activeTheme.id}
+          url={activeTheme.url}
+          attribution={activeTheme.attribution}
+          subdomains={activeTheme.subdomains || 'abc'}
+          maxZoom={activeTheme.maxZoom || 19}
+        />
         <FitRoute path={path} />
 
         {/* Walking route polyline — teal dashed, matching prototype */}
