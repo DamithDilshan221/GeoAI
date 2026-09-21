@@ -114,8 +114,30 @@ class TestGetRouteSuccess:
 
 
 class TestGetRouteFallback:
+    def test_primary_failure_falls_back_to_public_osrm(self) -> None:
+        svc, _ = _make_service(_make_facility())
+        mock_success_response = MagicMock()
+        mock_success_response.json.return_value = _OSRM_SUCCESS_JSON
+        mock_success_response.raise_for_status = MagicMock()
+
+        # First call (primary URL) raises error, second call (fallback URL) succeeds
+        with patch(
+            "httpx.get",
+            side_effect=[httpx.ConnectError("primary unreachable"), mock_success_response],
+        ):
+            result = svc.get_route(
+                origin_lat=_ORIGIN_LAT,
+                origin_lon=_ORIGIN_LON,
+                facility_id=1,
+            )
+
+        assert result is not None
+        assert result.source == "network"
+        assert result.distance_m == pytest.approx(523.0)
+
     def test_connection_error_falls_back_to_straight_line(self) -> None:
         svc, _ = _make_service(_make_facility())
+
 
         with patch("httpx.get", side_effect=httpx.ConnectError("unreachable")):
             result = svc.get_route(

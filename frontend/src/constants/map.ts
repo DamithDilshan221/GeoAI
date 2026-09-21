@@ -97,3 +97,8 @@ export const DEFAULT_MAP_THEME_ID = 'osm';
 export const OSRM_BASE_URL =
   import.meta.env.VITE_OSRM_BASE_URL ?? 'http://localhost:5001';
 
+export const PUBLIC_OSRM_FALLBACK_URLS = [
+  'https://routing.openstreetmap.de/routed-foot',
+  'https://router.project-osrm.org',
+];
+

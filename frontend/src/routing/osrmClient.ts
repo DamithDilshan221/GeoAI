@@ -7,7 +7,7 @@
  * pera-rest-nav.html's own fallback branch exactly.
  */
 
-import { OSRM_BASE_URL } from '../constants/map';
+import { OSRM_BASE_URL, PUBLIC_OSRM_FALLBACK_URLS } from '../constants/map';
 import { haversineDistanceM } from '../utils/geo';
 import type { OSRMStep } from './maneuvers';
 
@@ -21,17 +21,25 @@ export interface RouteFetchResult {
   source: 'network' | 'straight_line_estimate';
 }
 
-export async function fetchWalkingRoute(
+async function tryFetchRoute(
+  baseUrl: string,
   origin: { lat: number; lon: number },
   dest: { lat: number; lon: number },
-): Promise<RouteFetchResult> {
+): Promise<RouteFetchResult | null> {
   try {
     const url =
-      `${OSRM_BASE_URL}/route/v1/foot/` +
+      `${baseUrl}/route/v1/foot/` +
       `${origin.lon},${origin.lat};${dest.lon},${dest.lat}` +
       `?overview=full&geometries=geojson&steps=true`;
 
-    const res = await fetch(url);
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+
+    const res = await fetch(url, controller ? { signal: controller.signal } : undefined);
+    if (timeoutId) clearTimeout(timeoutId);
+
+    if (res.ok === false) return null;
+
     const data: {
       routes?: Array<{
         distance: number;
@@ -41,7 +49,9 @@ export async function fetchWalkingRoute(
     } = await res.json();
 
     const route = data.routes?.[0];
-    if (!route) throw new Error('no route');
+    if (!route || !route.geometry?.coordinates?.length || !route.legs?.[0]?.steps) {
+      return null;
+    }
 
     return {
       steps: route.legs[0].steps,
@@ -51,19 +61,39 @@ export async function fetchWalkingRoute(
       source: 'network',
     };
   } catch {
-    // OSRM-unavailable fallback — two synthetic steps, matching prototype §22.1
-    const distanceM = haversineDistanceM(origin.lat, origin.lon, dest.lat, dest.lon);
-    return {
-      steps: [
-        { maneuver: { type: 'depart' }, distance: distanceM },
-        { maneuver: { type: 'arrive' }, distance: 0 },
-      ],
-      path: [
-        [origin.lat, origin.lon],
-        [dest.lat, dest.lon],
-      ],
-      distanceM,
-      source: 'straight_line_estimate',
-    };
+    return null;
   }
 }
+
+export async function fetchWalkingRoute(
+  origin: { lat: number; lon: number },
+  dest: { lat: number; lon: number },
+): Promise<RouteFetchResult> {
+  const candidateUrls = [
+    OSRM_BASE_URL,
+    ...PUBLIC_OSRM_FALLBACK_URLS.filter((url) => url !== OSRM_BASE_URL),
+  ];
+
+  for (const url of candidateUrls) {
+    const result = await tryFetchRoute(url, origin, dest);
+    if (result) {
+      return result;
+    }
+  }
+
+  // OSRM-unavailable fallback — two synthetic steps, matching prototype §22.1
+  const distanceM = haversineDistanceM(origin.lat, origin.lon, dest.lat, dest.lon);
+  return {
+    steps: [
+      { maneuver: { type: 'depart' }, distance: distanceM },
+      { maneuver: { type: 'arrive' }, distance: 0 },
+    ],
+    path: [
+      [origin.lat, origin.lon],
+      [dest.lat, dest.lon],
+    ],
+    distanceM,
+    source: 'straight_line_estimate',
+  };
+}
+

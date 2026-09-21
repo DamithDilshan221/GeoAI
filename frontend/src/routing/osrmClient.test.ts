@@ -93,11 +93,20 @@ describe('fetchWalkingRoute — fallback', () => {
     expect(result.path[1]).toEqual([DEST.lat, DEST.lon]);
   });
 
-  it('also falls back when OSRM returns empty routes array', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      json: vi.fn().mockResolvedValue({ routes: [] }),
-    }));
+  it('falls back to public OSRM when primary endpoint fails', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('local OSRM connection refused'))
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue(MOCK_OSRM_RESPONSE),
+      });
+    vi.stubGlobal('fetch', fetchMock);
+
     const result = await fetchWalkingRoute(ORIGIN, DEST);
-    expect(result.source).toBe('straight_line_estimate');
+    expect(result.source).toBe('network');
+    expect(result.distanceM).toBe(650.0);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });
+

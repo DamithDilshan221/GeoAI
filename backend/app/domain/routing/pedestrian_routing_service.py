@@ -32,12 +32,17 @@ from app.repositories.facility_repository import FacilityRepository
 logger = logging.getLogger(__name__)
 
 
+PUBLIC_OSRM_FALLBACK_URLS: tuple[str, ...] = (
+    "https://routing.openstreetmap.de/routed-foot",
+    "https://router.project-osrm.org",
+)
+
+
 class PedestrianRoutingService:
     """Walking route computation via the OSRM public ``foot`` profile.
 
-    Falls back to a straight-line Haversine estimate on any OSRM error
-    (connection failure, timeout, empty routes array, malformed response)
-    per §14.4/§22.1.
+    Falls back to public OSRM endpoints, and finally to a straight-line Haversine
+    estimate on any persistent routing error per §14.4/§22.1.
     """
 
     def __init__(
@@ -61,7 +66,7 @@ class PedestrianRoutingService:
         """Return a ``RouteResult`` for walking from the origin to the facility.
 
         Returns ``None`` if the facility does not exist in the database.
-        Never raises on OSRM errors — falls back to a straight-line estimate instead.
+        Never raises on OSRM errors — falls back gracefully.
 
         Note: ``accessible_only`` is accepted for API compatibility with callers
         that set it but is currently a no-op.  The public OSRM ``foot`` profile
@@ -73,32 +78,45 @@ class PedestrianRoutingService:
         if facility is None:
             return None
 
-        try:
-            url = build_route_request_url(
-                self._osrm_base_url,
-                origin_lat,
-                origin_lon,
-                facility.latitude,
-                facility.longitude,
-            )
-            response = httpx.get(url, timeout=5.0)
-            response.raise_for_status()
-            return parse_osrm_route_response(response.json())
-        except (httpx.HTTPError, OSRMNoRouteError, ValueError, KeyError) as exc:
-            logger.warning(
-                "OSRM routing failed for facility %d (%s); using straight-line fallback",
-                facility_id,
-                exc,
-            )
-            distance_m = estimate_distance_m(
-                origin_lat=origin_lat,
-                origin_lon=origin_lon,
-                dest_lat=facility.latitude,
-                dest_lon=facility.longitude,
-            )
-            return RouteResult(
-                distance_m=distance_m,
-                estimated_time_s=int(distance_m / self._walking_speed_mps),
-                path=[(origin_lat, origin_lon), (facility.latitude, facility.longitude)],
-                source="straight_line_estimate",
-            )
+        candidate_urls = [self._osrm_base_url]
+        for fallback_url in PUBLIC_OSRM_FALLBACK_URLS:
+            if fallback_url not in candidate_urls:
+                candidate_urls.append(fallback_url)
+
+        for base_url in candidate_urls:
+            try:
+                url = build_route_request_url(
+                    base_url,
+                    origin_lat,
+                    origin_lon,
+                    facility.latitude,
+                    facility.longitude,
+                )
+                response = httpx.get(url, timeout=4.0)
+                response.raise_for_status()
+                return parse_osrm_route_response(response.json())
+            except (httpx.HTTPError, OSRMNoRouteError, ValueError, KeyError) as exc:
+                logger.debug(
+                    "OSRM routing via %s failed for facility %d (%s); checking next fallback",
+                    base_url,
+                    facility_id,
+                    exc,
+                )
+
+        logger.warning(
+            "All OSRM routing endpoints failed for facility %d; using straight-line fallback",
+            facility_id,
+        )
+        distance_m = estimate_distance_m(
+            origin_lat=origin_lat,
+            origin_lon=origin_lon,
+            dest_lat=facility.latitude,
+            dest_lon=facility.longitude,
+        )
+        return RouteResult(
+            distance_m=distance_m,
+            estimated_time_s=int(distance_m / self._walking_speed_mps),
+            path=[(origin_lat, origin_lon), (facility.latitude, facility.longitude)],
+            source="straight_line_estimate",
+        )
+
