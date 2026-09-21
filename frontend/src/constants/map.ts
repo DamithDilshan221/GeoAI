@@ -97,3 +97,6 @@ export const DEFAULT_MAP_THEME_ID = 'osm';
 export const OSRM_BASE_URL =
   import.meta.env.VITE_OSRM_BASE_URL ?? 'http://localhost:5001';
 
+export const PUBLIC_OSRM_BASE_URL =
+  import.meta.env.VITE_PUBLIC_OSRM_BASE_URL ?? 'https://router.project-osrm.org';
+
