@@ -32,12 +32,14 @@ from app.repositories.facility_repository import FacilityRepository
 logger = logging.getLogger(__name__)
 
 
-class PedestrianRoutingService:
-    """Walking route computation via the OSRM public ``foot`` profile.
+PUBLIC_OSRM_FALLBACK_URL = "https://router.project-osrm.org"
 
-    Falls back to a straight-line Haversine estimate on any OSRM error
-    (connection failure, timeout, empty routes array, malformed response)
-    per §14.4/§22.1.
+
+class PedestrianRoutingService:
+    """Walking route computation via the OSRM foot profile.
+
+    Falls back to a public OSRM server, then to a straight-line Haversine
+    estimate on any OSRM error (connection failure, timeout, empty routes array).
     """
 
     def __init__(
@@ -61,10 +63,10 @@ class PedestrianRoutingService:
         """Return a ``RouteResult`` for walking from the origin to the facility.
 
         Returns ``None`` if the facility does not exist in the database.
-        Never raises on OSRM errors — falls back to a straight-line estimate instead.
+        Never raises on OSRM errors — falls back to public OSRM then straight-line.
 
         Note: ``accessible_only`` is accepted for API compatibility with callers
-        that set it but is currently a no-op.  The public OSRM ``foot`` profile
+        that set it but is currently a no-op. The public OSRM ``foot`` profile
         has no wheelchair-avoidance concept without a custom profile (§14.3).
         """
         validate_coordinates(lat=origin_lat, lon=origin_lon)
@@ -73,32 +75,42 @@ class PedestrianRoutingService:
         if facility is None:
             return None
 
-        try:
-            url = build_route_request_url(
-                self._osrm_base_url,
-                origin_lat,
-                origin_lon,
-                facility.latitude,
-                facility.longitude,
-            )
-            response = httpx.get(url, timeout=5.0)
-            response.raise_for_status()
-            return parse_osrm_route_response(response.json())
-        except (httpx.HTTPError, OSRMNoRouteError, ValueError, KeyError) as exc:
-            logger.warning(
-                "OSRM routing failed for facility %d (%s); using straight-line fallback",
-                facility_id,
-                exc,
-            )
-            distance_m = estimate_distance_m(
-                origin_lat=origin_lat,
-                origin_lon=origin_lon,
-                dest_lat=facility.latitude,
-                dest_lon=facility.longitude,
-            )
-            return RouteResult(
-                distance_m=distance_m,
-                estimated_time_s=int(distance_m / self._walking_speed_mps),
-                path=[(origin_lat, origin_lon), (facility.latitude, facility.longitude)],
-                source="straight_line_estimate",
-            )
+        # 1. Try primary configured OSRM URL
+        endpoints_to_try = [self._osrm_base_url]
+        if self._osrm_base_url != PUBLIC_OSRM_FALLBACK_URL:
+            endpoints_to_try.append(PUBLIC_OSRM_FALLBACK_URL)
+
+        for endpoint in endpoints_to_try:
+            try:
+                url = build_route_request_url(
+                    endpoint,
+                    origin_lat,
+                    origin_lon,
+                    facility.latitude,
+                    facility.longitude,
+                )
+                response = httpx.get(url, timeout=5.0)
+                response.raise_for_status()
+                return parse_osrm_route_response(response.json())
+            except (httpx.HTTPError, OSRMNoRouteError, ValueError, KeyError) as exc:
+                logger.warning(
+                    "OSRM routing endpoint %s failed for facility %d (%s)",
+                    endpoint,
+                    facility_id,
+                    exc,
+                )
+
+        # 2. Straight-line estimate on total failure
+        distance_m = estimate_distance_m(
+            origin_lat=origin_lat,
+            origin_lon=origin_lon,
+            dest_lat=facility.latitude,
+            dest_lon=facility.longitude,
+        )
+        return RouteResult(
+            distance_m=distance_m,
+            estimated_time_s=int(distance_m / self._walking_speed_mps),
+            path=[(origin_lat, origin_lon), (facility.latitude, facility.longitude)],
+            source="straight_line_estimate",
+        )
+
