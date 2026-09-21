@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
 """OSRM-backed pedestrian routing service.
 
-Moved from ``domain/gis/`` to ``domain/routing/`` per §11's structural directive —
+Moved from ``domain/gis/`` to ``domain/routing/`` per §11's structural directive --
 GIS is for PostGIS spatial queries; routing is its own concern.
 
 Constructor changes from the dead ``(routing_repo, facility_repo)`` shape to
-``(facility_repo, osrm_base_url, walking_speed_mps)`` — there is no repository
+``(facility_repo, osrm_base_url, walking_speed_mps)`` -- there is no repository
 dependency left because there is no database query left in this service's job.
 
 The public method signature ``get_route(*, origin_lat, origin_lon, facility_id,
@@ -32,9 +33,11 @@ from app.repositories.facility_repository import FacilityRepository
 logger = logging.getLogger(__name__)
 
 
+PUBLIC_OSRM_FALLBACK_URL = "https://router.project-osrm.org"
+
 PUBLIC_OSRM_FALLBACK_URLS: tuple[str, ...] = (
     "https://routing.openstreetmap.de/routed-foot",
-    "https://router.project-osrm.org",
+    PUBLIC_OSRM_FALLBACK_URL,
 )
 
 
@@ -61,15 +64,15 @@ class PedestrianRoutingService:
         origin_lat: float,
         origin_lon: float,
         facility_id: int,
-        accessible_only: bool = False,  # noqa: ARG002 — accepted, currently inert under OSRM
+        accessible_only: bool = False,  # noqa: ARG002 -- accepted, currently inert under OSRM
     ) -> RouteResult | None:
         """Return a ``RouteResult`` for walking from the origin to the facility.
 
         Returns ``None`` if the facility does not exist in the database.
-        Never raises on OSRM errors — falls back gracefully.
+        Never raises on OSRM errors -- falls back gracefully to public OSRM then straight-line.
 
         Note: ``accessible_only`` is accepted for API compatibility with callers
-        that set it but is currently a no-op.  The public OSRM ``foot`` profile
+        that set it but is currently a no-op. The public OSRM ``foot`` profile
         has no wheelchair-avoidance concept without a custom profile (§14.3).
         """
         validate_coordinates(lat=origin_lat, lon=origin_lon)
@@ -92,11 +95,11 @@ class PedestrianRoutingService:
                     facility.latitude,
                     facility.longitude,
                 )
-                response = httpx.get(url, timeout=4.0)
+                response = httpx.get(url, timeout=5.0)
                 response.raise_for_status()
                 return parse_osrm_route_response(response.json())
             except (httpx.HTTPError, OSRMNoRouteError, ValueError, KeyError) as exc:
-                logger.debug(
+                logger.warning(
                     "OSRM routing via %s failed for facility %d (%s); checking next fallback",
                     base_url,
                     facility_id,
@@ -119,4 +122,3 @@ class PedestrianRoutingService:
             path=[(origin_lat, origin_lon), (facility.latitude, facility.longitude)],
             source="straight_line_estimate",
         )
-

@@ -3,8 +3,9 @@
  *
  * Calls OSRM directly from the browser per §17.1 — no backend proxy.
  * Requests steps=true (unlike the backend client, which doesn't need them).
- * Falls back to a two-step synthetic route on any failure, matching
- * pera-rest-nav.html's own fallback branch exactly.
+ * Attempts the primary configured OSRM server first, falls back to public
+ * OSRM fallback servers if local is unreachable, and falls back to a two-step
+ * synthetic route on total failure.
  */
 
 import { OSRM_BASE_URL, PUBLIC_OSRM_FALLBACK_URLS } from '../constants/map';
@@ -96,4 +97,3 @@ export async function fetchWalkingRoute(
     source: 'straight_line_estimate',
   };
 }
-
