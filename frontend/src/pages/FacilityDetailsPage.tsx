@@ -136,14 +136,15 @@ export function FacilityDetailsPage() {
         />
         <button 
           onClick={() => navigate(-1)}
-          className="absolute top-5 left-4 w-11 h-11 bg-paper/90 backdrop-blur-md rounded-full flex items-center justify-center border-none shadow-soft text-ink cursor-pointer z-10"
+          className="absolute top-5 left-4 w-11 h-11 glass-pill rounded-full flex items-center justify-center shadow-soft text-ink cursor-pointer z-10 hover:scale-105 transition-transform"
+          aria-label="Back"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </button>
       </div>
 
       {/* Bottom Sheet */}
-      <div className="absolute bottom-0 left-0 right-0 glass-panel rounded-t-[32px] shadow-[0_-8px_32px_rgba(0,0,0,0.4)] flex flex-col z-20 max-h-[85vh] backdrop-blur-3xl border-t border-x border-white/20">
+      <div className="absolute bottom-0 left-0 right-0 glass-panel rounded-t-[32px] shadow-[0_-8px_32px_rgba(0,0,0,0.6)] flex flex-col z-20 max-h-[85vh] backdrop-blur-3xl border-t border-x border-white/20">
         <div className="w-full flex justify-center py-3 pb-1 cursor-grab active:cursor-grabbing">
           <div className="w-12 h-1.5 bg-white/30 rounded-full"></div>
         </div>
@@ -159,11 +160,11 @@ export function FacilityDetailsPage() {
               {theme.label}
             </span>
             {facility.rating !== null && (
-              <span className="flex items-center gap-[3px] text-amber-500 dark:text-amber-400 font-bold">
+              <span className="flex items-center gap-[3px] text-amber-400 font-bold">
                 ★ {facility.rating.toFixed(1)}
               </span>
             )}
-            <span className="text-indigo-600 dark:text-purple-300 text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full glass-pill border border-purple-400/30">
+            <span className="text-purple-300 text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full glass-pill border border-purple-400/40">
               {facility.data_source || 'Verified'}
             </span>
           </div>
@@ -229,7 +230,7 @@ export function FacilityDetailsPage() {
                     {Object.entries(facility.fixtures || {}).map(([key, count]) => (
                       <div key={key} className="flex items-center justify-between p-3 rounded-2xl glass-pill">
                         <span className="capitalize font-semibold text-ink text-[13px]">{key.replace('_', ' ')}</span>
-                        <span className="font-extrabold text-sky-500 dark:text-sky-400 text-[15px]">{count as number}</span>
+                        <span className="font-extrabold text-sky-400 text-[15px]">{count as number}</span>
                       </div>
                     ))}
                   </div>
@@ -239,8 +240,8 @@ export function FacilityDetailsPage() {
                   No fixture details available
                 </li>
               )}
-              <li className="flex items-center gap-3 text-[14px] text-ink">
-                <div className="w-8 h-8 rounded-full glass-pill flex items-center justify-center text-sky-500 dark:text-sky-400">
+              <li className="flex items-center gap-3 text-[14px] text-ink font-medium">
+                <div className="w-8 h-8 rounded-full glass-pill flex items-center justify-center text-sky-400 shrink-0">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                 </div>
                 Free campus amenity
@@ -252,10 +253,10 @@ export function FacilityDetailsPage() {
             <h3 className="m-0 mb-3 text-[15px] font-extrabold text-ink">Current Status</h3>
             <div className={`p-4 rounded-2xl border flex items-center gap-3 glass-pill ${
               facility.status === 'OPEN'
-                ? 'border-emerald-400/30 text-emerald-300'
+                ? 'border-emerald-400/40 text-emerald-400'
                 : facility.status === 'CLOSED'
-                  ? 'border-rose-400/30 text-rose-300'
-                  : 'border-amber-400/30 text-amber-300'
+                  ? 'border-rose-400/40 text-rose-400'
+                  : 'border-amber-400/40 text-amber-400'
             }`}>
               <div className="w-2.5 h-2.5 rounded-full bg-current animate-pulse"></div>
               <span className="font-bold text-[14.5px]">Currently {facility.status.replace('_', ' ')}</span>

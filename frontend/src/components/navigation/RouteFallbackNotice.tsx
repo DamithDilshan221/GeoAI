@@ -1,4 +1,4 @@
-﻿/**
+/**
  * RouteFallbackNotice — shown inside NavigationOverlay when OSRM is unavailable
  * and the displayed route is a straight-line estimate rather than a real
  * walking route.
@@ -30,8 +30,8 @@ export function RouteFallbackNotice({ visible }: RouteFallbackNoticeProps) {
         margin: '0 12px 4px',
         borderRadius: '10px',
         backgroundColor: 'color-mix(in srgb, var(--amber) 15%, transparent)',
-        border: '1px solid color-mix(in srgb, var(--amber-dark) 40%, transparent)',
-        color: 'var(--amber-dark)',
+        border: '1px solid color-mix(in srgb, var(--amber) 40%, transparent)',
+        color: 'var(--amber)',
         fontSize: '12px',
         fontWeight: 600,
         lineHeight: 1.4,
