@@ -1,0 +1,103 @@
+# Phase A4 — Fixed verification pairs for routing harness
+# See §6 of the prompt for the full rationale.
+# Origins and destinations are (lat, lon).
+
+origins:
+  - name: campus_reference
+    lat: 7.2545
+    lon: 80.5965
+    note: "Playwright geolocation anchor; campus centre"
+
+  - name: alwis_roundabout
+    lat: 7.258475
+    lon: 80.599507
+    note: "Alwis Roundabout — on base OSM primary road"
+
+  - name: peradeniya_road_junction
+    lat: 7.2678638
+    lon: 80.5968155
+    note: "Peradeniya Road / trunk junction — on base OSM trunk"
+
+  - name: trunk_west_end
+    lat: 7.2641396
+    lon: 80.5931847
+    note: "Trunk road west end — transition point into campus"
+
+  - name: akbar_bridge_north
+    lat: 7.2548901
+    lon: 80.5953713
+    note: "North end of Akbar Bridge (LS#152) — grade-separated bridge"
+
+  - name: river_drive_north
+    lat: 7.2716512
+    lon: 80.5937858
+    note: "River Drive north — footway north of campus"
+
+  - name: south_drive_north
+    lat: 7.2680963
+    lon: 80.594686
+    note: "South Drive north end — footway connecting to campus"
+
+destinations:
+  - name: gym_mens
+    lat: 7.256062
+    lon: 80.595166
+    facility_note: "GYM Men's washroom"
+
+  - name: ict_mens
+    lat: 7.256578
+    lon: 80.595771
+    facility_note: "ICT Men's washroom"
+
+  - name: ma_womens
+    lat: 7.255044
+    lon: 80.597754
+    facility_note: "MA Women's washroom"
+
+  - name: nat_1f_mens
+    lat: 7.254825
+    lon: 80.599122
+    facility_note: "NAT 1st floor Men's washroom"
+
+  - name: near_library_mens
+    lat: 7.25323
+    lon: 80.592642
+    facility_note: "Near library Men's washroom"
+
+  - name: akbar_corridor_female
+    lat: 7.252764
+    lon: 80.591776
+    facility_note: "Akbar corridor female washroom"
+
+  - name: drawing_office_gents
+    lat: 7.254636
+    lon: 80.591703
+    facility_note: "Drawing office Gents washroom"
+
+  - name: postgrad_1f_mens
+    lat: 7.255833
+    lon: 80.599722
+    facility_note: "Postgraduate 1st floor Men's washroom"
+
+far_outside_pairs:
+  - name: colombo_fort_to_galle_face
+    origin:
+      name: colombo_fort_station
+      lat: 6.9335
+      lon: 79.8500
+    dest:
+      name: galle_face_green
+      lat: 6.9270
+      lon: 79.8450
+    note: ">=20km from campus — must be unaffected by GeoJSON additions"
+
+  - name: galle_fort_to_galle_bus_stand
+    origin:
+      name: galle_fort_clock_tower
+      lat: 6.0287
+      lon: 80.2168
+    dest:
+      name: galle_bus_stand
+      lat: 6.0329
+      lon: 80.2149
+    note: ">=20km from campus — must be unaffected by GeoJSON additions"

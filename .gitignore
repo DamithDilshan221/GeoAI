@@ -31,3 +31,42 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# ── Routing artifacts (Phase B onward) ───────────────────────────────────────
+# Raw OSM data and OSRM build products are large binaries — never commit these.
+data/routing/raw/
+data/routing/build/
+routing/bin/
+# Large GeoJSON / PBF files (committed source is data/routing/source/ — small)
+*.pbf
+*.osrm
+*.osrm.cells
+*.osrm.cnbg
+*.osrm.cnbg_to_ebg
+*.osrm.datasource_names
+*.osrm.ebg
+*.osrm.ebg_nodes
+*.osrm.edges
+*.osrm.enw
+*.osrm.fileIndex
+*.osrm.geometry
+*.osrm.hsgr
+*.osrm.icd
+*.osrm.level
+*.osrm.maneuver_overrides
+*.osrm.mldgr
+*.osrm.names
+*.osrm.nbg_nodes
+*.osrm.partition
+*.osrm.properties
+*.osrm.ramIndex
+*.osrm.restrictions
+*.osrm.timestamp
+*.osrm.tld
+*.osrm.tls
+*.osrm.turn_duration_penalties
+*.osrm.turn_penalties_index
+*.osrm.turn_weight_penalties
+*.osrm.via_node_to_name
+# Checksum and runtime files
+*.pid

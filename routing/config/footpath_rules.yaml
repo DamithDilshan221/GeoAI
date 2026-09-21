@@ -1,0 +1,92 @@
+# routing/config/footpath_rules.yaml
+# Rule-based selection config for build_network.py (Phase C)
+# See §4, D2–D4 of the implementation spec.
+
+# ── Input / Output paths ────────────────────────────────────────────────────
+source_geojson: data/routing/source/Washroommap.geojson
+base_pbf:        data/routing/raw/sri-lanka-latest.osm.pbf
+output_dir:      data/routing/build
+
+# ── Coordinate / projection ──────────────────────────────────────────────────
+metric_crs:             EPSG:32644   # UTM 44N — covers all of Sri Lanka
+exact_match_decimals:   7            # normalise all coords to 7 decimal places
+
+# ── Synthetic ID allocation (D4) ─────────────────────────────────────────────
+# Start below 2^53 (9007199254740992) so JSON consumers preserve precision.
+# Real OSM IDs for nodes/ways are far below this range.
+synthetic_id_start: 900000000000
+
+# ── Snap / coverage tolerances (metres) ──────────────────────────────────────
+tolerances_m:
+  covered_offset: 1.0    # both endpoints within this of same base way → COVERED
+  endpoint_snap:  2.0    # endpoint within this of a base foot-routable node/edge
+  on_segment:     0.25   # interior vertex within this of a base segment interior
+
+# ── Highway selection rules (D2) ─────────────────────────────────────────────
+
+# Always add (if not covered by base and no exclusion applies)
+add_by_default:
+  - footway
+  - path
+  - steps
+  - pedestrian
+
+# Add only if foot tag is in {designated, yes}
+# If the stock foot.lua profile does not route cycleway, remap to highway=path
+# in the additions file (keeping original_highway=cycleway).
+add_if_foot_allowed:
+  - cycleway
+  - track
+
+# Exclude any way (from any class) that carries these access values
+# or has foot=no → listed as needs_approval in the report
+exclude_if_access:
+  - private
+  - "no"
+  - customers
+  - delivery
+  - permit
+
+# Do NOT add these classes — assumed already in the full OSM base.
+# If a road-class way is genuinely absent from the base, list it as
+# road_class_absent_from_base (needs approval), never add automatically.
+never_add_by_default:
+  - service
+  - residential
+  - unclassified
+  - tertiary
+  - primary
+  - trunk
+  - trunk_link
+  - living_street
+
+# ── Tag copying (D2) ─────────────────────────────────────────────────────────
+copy_tags:
+  - highway
+  - name
+  - surface
+  - foot
+  - bicycle
+  - access
+  - layer
+  - bridge
+  - tunnel
+  - incline
+  - width
+  - wheelchair
+  - lit
+
+# Provenance tags added to every new way
+provenance_tags:
+  source:          Washroommap.geojson
+  campus_footpath: "yes"
+
+# ── Manual overrides (D2) ────────────────────────────────────────────────────
+# Add entries here to include a "needs_approval" way after review.
+# Each entry must supply: ls_index, sha1 (of normalised coords), and reason.
+# Re-running build_network.py is idempotent when this list is unchanged.
+# Example:
+#   - ls_index: 130
+#     sha1: "<sha1 from report>"
+#     reason: "footway access=customers approved by [name] on [date] — campus-only foot traffic"
+approved_overrides: []

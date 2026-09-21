@@ -93,6 +93,7 @@ export const MAP_THEMES: Record<string, MapThemeOption> = {
 
 export const DEFAULT_MAP_THEME_ID = 'osm';
 
-// Public OSRM demo endpoint (MVP). Replace with self-hosted URL in production (§14.3 / Phase 19).
-export const OSRM_BASE_URL = 'https://router.project-osrm.org';
+// Self-hosted OSRM endpoint (port 5001) or public fallback
+export const OSRM_BASE_URL =
+  import.meta.env.VITE_OSRM_BASE_URL ?? 'http://localhost:5001';
 

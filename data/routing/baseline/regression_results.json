@@ -1,0 +1,709 @@
+{
+  "osrm_url": "http://localhost:5001",
+  "baseline_file": "data\\routing\\baseline\\public_demo.json",
+  "run_at": "2026-09-19T17:28:22Z",
+  "summary": {
+    "pass": 54,
+    "regression": 2,
+    "fail": 0,
+    "scope_leak": 2
+  },
+  "pairs": [
+    {
+      "kind": "campus",
+      "origin": "campus_reference",
+      "dest": "gym_mens",
+      "status": "PASS",
+      "baseline_distance_m": 286.7,
+      "new_distance_m": 286.7,
+      "new_code": "Ok",
+      "notes": [
+        "287m -> 287m (+0.0%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "campus_reference",
+      "dest": "ict_mens",
+      "status": "PASS",
+      "baseline_distance_m": 329.3,
+      "new_distance_m": 329.3,
+      "new_code": "Ok",
+      "notes": [
+        "329m -> 329m (+0.0%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "campus_reference",
+      "dest": "ma_womens",
+      "status": "PASS",
+      "baseline_distance_m": 501.4,
+      "new_distance_m": 321.8,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 501m -> 322m (-35.8%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "campus_reference",
+      "dest": "nat_1f_mens",
+      "status": "PASS",
+      "baseline_distance_m": 609.5,
+      "new_distance_m": 609.5,
+      "new_code": "Ok",
+      "notes": [
+        "610m -> 610m (+0.0%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "campus_reference",
+      "dest": "near_library_mens",
+      "status": "PASS",
+      "baseline_distance_m": 3811.2,
+      "new_distance_m": 662,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 3811m -> 662m (-82.6%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "campus_reference",
+      "dest": "akbar_corridor_female",
+      "status": "PASS",
+      "baseline_distance_m": 3853.3,
+      "new_distance_m": 704.1,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 3853m -> 704m (-81.7%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "campus_reference",
+      "dest": "drawing_office_gents",
+      "status": "PASS",
+      "baseline_distance_m": 4138.6,
+      "new_distance_m": 989.3,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 4139m -> 989m (-76.1%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "campus_reference",
+      "dest": "postgrad_1f_mens",
+      "status": "PASS",
+      "baseline_distance_m": 649.2,
+      "new_distance_m": 700.1,
+      "new_code": "Ok",
+      "notes": [
+        "649m -> 700m (+7.8%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "alwis_roundabout",
+      "dest": "gym_mens",
+      "status": "PASS",
+      "baseline_distance_m": 736.5,
+      "new_distance_m": 683.7,
+      "new_code": "Ok",
+      "notes": [
+        "736m -> 684m (-7.2%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "alwis_roundabout",
+      "dest": "ict_mens",
+      "status": "PASS",
+      "baseline_distance_m": 779.1,
+      "new_distance_m": 605.7,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 779m -> 606m (-22.3%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "alwis_roundabout",
+      "dest": "ma_womens",
+      "status": "PASS",
+      "baseline_distance_m": 556.4,
+      "new_distance_m": 478.8,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 556m -> 479m (-13.9%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "alwis_roundabout",
+      "dest": "nat_1f_mens",
+      "status": "PASS",
+      "baseline_distance_m": 399.2,
+      "new_distance_m": 399.2,
+      "new_code": "Ok",
+      "notes": [
+        "399m -> 399m (+0.0%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "alwis_roundabout",
+      "dest": "near_library_mens",
+      "status": "PASS",
+      "baseline_distance_m": 2937.9,
+      "new_distance_m": 1264.4,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 2938m -> 1264m (-57.0%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "alwis_roundabout",
+      "dest": "akbar_corridor_female",
+      "status": "PASS",
+      "baseline_distance_m": 2980,
+      "new_distance_m": 1306.5,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 2980m -> 1306m (-56.2%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "alwis_roundabout",
+      "dest": "drawing_office_gents",
+      "status": "PASS",
+      "baseline_distance_m": 3265.3,
+      "new_distance_m": 1591.7,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 3265m -> 1592m (-51.3%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "alwis_roundabout",
+      "dest": "postgrad_1f_mens",
+      "status": "PASS",
+      "baseline_distance_m": 360.3,
+      "new_distance_m": 291.6,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 360m -> 292m (-19.1%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "peradeniya_road_junction",
+      "dest": "gym_mens",
+      "status": "PASS",
+      "baseline_distance_m": 1928.5,
+      "new_distance_m": 1460.8,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 1928m -> 1461m (-24.3%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "peradeniya_road_junction",
+      "dest": "ict_mens",
+      "status": "PASS",
+      "baseline_distance_m": 1971.1,
+      "new_distance_m": 1382.8,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 1971m -> 1383m (-29.8%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "peradeniya_road_junction",
+      "dest": "ma_womens",
+      "status": "PASS",
+      "baseline_distance_m": 1748.4,
+      "new_distance_m": 1670.8,
+      "new_code": "Ok",
+      "notes": [
+        "1748m -> 1671m (-4.4%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "peradeniya_road_junction",
+      "dest": "nat_1f_mens",
+      "status": "PASS",
+      "baseline_distance_m": 1591.2,
+      "new_distance_m": 1591.2,
+      "new_code": "Ok",
+      "notes": [
+        "1591m -> 1591m (+0.0%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "peradeniya_road_junction",
+      "dest": "near_library_mens",
+      "status": "PASS",
+      "baseline_distance_m": 2160.1,
+      "new_distance_m": 2140.7,
+      "new_code": "Ok",
+      "notes": [
+        "2160m -> 2141m (-0.9%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "peradeniya_road_junction",
+      "dest": "akbar_corridor_female",
+      "status": "PASS",
+      "baseline_distance_m": 2202.2,
+      "new_distance_m": 2182.8,
+      "new_code": "Ok",
+      "notes": [
+        "2202m -> 2183m (-0.9%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "peradeniya_road_junction",
+      "dest": "drawing_office_gents",
+      "status": "PASS",
+      "baseline_distance_m": 2487.4,
+      "new_distance_m": 2468,
+      "new_code": "Ok",
+      "notes": [
+        "2487m -> 2468m (-0.8%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "peradeniya_road_junction",
+      "dest": "postgrad_1f_mens",
+      "status": "PASS",
+      "baseline_distance_m": 1552.3,
+      "new_distance_m": 1483.6,
+      "new_code": "Ok",
+      "notes": [
+        "1552m -> 1484m (-4.4%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "trunk_west_end",
+      "dest": "gym_mens",
+      "status": "PASS",
+      "baseline_distance_m": 2207.2,
+      "new_distance_m": 1641.1,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 2207m -> 1641m (-25.6%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "trunk_west_end",
+      "dest": "ict_mens",
+      "status": "PASS",
+      "baseline_distance_m": 2249.8,
+      "new_distance_m": 1563.2,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 2250m -> 1563m (-30.5%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "trunk_west_end",
+      "dest": "ma_womens",
+      "status": "PASS",
+      "baseline_distance_m": 2027.2,
+      "new_distance_m": 1876.1,
+      "new_code": "Ok",
+      "notes": [
+        "2027m -> 1876m (-7.5%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "trunk_west_end",
+      "dest": "nat_1f_mens",
+      "status": "PASS",
+      "baseline_distance_m": 1869.9,
+      "new_distance_m": 1796.5,
+      "new_code": "Ok",
+      "notes": [
+        "1870m -> 1796m (-3.9%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "trunk_west_end",
+      "dest": "near_library_mens",
+      "status": "REGRESSION",
+      "baseline_distance_m": 1507.3,
+      "new_distance_m": 2321,
+      "new_code": "Ok",
+      "notes": [
+        "dist 1507m -> 2321m (+54.0%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "trunk_west_end",
+      "dest": "akbar_corridor_female",
+      "status": "REGRESSION",
+      "baseline_distance_m": 1549.4,
+      "new_distance_m": 2363.1,
+      "new_code": "Ok",
+      "notes": [
+        "dist 1549m -> 2363m (+52.5%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "trunk_west_end",
+      "dest": "drawing_office_gents",
+      "status": "PASS",
+      "baseline_distance_m": 1834.7,
+      "new_distance_m": 2648.4,
+      "new_code": "Ok",
+      "notes": [
+        "1835m -> 2648m (+44.4%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "trunk_west_end",
+      "dest": "postgrad_1f_mens",
+      "status": "PASS",
+      "baseline_distance_m": 1831,
+      "new_distance_m": 1688.9,
+      "new_code": "Ok",
+      "notes": [
+        "1831m -> 1689m (-7.8%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "akbar_bridge_north",
+      "dest": "gym_mens",
+      "status": "PASS",
+      "baseline_distance_m": 158.1,
+      "new_distance_m": 208.3,
+      "new_code": "Ok",
+      "notes": [
+        "158m -> 208m (+31.8%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "akbar_bridge_north",
+      "dest": "ict_mens",
+      "status": "PASS",
+      "baseline_distance_m": 200.6,
+      "new_distance_m": 250.9,
+      "new_code": "Ok",
+      "notes": [
+        "201m -> 251m (+25.1%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "akbar_bridge_north",
+      "dest": "ma_womens",
+      "status": "PASS",
+      "baseline_distance_m": 630,
+      "new_distance_m": 278.6,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 630m -> 279m (-55.8%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "akbar_bridge_north",
+      "dest": "nat_1f_mens",
+      "status": "PASS",
+      "baseline_distance_m": 738.2,
+      "new_distance_m": 582.1,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 738m -> 582m (-21.1%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "akbar_bridge_north",
+      "dest": "near_library_mens",
+      "status": "PASS",
+      "baseline_distance_m": 3767.9,
+      "new_distance_m": 507,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 3768m -> 507m (-86.5%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "akbar_bridge_north",
+      "dest": "akbar_corridor_female",
+      "status": "PASS",
+      "baseline_distance_m": 3810,
+      "new_distance_m": 549,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 3810m -> 549m (-85.6%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "akbar_bridge_north",
+      "dest": "drawing_office_gents",
+      "status": "PASS",
+      "baseline_distance_m": 4095.2,
+      "new_distance_m": 834.3,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 4095m -> 834m (-79.6%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "akbar_bridge_north",
+      "dest": "postgrad_1f_mens",
+      "status": "PASS",
+      "baseline_distance_m": 777.8,
+      "new_distance_m": 656.9,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 778m -> 657m (-15.5%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "river_drive_north",
+      "dest": "gym_mens",
+      "status": "PASS",
+      "baseline_distance_m": 3066,
+      "new_distance_m": 2125.4,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 3066m -> 2125m (-30.7%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "river_drive_north",
+      "dest": "ict_mens",
+      "status": "PASS",
+      "baseline_distance_m": 3108.6,
+      "new_distance_m": 2047.4,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 3109m -> 2047m (-34.1%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "river_drive_north",
+      "dest": "ma_womens",
+      "status": "PASS",
+      "baseline_distance_m": 2885.9,
+      "new_distance_m": 2335.5,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 2886m -> 2336m (-19.1%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "river_drive_north",
+      "dest": "nat_1f_mens",
+      "status": "PASS",
+      "baseline_distance_m": 2728.7,
+      "new_distance_m": 2255.8,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 2729m -> 2256m (-17.3%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "river_drive_north",
+      "dest": "near_library_mens",
+      "status": "PASS",
+      "baseline_distance_m": 2312.3,
+      "new_distance_m": 2805.3,
+      "new_code": "Ok",
+      "notes": [
+        "2312m -> 2805m (+21.3%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "river_drive_north",
+      "dest": "akbar_corridor_female",
+      "status": "PASS",
+      "baseline_distance_m": 2354.4,
+      "new_distance_m": 2847.4,
+      "new_code": "Ok",
+      "notes": [
+        "2354m -> 2847m (+20.9%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "river_drive_north",
+      "dest": "drawing_office_gents",
+      "status": "PASS",
+      "baseline_distance_m": 2639.6,
+      "new_distance_m": 3132.6,
+      "new_code": "Ok",
+      "notes": [
+        "2640m -> 3133m (+18.7%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "river_drive_north",
+      "dest": "postgrad_1f_mens",
+      "status": "PASS",
+      "baseline_distance_m": 2689.8,
+      "new_distance_m": 2148.2,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 2690m -> 2148m (-20.1%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "south_drive_north",
+      "dest": "gym_mens",
+      "status": "PASS",
+      "baseline_distance_m": 2021.3,
+      "new_distance_m": 1773,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 2021m -> 1773m (-12.3%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "south_drive_north",
+      "dest": "ict_mens",
+      "status": "PASS",
+      "baseline_distance_m": 2063.9,
+      "new_distance_m": 1695,
+      "new_code": "Ok",
+      "notes": [
+        "IMPROVED 2064m -> 1695m (-17.9%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "south_drive_north",
+      "dest": "ma_womens",
+      "status": "PASS",
+      "baseline_distance_m": 1841.2,
+      "new_distance_m": 1983,
+      "new_code": "Ok",
+      "notes": [
+        "1841m -> 1983m (+7.7%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "south_drive_north",
+      "dest": "nat_1f_mens",
+      "status": "PASS",
+      "baseline_distance_m": 1684,
+      "new_distance_m": 1903.4,
+      "new_code": "Ok",
+      "notes": [
+        "1684m -> 1903m (+13.0%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "south_drive_north",
+      "dest": "near_library_mens",
+      "status": "PASS",
+      "baseline_distance_m": 2252.9,
+      "new_distance_m": 2452.8,
+      "new_code": "Ok",
+      "notes": [
+        "2253m -> 2453m (+8.9%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "south_drive_north",
+      "dest": "akbar_corridor_female",
+      "status": "PASS",
+      "baseline_distance_m": 2294.9,
+      "new_distance_m": 2494.9,
+      "new_code": "Ok",
+      "notes": [
+        "2295m -> 2495m (+8.7%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "south_drive_north",
+      "dest": "drawing_office_gents",
+      "status": "PASS",
+      "baseline_distance_m": 2580.2,
+      "new_distance_m": 2780.2,
+      "new_code": "Ok",
+      "notes": [
+        "2580m -> 2780m (+7.8%)"
+      ]
+    },
+    {
+      "kind": "campus",
+      "origin": "south_drive_north",
+      "dest": "postgrad_1f_mens",
+      "status": "PASS",
+      "baseline_distance_m": 1645,
+      "new_distance_m": 1795.8,
+      "new_code": "Ok",
+      "notes": [
+        "1645m -> 1796m (+9.2%)"
+      ]
+    },
+    {
+      "kind": "far_outside",
+      "origin": "colombo_fort_station",
+      "dest": "galle_face_green",
+      "status": "SCOPE_LEAK",
+      "baseline_distance_m": 1577.8,
+      "new_distance_m": 1997.4,
+      "new_code": "Ok",
+      "notes": [
+        "dist 1578m -> 1997m (+26.6%)"
+      ]
+    },
+    {
+      "kind": "far_outside",
+      "origin": "galle_fort_clock_tower",
+      "dest": "galle_bus_stand",
+      "status": "SCOPE_LEAK",
+      "baseline_distance_m": 603.7,
+      "new_distance_m": 801.8,
+      "new_code": "Ok",
+      "notes": [
+        "dist 604m -> 802m (+32.8%)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+# routing/config/osrm_binaries.yaml
+# Pinned OSRM binary configuration for build_osrm.ps1 and fetch_osrm_binaries.ps1
+#
+# VERIFIED at Phase A preflight:
+#   - Latest stable upstream OSRM: v26.9.0 (Project-OSRM/osrm-backend, published 2026-09-01)
+#   - Matching e-kotov/osrm-binaries release: v26.9.0 (published 2026-09-02)
+#   - Win32-x64 archive available and reachable from github.com
+
+# ── Pinned version ────────────────────────────────────────────────────────────
+osrm_version: "v26.9.0"
+
+# ── Acquisition path (set at STOP GATE A) ────────────────────────────────────
+# prebuilt_binaries  = download from e-kotov/osrm-binaries (Path 1, default)
+# wsl2_source_build  = compile in WSL2 Ubuntu from upstream source (Path 2)
+#
+# NOTE: WSL2 has no installed Linux distributions on this machine.
+# Path 1 (prebuilt_binaries) is therefore the only immediately available option.
+acquisition_path: prebuilt_binaries   # STOP GATE A decision — see report
+
+# ── Path 1: prebuilt binary source ───────────────────────────────────────────
+binary_source:
+  # ⚠ IMPORTANT: e-kotov/osrm-binaries is a THIRD-PARTY binary distributor,
+  # NOT the official OSRM release channel. It mirrors upstream Project-OSRM/
+  # osrm-backend release tags and is the binary source behind the CRAN
+  # `osrm.backend` R package. Checksums are verified before use (see manifest).
+  provider: "e-kotov/osrm-binaries"
+
+  release_url_template: "https://github.com/e-kotov/osrm-binaries/releases/download/{version}/osrm-{version_no_v}-{platform}-Release.tar.gz"
+  checksums_url_template: "https://github.com/e-kotov/osrm-binaries/releases/download/{version}/checksums.txt"
+
+  # Windows 64-bit. Change to linux-x64, linux-arm64, darwin-x64, darwin-arm64
+  # when deploying on a different platform.
+  platform: "win32-x64"
+
+# ── Profile source (always fetched from upstream OSRM, not the binary archive) ──
+# The binary archive ships executables only — no Lua profiles.
+# We fetch foot.lua straight from the matching tag of the official
+# Project-OSRM/osrm-backend source repo so it's byte-identical to what
+# that binary was compiled against.
+profile_source:
+  foot_lua_url_template: "https://raw.githubusercontent.com/Project-OSRM/osrm-backend/{version}/profiles/foot.lua"
+  # Resolved URL for v26.9.0:
+  # https://raw.githubusercontent.com/Project-OSRM/osrm-backend/v26.9.0/profiles/foot.lua
+
+# ── Local install directory (gitignored) ─────────────────────────────────────
+install_dir: "routing/bin/osrm-{version}-{platform}"
+# Resolved: routing/bin/osrm-v26.9.0-win32-x64/
